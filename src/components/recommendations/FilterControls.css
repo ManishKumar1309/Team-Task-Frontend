@@ -1,0 +1,33 @@
+.fimmit-filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1.5rem;
+  background-color: var(--bg-surface, #ffffff);
+  border: var(--border-width-default, 2px) solid var(--color-black, #000000);
+  border-radius: var(--radius-md, 8px);
+  box-shadow: 4px 4px 0px var(--color-black, #000000);
+  margin-bottom: 2rem;
+}
+
+.fimmit-filters__search {
+  flex: 1;
+  min-width: 250px;
+  max-width: 400px;
+}
+
+.fimmit-filters__pills {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.fimmit-filters__label {
+  font-family: var(--font-family-body, sans-serif);
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
+}

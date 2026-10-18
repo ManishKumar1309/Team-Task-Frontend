@@ -1,6 +1,5 @@
 /**
  * Fimmit Design System - Navbar Styles
- * Responsive navigation bar styling supporting both landing and home variants.
  */
 
 .fimmit-navbar-container {
@@ -12,12 +11,6 @@
   z-index: 1000;
 }
 
-.fimmit-logo__img {
-  height: 28px;
-  width: auto;
-  object-fit: contain;
-}
-
 .fimmit-navbar {
   max-width: 1280px;
   margin: 0 auto;
@@ -26,6 +19,12 @@
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
+}
+
+/* --- Left Side --- */
+.fimmit-navbar__left {
+  display: flex;
+  align-items: center;
 }
 
 /* --- Logo Styling --- */
@@ -40,43 +39,22 @@
   text-decoration: none;
 }
 
-.fimmit-logo__icon {
-  color: var(--color-orange, #EE8138);
-  stroke-width: 3px;
+.fimmit-logo__img {
+  height: 28px;
+  width: auto;
+  object-fit: contain;
 }
 
 .fimmit-logo__text {
   letter-spacing: -0.03em;
 }
 
-/* --- Profile Summary (Home View) --- */
-.fimmit-navbar__profile-summary {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: system-ui, -apple-system, sans-serif;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: var(--text-primary, #000000);
-}
-
-.fimmit-navbar__profile-label {
-  font-weight: 700;
-}
-
-.fimmit-navbar__profile-divider {
-  color: rgba(0, 0, 0, 0.5);
-}
-
-.fimmit-navbar__level-text {
-  color: rgba(0, 0, 0, 0.7);
-}
-
-/* --- Navigation Links (Landing View) --- */
+/* --- Navigation Links & Tags (Centered) --- */
 .fimmit-navbar__nav {
   display: flex;
   align-items: center;
-  gap: 2rem; /* Explicit gap fallback to prevent run-together links */
+  gap: 2rem;
+  margin: 0 auto; /* Centers the navigation/tags in the navbar */
 }
 
 .fimmit-nav-link {
@@ -93,11 +71,65 @@
   color: var(--color-orange, #EE8138);
 }
 
-/* --- Actions --- */
+.fimmit-nav-link--active {
+  color: var(--color-orange, #EE8138);
+  font-weight: 700;
+  border-bottom: 2px solid var(--color-orange, #EE8138);
+}
+
+/* --- Language Tags --- */
+.fimmit-navbar__lang-tags {
+  display: flex;
+  gap: 1rem;
+}
+
+.fimmit-lang-tag {
+  font-family: var(--font-family-mono, monospace);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary, #444);
+  background-color: rgba(0,0,0,0.05);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-pill, 99px);
+  transition: background-color 0.2s, color 0.2s;
+  cursor: pointer;
+}
+
+.fimmit-lang-tag:hover {
+  background-color: var(--color-yellow, #F6D945);
+  color: var(--color-black, #000);
+}
+
+/* --- Right Side Actions --- */
 .fimmit-navbar__actions {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1.5rem; /* Increased gap to separate Saved button from Profile */
+}
+
+/* --- Profile Summary (Rightmost) --- */
+.fimmit-navbar__profile-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-primary, #000000);
+  padding-left: 1.5rem;
+  border-left: 2px solid rgba(0, 0, 0, 0.1); /* Divider line */
+}
+
+.fimmit-navbar__profile-label {
+  font-weight: 700;
+}
+
+.fimmit-navbar__profile-divider {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.fimmit-navbar__level-text {
+  color: rgba(0, 0, 0, 0.7);
 }
 
 /* --- Mobile Toggle --- */
@@ -156,10 +188,15 @@
 }
 
 /* --- Responsive Media Queries --- */
+@media (max-width: 1024px) {
+  .fimmit-navbar__profile-summary {
+    display: none; /* Hide profile summary on smaller screens to prevent crowding */
+  }
+}
+
 @media (max-width: 768px) {
   .fimmit-navbar__nav,
-  .fimmit-navbar__actions,
-  .fimmit-navbar__profile-summary {
+  .fimmit-navbar__actions {
     display: none;
   }
 

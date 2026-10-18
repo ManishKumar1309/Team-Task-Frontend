@@ -1,36 +1,28 @@
 import React, { useState } from 'react';
 import { MainLayout } from './layouts/MainLayout';
 import { LandingPage } from './pages/LandingPage';
+import { HomePage } from './pages/HomePage';
 
-/**
- * Fimmit Root App Component
- * Wires up smooth scroll navigation and GitHub authentication actions.
- */
-function App() {
-  const [navVariant] = useState('landing');
-  const [savedCount] = useState(0);
+export default function App() {
+  // We use this state to fake our routing/authentication for now
+  const [currentView, setCurrentView] = useState('landing'); // 'landing' or 'home'
+  const [savedCount, setSavedCount] = useState(0);
 
-  const handleGitHubAuth = () => {
-    alert('GitHub OAuth authentication entry point triggered! (Connected to backend auth flow)');
-  };
-
-  const handleHowItWorksScroll = () => {
-    const section = document.getElementById('how-it-works');
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth' });
-    }
+  // When the user clicks "Sign In" or "Continue with Github", swap the view to the dashboard!
+  const handleLogin = () => {
+    setCurrentView('home');
   };
 
   return (
     <MainLayout
-      navbarVariant={navVariant}
+      navbarVariant={currentView} // Automatically switches the Navbar style based on the view!
       savedCount={savedCount}
       userLevel="Intermediate"
-      onSignIn={handleGitHubAuth}
-      onOpenFeed={handleGitHubAuth}
-      onSavedClick={() => alert('Saved issues view')}
+      onSignIn={handleLogin}
+      onOpenFeed={handleLogin}
+      onSavedClick={() => alert('Saved issues view placeholder')}
       onNavClick={(e) => {
-        // Allow smooth scroll for internal anchor links if desired
+        // Smooth scroll for anchor links
         const href = e.currentTarget.getAttribute('href');
         if (href?.startsWith('#')) {
           e.preventDefault();
@@ -41,12 +33,18 @@ function App() {
         }
       }}
     >
-      <LandingPage
-        onContinueWithGithub={handleGitHubAuth}
-        onHowItWorks={handleHowItWorksScroll}
-      />
+      {/* Conditional Rendering: If 'landing', show LandingPage. If 'home', show HomePage. */}
+      {currentView === 'landing' ? (
+        <LandingPage 
+          onContinueWithGithub={handleLogin} 
+          onHowItWorks={() => {
+            const section = document.getElementById('how-it-works');
+            if (section) section.scrollIntoView({ behavior: 'smooth' });
+          }}
+        />
+      ) : (
+        <HomePage />
+      )}
     </MainLayout>
   );
 }
-
-export default App;

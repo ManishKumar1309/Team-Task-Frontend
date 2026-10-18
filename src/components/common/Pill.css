@@ -1,0 +1,47 @@
+/**
+ * Fimmit Design System - Pill Component Styles
+ * Styling for selectable tech/interest tags and static labels using centralized tokens.
+ */
+
+.fimmit-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 1rem;
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-bold);
+  font-size: 0.9rem;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  border: var(--border-width-default) solid var(--color-black);
+  border-radius: var(--radius-pill);
+  box-shadow: 2px 2px 0px var(--color-black);
+  user-select: none;
+  white-space: nowrap;
+  transition: transform var(--transition-fast), background-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+/* --- Interactive Hover & Active States --- */
+.fimmit-pill--interactive {
+  cursor: pointer;
+}
+
+.fimmit-pill--interactive:hover:not(:disabled) {
+  background-color: var(--color-yellow);
+}
+
+.fimmit-pill--interactive:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+/* --- Selected State --- */
+.fimmit-pill--selected {
+  background-color: var(--color-orange);
+  color: var(--color-black);
+  box-shadow: 2px 2px 0px var(--color-black);
+}
+
+.fimmit-pill--interactive.fimmit-pill--selected:hover {
+  background-color: #d8722b;
+}

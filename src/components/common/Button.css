@@ -1,0 +1,105 @@
+/**
+ * Fimmit Design System - Button Component Styles
+ * Styling for Button variants (primary, outline, black, secondary), sizes,
+ * loading spinner, and interactive states using centralized design tokens.
+ */
+
+.fimmit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-bold);
+  border: var(--border-width-default) solid var(--color-black);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: transform var(--transition-fast), background-color var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: var(--shadow-button);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.fimmit-btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.fimmit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* --- Sizes --- */
+.fimmit-btn--sm {
+  padding: 0.35rem 0.85rem;
+  font-size: 0.85rem;
+}
+
+.fimmit-btn--md {
+  padding: 0.6rem 1.25rem;
+  font-size: 1rem;
+}
+
+.fimmit-btn--lg {
+  padding: 0.85rem 1.75rem;
+  font-size: 1.1rem;
+}
+
+/* --- Variants --- */
+.fimmit-btn--primary {
+  background-color: var(--color-orange);
+  color: var(--color-black);
+}
+
+.fimmit-btn--primary:hover:not(:disabled) {
+  background-color: var(--action-primary-hover);
+}
+
+.fimmit-btn--secondary {
+  background-color: var(--color-yellow);
+  color: var(--color-black);
+}
+
+.fimmit-btn--secondary:hover:not(:disabled) {
+  background-color: #e5c833;
+}
+
+.fimmit-btn--outline {
+  background-color: var(--color-cream);
+  color: var(--color-black);
+}
+
+.fimmit-btn--outline:hover:not(:disabled) {
+  background-color: var(--color-yellow);
+}
+
+.fimmit-btn--black {
+  background-color: var(--color-black);
+  color: var(--color-cream);
+}
+
+.fimmit-btn--black:hover:not(:disabled) {
+  background-color: #222222;
+}
+
+/* --- Loading Spinner --- */
+.fimmit-btn__spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: fimmit-spin 0.6s linear infinite;
+}
+
+.fimmit-btn__text--loading {
+  opacity: 0.8;
+}
+
+@keyframes fimmit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

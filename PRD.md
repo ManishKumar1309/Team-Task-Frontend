@@ -2,7 +2,7 @@
 
 **Project:** Personalized open-source issue recommendation platform (GDG probation project)
 **Scope of this doc:** Frontend only
-**Product name:** `PENDING TEAM CONFIRMATION` (designs use "Project" as a placeholder)
+**Product name:** **Fimmit** (finalized). The UI screenshots still show "Project" as a placeholder; replace it with the Fimmit brand (see section 6).
 
 > **Status note:** Everything below describes the *planned* product. No feature is implemented yet. The recommendation pipeline (section 7) is the *intended architecture*, owned by the backend and ML teammates in separate repositories.
 
@@ -50,7 +50,7 @@ Account settings, analytics dashboards, contribution tracking pages, a separate 
 
 | ID | Requirement | Status |
 |----|-------------|--------|
-| LP-1 | **Navigation bar** with the wordmark ("Project", placeholder), text links **How it works**, **Features**, **About**, an orange outlined **Open my feed** button, and a black filled **Sign in** button. | Confirmed (design) |
+| LP-1 | **Navigation bar** with the **Fimmit compact wordmark logo** (logo variant 2, see section 6.3; the design shows "Project" as a placeholder), text links **How it works**, **Features**, **About**, an orange outlined **Open my feed** button, and a black filled **Sign in** button. | Confirmed (design) |
 | LP-2 | **Hero section:** small uppercase monospace eyebrow line ("Project • Open-source matchmaker • Built for your stack"); oversized headline **"Find issues tuned to your exact stack."** with "exact stack." on a tilted orange highlight; a circular yellow badge ("Ship your first PR") with circular text ("No guesswork • One issue at a time"). | Confirmed (design) |
 | LP-3 | **Product introduction** text: "Open-source issues tuned to your exact stack and experience. Four questions in, ten issues out." | Confirmed (design) |
 | LP-4 | **How-it-works call to action:** link **"How the matching works →"** (green underline in design). | Confirmed (design) |
@@ -59,7 +59,8 @@ Account settings, analytics dashboards, contribution tracking pages, a separate 
 | LP-7 | Destination of **Features** and **About** nav links. No such pages or sections exist in the designs, so they must not be built until confirmed. | `PENDING TEAM CONFIRMATION` |
 | LP-8 | Behavior of **Open my feed** (for example, go to Home if signed in, otherwise start sign-in). | `PENDING TEAM CONFIRMATION` |
 | LP-9 | Whether the **Sign in** nav button uses the same GitHub flow as LP-5. | `PENDING TEAM CONFIRMATION` |
-| LP-10 | Final wording of copy and button label once the product name is chosen. Recommend "GitHub" capitalization. | `PENDING TEAM CONFIRMATION` |
+| LP-10 | The product name is now **Fimmit**. Final wording of copy and button labels that currently contain the placeholder "Project" (for example, the hero eyebrow line) still needs to be confirmed; do not rewrite copy by assumption. Recommend "GitHub" capitalization. | `PENDING TEAM CONFIRMATION` |
+| LP-11 | Where the **animated Fimmit logo (variant 3)** appears. It is intended for a login-screen experience, but this PRD has **no separate login page**. Placement within the existing Landing Page / GitHub sign-in flow must be confirmed; no new page is added by this update. | `PENDING TEAM CONFIRMATION` |
 
 ### 4.2 GitHub Registration / Sign-in Flow
 
@@ -136,16 +137,43 @@ Account settings, analytics dashboards, contribution tracking pages, a separate 
 - Whether multiple difficulty checkboxes can be active at once, and how that affects ordering.
 - Whether the language filter can be cleared or deselected.
 
-## 6. Visual Requirements
+## 6. Visual Requirements and Brand Identity
 
+### 6.1 Product name
+The official product name is **Fimmit**. Use this exact spelling and capitalization in UI copy. The **®** symbol appears inside the supplied compact wordmark artwork; whether to use ® in written copy: `PENDING TEAM CONFIRMATION`.
+
+### 6.2 Approved color palette (finalized)
+
+| Color | Hex | Role |
+|-------|-----|------|
+| Cream | `#F7F4EC` | Main background |
+| Black | `#000000` | Typography and outlines |
+| Orange | `#EE8138` | Primary actions |
+| Yellow | `#F6D945` | Highlights, and selected / hover states |
+| Red | `#E4452F` | Feedback states (for example, errors) |
+| Green | `#4BD08B` | Feedback states (for example, success) |
+
+Only these six colors are approved. White is not in the approved palette (the designs use it for text-input fields): `PENDING TEAM CONFIRMATION`. Which specific UI states use red and green is not yet defined.
+
+### 6.3 Logo variants (supplied artwork; do not redesign, recolor, distort, or replace)
+
+| # | Variant | Intended use | Supplied file |
+|---|---------|--------------|---------------|
+| 1 | Standalone **magnifying-glass** logo | Use not specified (for example favicon or app icon): `PENDING TEAM CONFIRMATION` | PNG, 83 x 72 px |
+| 2 | **Compact Fimmit wordmark** with magnifying glass | Navbar | PNG, 146 x 45 px |
+| 3 | **Large Fimmit wordmark** with oversized magnifying glass | **Animated** login-screen experience (placement: see LP-11) | PNG, 247 x 138 px |
+
+**Asset status (needs confirmation before implementation):** all three supplied files are low-resolution PNGs with an **opaque white background** (no transparency). On the cream `#F7F4EC` background they would appear as white boxes, and enlarging them would blur. Transparent and/or vector (SVG) or higher-resolution versions are needed from the brand owner: `PENDING TEAM CONFIRMATION`. See `TECH_STACK.md` section 7 for asset locations and animation.
+
+### 6.4 Visual direction (from the screenshots, updated for the finalized brand)
 Follow the screenshots closely.
-- Warm cream/off-white page backgrounds. The onboarding screens use a full-screen **yellow** background with a cream card.
+- Cream page backgrounds. The onboarding screens in the design use a full-screen **yellow** background with a cream card; whether this remains under the finalized direction (cream is the main background): `PENDING TEAM CONFIRMATION`.
 - Black text and black outlines.
-- **Orange** for primary accents (primary buttons, selected pills, highlighted words).
-- **Yellow** for highlights and badges (level badge, difficulty badge, circular hero badge).
+- **Orange** for primary actions (for example, primary buttons) and the tilted highlight blocks in the design.
+- **Yellow** for highlights and badges (level badge, difficulty badge, circular hero badge), and for selected / hover states under the finalized direction. **Conflict to resolve:** the screenshots show *selected* pills in orange. Whether selected pills become yellow, stay orange, or differ by component: `PENDING TEAM CONFIRMATION`. (The yellow "Python" and "AI/ML" pills in the onboarding screenshots may be a hover or selected capture; see decision 4.)
 - Bold, oversized editorial headlines; monospace for small labels ("Question 1 of 4", "Search tags", eyebrow text); clean sans-serif for body text. Exact font families: `PENDING TEAM CONFIRMATION` (confirm with the designer).
 - Rounded outlined buttons and pill-shaped tags; minimalist, high-contrast cards with generous spacing; tilted orange highlight blocks behind key headline words.
-- A small green underline accent appears on "How the matching works" in the design.
+- A small green underline accent appears on "How the matching works" in the design. Green is now an approved *feedback* color, so whether this decorative use stays: `PENDING TEAM CONFIRMATION`.
 - Responsive for desktop and mobile. **Only desktop mockups were provided.** Mobile layouts (stacking of the sidebar filters, navbar, cards) are `PENDING TEAM CONFIRMATION`.
 
 ## 7. Recommendation Pipeline (intended architecture, NOT implemented)
@@ -167,7 +195,7 @@ Taken from the flowchart. The frontend's responsibility is limited to the first 
 ## 8. Acceptance Criteria
 
 **Landing Page**
-- [ ] Navbar shows wordmark, How it works, Features, About, Open my feed, and Sign in, matching the design.
+- [ ] Navbar shows the Fimmit compact wordmark logo (variant 2), How it works, Features, About, Open my feed, and Sign in, matching the design.
 - [ ] Hero shows the headline with the orange highlight, the yellow circular badge, the intro text, the "How the matching works" link, and the GitHub CTA.
 - [ ] The GitHub CTA starts the sign-in flow.
 - [ ] No pages are created for Features or About until confirmed.
@@ -197,13 +225,17 @@ Taken from the flowchart. The frontend's responsibility is limited to the first 
 **General**
 - [ ] Layout is usable on desktop and mobile widths with no horizontal scrolling.
 - [ ] Visuals match the screenshots (colors, typography, pills, outlines, spacing).
+- [ ] Only the six approved palette colors are used, in their approved roles (section 6.2).
+- [ ] The product name appears as "Fimmit" and no placeholder "Project" branding remains in the UI.
+- [ ] Logo variants are used only in their intended places and are not stretched, recolored, or redrawn.
+- [ ] Logos display without a white box on cream backgrounds (requires transparent or vector assets).
 - [ ] No pages or features outside section 2 exist.
 
 ## 9. Unresolved Decisions Summary
 
 | # | Decision | Status |
 |---|----------|--------|
-| 1 | Product name and final copy | `PENDING TEAM CONFIRMATION` |
+| 1 | Final copy and button labels that still contain the "Project" placeholder (product name itself is resolved: **Fimmit**) | `PENDING TEAM CONFIRMATION` |
 | 2 | Targets of How it works, Features, About, Open my feed, Sign in | `PENDING TEAM CONFIRMATION` |
 | 3 | Authentication implementation and new/returning detection | `PENDING TEAM CONFIRMATION` |
 | 4 | How the preferred language is marked in onboarding (yellow vs. orange pills) | `PENDING TEAM CONFIRMATION` |
@@ -214,3 +246,9 @@ Taken from the flowchart. The frontend's responsibility is limited to the first 
 | 9 | Star count display and other card data availability | `PENDING TEAM CONFIRMATION` |
 | 10 | Loading, empty, and error state designs | `PENDING TEAM CONFIRMATION` |
 | 11 | Mobile layouts and exact fonts | `PENDING TEAM CONFIRMATION` |
+| 12 | Final logo files: transparent and/or vector (SVG) or higher-resolution versions | `PENDING TEAM CONFIRMATION` |
+| 13 | Intended use of logo variant 1 (for example, favicon) | `PENDING TEAM CONFIRMATION` |
+| 14 | Where the animated logo (variant 3) appears, given there is no separate login page, and what the animation does | `PENDING TEAM CONFIRMATION` |
+| 15 | Selected / hover state colors (yellow per brand rule vs. orange in screenshots); white inputs; yellow onboarding backdrop; green underline | `PENDING TEAM CONFIRMATION` |
+| 16 | Use of the ® symbol in written copy | `PENDING TEAM CONFIRMATION` |
+| 17 | Which UI states use red and green | `PENDING TEAM CONFIRMATION` |

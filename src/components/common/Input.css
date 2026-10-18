@@ -1,0 +1,63 @@
+/**
+ * Fimmit Design System - Input Component Styles
+ * Styling for text input fields, labels, error states, and helper messaging 
+ * using centralized design tokens.
+ */
+
+.fimmit-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxs);
+  width: 100%;
+}
+
+.fimmit-input-label {
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-bold);
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.fimmit-input {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  font-family: var(--font-family-body);
+  font-size: 1rem;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  border: var(--border-width-default) solid var(--color-black);
+  border-radius: var(--radius-sm);
+  box-shadow: 2px 2px 0px var(--color-black);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.fimmit-input::placeholder {
+  color: var(--text-muted);
+}
+
+.fimmit-input:focus {
+  outline: none;
+  border-color: var(--color-black);
+  box-shadow: 3px 3px 0px var(--color-orange);
+}
+
+.fimmit-input:disabled {
+  background-color: rgba(0, 0, 0, 0.05);
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+/* --- Error State --- */
+.fimmit-input--error {
+  border-color: var(--status-error);
+  box-shadow: 2px 2px 0px var(--status-error);
+}
+
+.fimmit-input-error-text {
+  font-family: var(--font-family-body);
+  font-size: 0.8rem;
+  color: var(--status-error);
+  font-weight: var(--font-weight-medium);
+  margin-top: 2px;
+}

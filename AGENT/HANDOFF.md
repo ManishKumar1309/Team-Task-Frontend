@@ -1,5 +1,7 @@
 # HANDOFF: Frontend ↔ Backend ↔ ML Integration
 
+**Product name:** Fimmit (finalized branding recorded in section 7).
+
 > **Status:** Draft for discussion between the frontend, backend, and ML teammates.
 > This document lists **what the screens need** and **what must be agreed**. It deliberately contains **no endpoint URLs, request/response schemas, OAuth details, or ML input/output contracts**. Those must be defined together. Nothing here claims that any integration is implemented.
 
@@ -148,3 +150,30 @@ Mark each with an owner and a decision. Record the answer here (or in a shared c
 ## 6. Out of Scope for This Handoff
 
 No account settings, analytics, contribution tracking, or saved-issues page. Any change to this scope must be added to `PRD.md` first.
+
+## 7. Finalized Branding (recorded)
+
+- **Product name:** **Fimmit**. The designs still show the placeholder "Project"; copy that contains it still needs final wording (`PENDING TEAM CONFIRMATION`).
+- **Approved colors:** Yellow `#F6D945`, Orange `#EE8138`, Cream `#F7F4EC`, Black `#000000`, Red `#E4452F`, Green `#4BD08B`. Roles: cream = main background, black = typography and outlines, orange = primary actions, yellow = highlights and selected/hover states, red/green = feedback states.
+- **Logo variants (supplied, must not be redesigned):** (1) standalone magnifying glass, use not yet assigned; (2) compact Fimmit wordmark, for the navbar; (3) large Fimmit wordmark with oversized magnifier, for an animated login-screen experience.
+- **Where it is documented:** palette, roles, and logo table in `PRD.md` section 6; tokens, asset locations, and animation approach in `TECH_STACK.md` sections 4 and 7; branding and folder constraints in `RULES.md` sections 11 and 12.
+- **Impact on backend and ML:** none on data contracts. Branding changes no endpoints, schemas, or authentication behavior.
+
+**Open branding items** (all `PENDING TEAM CONFIRMATION`):
+1. Final logo files: the supplied PNGs are low-resolution (83x72, 146x45, 247x138 px) with opaque white backgrounds. Transparent and/or SVG or higher-resolution versions are needed.
+2. Intended use of logo variant 1.
+3. Where the animated logo (variant 3) appears: the scope has no separate login page, so placement inside the existing Landing / sign-in flow must be agreed, along with what the animation does.
+4. Selected / hover color conflict (yellow per brand rule vs. orange in the screenshots), plus white inputs, the yellow onboarding backdrop, and the green decorative underline.
+5. Use of the ® symbol in copy.
+6. Which UI states use red and green.
+7. For the backend teammate: whether any user-visible string you control (for example, an application name shown during GitHub authorization, if applicable) should say Fimmit.
+
+## 8. Next Development Step
+
+**Proposed (order to be confirmed by the team):** build the design foundation before any screens.
+1. Obtain final logo assets (open item 1).
+2. Create `styles/tokens.css` with the approved palette and `styles/global.css`.
+3. Place the logo files in `src/assets/` using the proposed names in `TECH_STACK.md` section 7.
+4. Build the shared `components/common/` pieces and the Navbar with logo variant 2, then the Landing Page.
+
+Nothing in this step is implemented yet. No application code has been changed by the branding update. Backend and ML work is unaffected.

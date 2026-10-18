@@ -1,0 +1,173 @@
+/**
+ * Fimmit Design System - Navbar Styles
+ * Responsive navigation bar styling supporting both landing and home variants.
+ */
+
+.fimmit-navbar-container {
+  width: 100%;
+  background-color: var(--color-cream, #F7F4EC);
+  border-bottom: var(--border-width-default, 2px) solid var(--color-black, #000000);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.fimmit-logo__img {
+  height: 28px;
+  width: auto;
+  object-fit: contain;
+}
+
+.fimmit-navbar {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+/* --- Logo Styling --- */
+.fimmit-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: var(--color-black, #000000);
+  text-decoration: none;
+}
+
+.fimmit-logo__icon {
+  color: var(--color-orange, #EE8138);
+  stroke-width: 3px;
+}
+
+.fimmit-logo__text {
+  letter-spacing: -0.03em;
+}
+
+/* --- Profile Summary (Home View) --- */
+.fimmit-navbar__profile-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-primary, #000000);
+}
+
+.fimmit-navbar__profile-label {
+  font-weight: 700;
+}
+
+.fimmit-navbar__profile-divider {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.fimmit-navbar__level-text {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+/* --- Navigation Links (Landing View) --- */
+.fimmit-navbar__nav {
+  display: flex;
+  align-items: center;
+  gap: 2rem; /* Explicit gap fallback to prevent run-together links */
+}
+
+.fimmit-nav-link {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--text-primary, #000000);
+  text-decoration: none;
+  transition: color 150ms ease;
+  padding: 0.25rem 0.5rem;
+}
+
+.fimmit-nav-link:hover {
+  color: var(--color-orange, #EE8138);
+}
+
+/* --- Actions --- */
+.fimmit-navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* --- Mobile Toggle --- */
+.fimmit-navbar__mobile-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 28px;
+  height: 22px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.fimmit-hamburger-line {
+  width: 100%;
+  height: 3px;
+  background-color: var(--color-black, #000000);
+  border-radius: 9999px;
+  transition: transform 150ms ease;
+}
+
+/* --- Mobile Menu Drawer --- */
+.fimmit-mobile-menu {
+  display: none;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 1.5rem 1.5rem;
+  background-color: var(--color-cream, #F7F4EC);
+  border-bottom: 2px solid var(--color-black, #000000);
+}
+
+.fimmit-mobile-link {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-black, #000000);
+  text-decoration: none;
+}
+
+.fimmit-mobile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+
+.fimmit-mobile-profile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+/* --- Responsive Media Queries --- */
+@media (max-width: 768px) {
+  .fimmit-navbar__nav,
+  .fimmit-navbar__actions,
+  .fimmit-navbar__profile-summary {
+    display: none;
+  }
+
+  .fimmit-navbar__mobile-toggle {
+    display: flex;
+  }
+
+  .fimmit-mobile-menu {
+    display: flex;
+  }
+}

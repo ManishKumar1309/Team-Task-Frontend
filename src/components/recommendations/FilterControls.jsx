@@ -24,36 +24,6 @@ export const FilterControls = ({
 
   return (
     <div className="fimmit-filters-panel" aria-label="Filter and Sort Controls">
-      <div className="fimmit-filters-top">
-        <div className="fimmit-search-wrapper">
-          <Input 
-            placeholder="Search repositories, tags, or titles..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          {searchQuery && (
-            <button className="fimmit-search-clear" onClick={() => setSearchQuery('')} aria-label="Clear search">×</button>
-          )}
-        </div>
-        
-        <div className="fimmit-sort-wrapper">
-          <label htmlFor="sort-select" className="fimmit-control-label">Sort by:</label>
-          <select 
-            id="sort-select" 
-            className="fimmit-select" 
-            value={sortBy} 
-            onChange={(e) => setSortBy(e.target.value)}
-          >
-            <option value="BEST_MATCH">Best match</option>
-            <option value="EASIEST">Easiest first</option>
-            <option value="MEDIUM_FIRST">Medium first</option>
-            <option value="HARD_FIRST">Hard first</option>
-            <option value="TITLE_AZ">Title (A-Z)</option>
-          </select>
-        </div>
-      </div>
-
-      <hr className="fimmit-filters-divider" />
 
       <div className="fimmit-filters-bottom">
         <div className="fimmit-filter-group">
@@ -71,6 +41,8 @@ export const FilterControls = ({
             ))}
           </div>
         </div>
+
+        
 
         <div className="fimmit-filter-group">
           <span className="fimmit-control-label">Technology:</span>

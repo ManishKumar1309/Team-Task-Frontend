@@ -8,7 +8,7 @@ import { authService } from './services/authService';
 import { useSavedIssues } from './hooks/useSavedIssues';
 
 const normalizeDifficulty = (value) => {
-  const difficulty = String(value || '').toLowerCase();
+  const difficulty = String(value || '').toLowerCase().trim();
 
   return {
     beginner: 'easy',
@@ -38,6 +38,12 @@ const readStoredTags = () => {
   }
 };
 
+const readStoredDifficulty = () => {
+  return normalizeDifficulty(
+    sessionStorage.getItem('fimmit_user_difficulty') || 'medium'
+  );
+};
+
 export default function App() {
   const [currentView, setCurrentView] = useState(() => {
     const hash = window.location.hash.toLowerCase();
@@ -49,11 +55,11 @@ export default function App() {
 
   const { savedCount, savedIssueIds, toggleSave } = useSavedIssues();
 
-  const [profileDifficulty, setProfileDifficulty] = useState(() =>
-    normalizeDifficulty(sessionStorage.getItem('fimmit_user_difficulty'))
-  );
+  const [profileDifficulty, setProfileDifficulty] =
+    useState(readStoredDifficulty);
 
-  const [backendTechTags, setBackendTechTags] = useState(readStoredTags);
+  const [backendTechTags, setBackendTechTags] =
+    useState(readStoredTags);
 
   const navigateTo = useCallback((view) => {
     setCurrentView(view);
@@ -85,7 +91,10 @@ export default function App() {
     };
 
     window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
   }, []);
 
   const handleSignIn = () => {
@@ -99,16 +108,26 @@ export default function App() {
   };
 
   const handleOnboardingComplete = (data) => {
-    if (data?.preferredDifficulty) {
-      const difficulty = normalizeDifficulty(data.preferredDifficulty);
+    // Prefer the newly submitted survey value.
+    // Fall back to session storage if the callback has no difficulty.
+    const submittedDifficulty =
+      data?.preferredDifficulty ??
+      sessionStorage.getItem('fimmit_user_difficulty') ??
+      'medium';
 
-      setProfileDifficulty(difficulty);
-      sessionStorage.setItem('fimmit_user_difficulty', difficulty);
-    }
+    const difficulty = normalizeDifficulty(submittedDifficulty);
+
+    // Update React state so the Navbar badge rerenders immediately.
+    setProfileDifficulty(difficulty);
+
+    // Persist the normalized value for the current session.
+    sessionStorage.setItem('fimmit_user_difficulty', difficulty);
 
     if (Array.isArray(data?.preferredTechStack)) {
       const tags = data.preferredTechStack
-        .filter((tag) => typeof tag === 'string' && tag.trim())
+        .filter(
+          (tag) => typeof tag === 'string' && tag.trim().length > 0
+        )
         .map((tag) => tag.trim());
 
       setBackendTechTags(tags);
@@ -125,6 +144,7 @@ export default function App() {
       event.preventDefault();
 
       const target = document.querySelector(href);
+
       if (target) {
         target.scrollIntoView({ behavior: 'smooth' });
       }
@@ -166,6 +186,7 @@ export default function App() {
               onContinueWithGithub={handleSignIn}
               onHowItWorks={() => {
                 const section = document.getElementById('how-it-works');
+
                 if (section) {
                   section.scrollIntoView({ behavior: 'smooth' });
                 }

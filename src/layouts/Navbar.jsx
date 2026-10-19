@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
@@ -16,16 +17,50 @@ export const Navbar = ({
   backendTechTags = [],
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen((prev) => !prev);
+  };
+
+  // Show actual saved technologies, with defaults if none are available.
+  const technologyTags =
+    Array.isArray(backendTechTags) && backendTechTags.length > 0
+      ? backendTechTags
+      : ['JavaScript', 'React', 'Python'];
+
+  const renderTechnologyTags = () => (
+    <div
+      className="fimmit-navbar__lang-tags"
+      aria-label="Technology tags"
+    >
+      {technologyTags.map((tag) => {
+        const cleanTag = String(tag).replace(/^#/, '').trim();
+
+        if (!cleanTag) return null;
+
+        return (
+          <span
+            key={cleanTag.toLowerCase()}
+            className="fimmit-nav-display-tag"
+          >
+            #{cleanTag.toLowerCase()}
+          </span>
+        );
+      })}
+    </div>
+  );
 
   return (
     <header className={`fimmit-navbar-container ${className}`}>
       <div className="fimmit-navbar">
-        
         {/* Left Side: Logo */}
         <div className="fimmit-navbar__left">
           <a href="#home" className="fimmit-logo" aria-label="Fimmit Home">
-            <img src={logoSrc} alt="Fimmit Logo" className="fimmit-logo__img" />
+            <img
+              src={logoSrc}
+              alt="Fimmit Logo"
+              className="fimmit-logo__img"
+            />
             <span className="fimmit-logo__text">Fimmit</span>
           </a>
         </div>
@@ -34,24 +69,30 @@ export const Navbar = ({
         <nav className="fimmit-navbar__nav">
           {variant === 'landing' ? (
             <>
-              <a href="#how-it-works" className="fimmit-nav-link" onClick={onNavClick}>How it works</a>
-              <a href="#features" className="fimmit-nav-link" onClick={onNavClick}>Features</a>
-              <a href="#about" className="fimmit-nav-link" onClick={onNavClick}>About</a>
+              <a
+                href="#how-it-works"
+                className="fimmit-nav-link"
+                onClick={onNavClick}
+              >
+                How it works
+              </a>
+              <a
+                href="#features"
+                className="fimmit-nav-link"
+                onClick={onNavClick}
+              >
+                Features
+              </a>
+              <a
+                href="#about"
+                className="fimmit-nav-link"
+                onClick={onNavClick}
+              >
+                About
+              </a>
             </>
           ) : (
-            /* ISSUE 4A FIX: Display-only Technology Tags */
-            Array.isArray(backendTechTags) && backendTechTags.length > 0 ? (
-              <div className="fimmit-navbar__lang-tags" aria-label="Technology tags">
-                {backendTechTags.map((tag) => {
-                  const cleanTag = String(tag).replace(/^#/, '').toLowerCase();
-                  return (
-                    <span key={cleanTag} className="fimmit-nav-display-tag">
-                      #{cleanTag}
-                    </span>
-                  );
-                })}
-              </div>
-            ) : null
+            renderTechnologyTags()
           )}
         </nav>
 
@@ -59,12 +100,15 @@ export const Navbar = ({
         <div className="fimmit-navbar__actions">
           {variant === 'landing' ? (
             <>
-              <Button variant="outline" size="md" onClick={onOpenFeed}>Open my feed</Button>
-              <Button variant="black" size="md" onClick={onSignIn}>Sign in</Button>
+              <Button variant="outline" size="md" onClick={onOpenFeed}>
+                Open my feed
+              </Button>
+              <Button variant="black" size="md" onClick={onSignIn}>
+                Sign in
+              </Button>
             </>
           ) : (
             <>
-              {/* ISSUE 4B FIX: Properly Formatted Saved Issues Pill Button */}
               <button
                 type="button"
                 className="fimmit-nav-saved-pill"
@@ -82,12 +126,11 @@ export const Navbar = ({
                   strokeLinejoin="round"
                   aria-hidden="true"
                 >
-                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
                 </svg>
                 <span>Saved ({savedCount})</span>
               </button>
-              
-              {/* Profile Block with Dynamic User Level */}
+
               <button
                 type="button"
                 className="fimmit-navbar__profile-btn"
@@ -95,14 +138,27 @@ export const Navbar = ({
                 aria-label={`Profile level: ${userLevel}`}
               >
                 <div className="fimmit-profile-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
                   </svg>
                 </div>
+
                 <div className="fimmit-profile-details">
                   <span className="fimmit-profile-name">Your Profile</span>
-                  <Badge variant="yellow" size="sm">{userLevel}</Badge>
+                  <Badge variant="yellow" size="sm">
+                    {userLevel}
+                  </Badge>
                 </div>
               </button>
             </>
@@ -115,41 +171,104 @@ export const Navbar = ({
           className="fimmit-navbar__mobile-toggle"
           onClick={toggleMobileMenu}
           aria-label="Toggle mobile menu"
+          aria-expanded={isMobileMenuOpen}
         >
-          <span className="fimmit-hamburger-line"></span>
-          <span className="fimmit-hamburger-line"></span>
-          <span className="fimmit-hamburger-line"></span>
+          <span className="fimmit-hamburger-line" />
+          <span className="fimmit-hamburger-line" />
+          <span className="fimmit-hamburger-line" />
         </button>
       </div>
-      
+
       {/* Mobile Drawer */}
       {isMobileMenuOpen && (
-        <div className="fimmit-mobile-menu" role="dialog" aria-label="Mobile navigation menu">
+        <div
+          className="fimmit-mobile-menu"
+          role="dialog"
+          aria-label="Mobile navigation menu"
+        >
           {variant === 'landing' ? (
             <>
-              <a href="#how-it-works" className="fimmit-mobile-link" onClick={toggleMobileMenu}>How it works</a>
-              <a href="#features" className="fimmit-mobile-link" onClick={toggleMobileMenu}>Features</a>
-              <a href="#about" className="fimmit-mobile-link" onClick={toggleMobileMenu}>About</a>
+              <a
+                href="#how-it-works"
+                className="fimmit-mobile-link"
+                onClick={toggleMobileMenu}
+              >
+                How it works
+              </a>
+              <a
+                href="#features"
+                className="fimmit-mobile-link"
+                onClick={toggleMobileMenu}
+              >
+                Features
+              </a>
+              <a
+                href="#about"
+                className="fimmit-mobile-link"
+                onClick={toggleMobileMenu}
+              >
+                About
+              </a>
+
               <div className="fimmit-mobile-actions">
-                <Button variant="outline" size="md" onClick={() => { toggleMobileMenu(); onOpenFeed?.(); }}>Open my feed</Button>
-                <Button variant="black" size="md" onClick={() => { toggleMobileMenu(); onSignIn?.(); }}>Sign in</Button>
+                <Button
+                  variant="outline"
+                  size="md"
+                  onClick={() => {
+                    toggleMobileMenu();
+                    onOpenFeed?.();
+                  }}
+                >
+                  Open my feed
+                </Button>
+                <Button
+                  variant="black"
+                  size="md"
+                  onClick={() => {
+                    toggleMobileMenu();
+                    onSignIn?.();
+                  }}
+                >
+                  Sign in
+                </Button>
               </div>
             </>
           ) : (
             <div className="fimmit-mobile-actions">
+              {renderTechnologyTags()}
+
               <button
                 type="button"
                 className="fimmit-nav-saved-pill"
-                onClick={() => { toggleMobileMenu(); onSavedClick?.(); }}
+                onClick={() => {
+                  toggleMobileMenu();
+                  onSavedClick?.();
+                }}
               >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
                 </svg>
                 <span>Saved ({savedCount})</span>
               </button>
-              <div className="fimmit-mobile-profile" style={{ marginTop: '1rem' }}>
+
+              <div
+                className="fimmit-mobile-profile"
+                style={{ marginTop: '1rem' }}
+              >
                 <span>Your Profile</span>
-                <Badge variant="yellow" size="sm">{userLevel}</Badge>
+                <Badge variant="yellow" size="sm">
+                  {userLevel}
+                </Badge>
               </div>
             </div>
           )}

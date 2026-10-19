@@ -73,7 +73,7 @@
 
 .fimmit-nav-display-tag {
   font-family: var(--font-family-mono, monospace);
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--color-black, #000000);
   background-color: transparent;

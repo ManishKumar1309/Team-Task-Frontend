@@ -1,20 +1,16 @@
-
 .fimmit-home-page {
   width: 100%;
-  min-height: 100vh;
-  box-sizing: border-box;
+  flex: 1 0 auto;
   background-color: var(--color-cream, #F7F4EC);
   padding: 3rem var(--space-lg, 2rem);
+  box-sizing: border-box;
 }
 
 .fimmit-home-page__container {
-  width: 100%;
   max-width: 1200px;
-  min-width: 0;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
 }
 
 .fimmit-home-header {
@@ -49,10 +45,9 @@
 
 .fimmit-home-layout {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-columns: 280px 1fr;
   gap: 2.5rem;
   align-items: start;
-  min-width: 0;
 }
 
 .fimmit-main-controls {
@@ -62,25 +57,14 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
-  min-width: 0;
 }
 
 .fimmit-search-wrapper {
-  flex: 1 1 250px;
-  min-width: 0;
-  max-width: 100%;
+  flex: 1;
+  min-width: 250px;
   position: relative;
   display: flex;
   align-items: center;
-  box-sizing: border-box;
-}
-
-.fimmit-search-wrapper input {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  box-sizing: border-box;
 }
 
 .fimmit-search-clear {
@@ -104,8 +88,6 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  min-width: 0;
-  max-width: 100%;
 }
 
 .fimmit-select {
@@ -122,7 +104,6 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
-  box-sizing: border-box;
 }
 
 .fimmit-select:focus {
@@ -134,7 +115,6 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  min-width: 0;
 }
 
 .fimmit-issues-empty {
@@ -170,32 +150,14 @@
 
 @media (max-width: 900px) {
   .fimmit-home-layout {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: 1fr;
     gap: 1.5rem;
   }
-
   .fimmit-main-controls {
     flex-direction: column;
     align-items: stretch;
   }
-
-  .fimmit-search-wrapper {
-    flex: 1 1 auto;
-    width: 100%;
-  }
-
   .fimmit-sort-refresh-group {
     justify-content: space-between;
-    flex-wrap: wrap;
-  }
-}
-
-@media (max-width: 480px) {
-  .fimmit-home-page {
-    padding: 2rem 1rem;
-  }
-
-  .fimmit-sort-refresh-group {
-    gap: 0.5rem;
   }
 }

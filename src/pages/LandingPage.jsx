@@ -3,7 +3,6 @@ import { Hero } from '../components/landing/Hero';
 import { HowItWorks } from '../components/landing/HowItWorks';
 import { MatchingPreview } from '../components/landing/MatchingPreview';
 import { WhyFimmit } from '../components/landing/WhyFimmit';
-import { FinalCtaFooter } from '../components/landing/FinalCtaFooter';
 import './LandingPage.css';
 
 /**
@@ -20,7 +19,6 @@ export const LandingPage = ({ onContinueWithGithub, onHowItWorks }) => {
       <HowItWorks />
       <MatchingPreview />
       <WhyFimmit />
-      <FinalCtaFooter onContinueWithGithub={onContinueWithGithub} />
     </div>
   );
 };

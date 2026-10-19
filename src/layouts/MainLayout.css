@@ -1,0 +1,14 @@
+.fimmit-main-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-cream, #F7F4EC);
+  color: var(--color-black, #000000);
+}
+
+.fimmit-main-content {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}

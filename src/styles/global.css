@@ -58,3 +58,39 @@ svg {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* ===== Fimmit Custom Scrollbar ===== */
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #EE8138 #F7F4EC;
+}
+
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F7F4EC;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #EE8138;
+  border: 2px solid #F7F4EC;
+  border-radius: 999px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #E4452F;
+}
+
+/* Optional: horizontal scrollbar */
+::-webkit-scrollbar-corner {
+  background: #F7F4EC;
+}

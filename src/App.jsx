@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { MainLayout } from './layouts/MainLayout';
 import { LandingPage } from './pages/LandingPage';
@@ -7,47 +6,9 @@ import { OnboardingPage } from './pages/OnboardingPage';
 import { authService } from './services/authService';
 import { useSavedIssues } from './hooks/useSavedIssues';
 
-const normalizeDifficulty = (value) => {
-  const difficulty = String(value || '').toLowerCase().trim();
-
-  return {
-    beginner: 'easy',
-    intermediate: 'medium',
-    expert: 'hard',
-    easy: 'easy',
-    medium: 'medium',
-    hard: 'hard',
-  }[difficulty] || 'medium';
-};
-
-const getDifficultyLabel = (difficulty) => {
-  return {
-    easy: 'Beginner',
-    medium: 'Intermediate',
-    hard: 'Expert',
-  }[normalizeDifficulty(difficulty)];
-};
-
-const readStoredTags = () => {
-  try {
-    const saved = sessionStorage.getItem('fimmit_tech_tags');
-    const tags = saved ? JSON.parse(saved) : [];
-    return Array.isArray(tags) ? tags : [];
-  } catch {
-    return [];
-  }
-};
-
-const readStoredDifficulty = () => {
-  return normalizeDifficulty(
-    sessionStorage.getItem('fimmit_user_difficulty') || 'medium'
-  );
-};
-
 export default function App() {
   const [currentView, setCurrentView] = useState(() => {
     const hash = window.location.hash.toLowerCase();
-
     if (hash === '#onboarding') return 'onboarding';
     if (hash === '#home' || hash === '#feed') return 'home';
     return 'landing';
@@ -55,32 +16,65 @@ export default function App() {
 
   const { savedCount, savedIssueIds, toggleSave } = useSavedIssues();
 
-  const [profileDifficulty, setProfileDifficulty] =
-    useState(readStoredDifficulty);
+  // Profile Difficulty State
+  const [profileDifficulty, setProfileDifficulty] = useState(() => {
+    return sessionStorage.getItem('fimmit_user_difficulty') || 'medium';
+  });
 
-  const [backendTechTags, setBackendTechTags] =
-    useState(readStoredTags);
+  // Authenticated GitHub User State
+  const [user, setUser] = useState(() => {
+    if (typeof authService?.getCurrentUser === 'function') {
+      return authService.getCurrentUser() || null;
+    }
+    const savedUser = sessionStorage.getItem('fimmit_user_data');
+    if (savedUser) {
+      try {
+        return JSON.parse(savedUser);
+      } catch (e) {
+        // Fallback if parsing fails
+      }
+    }
+    return null;
+  });
+
+  const getDifficultyLabel = (diff) => {
+    switch (diff?.toLowerCase()) {
+      case 'easy':
+        return 'Beginner';
+      case 'medium':
+        return 'Intermediate';
+      case 'hard':
+        return 'Expert';
+      default:
+        return 'Intermediate';
+    }
+  };
+
+  // Backend-Provided Technology Tags
+  const [backendTechTags, setBackendTechTags] = useState(() => {
+    const saved = sessionStorage.getItem('fimmit_tech_tags');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        // Fallback
+      }
+    }
+    return ['javascript', 'react', 'python'];
+  });
 
   const navigateTo = useCallback((view) => {
     setCurrentView(view);
-
     const targetHash = view === 'landing' ? '' : `#${view}`;
-
     if (window.location.hash !== targetHash) {
-      window.history.pushState(
-        null,
-        '',
-        targetHash || window.location.pathname
-      );
+      window.history.pushState(null, '', targetHash || window.location.pathname);
     }
-
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.toLowerCase();
-
       if (hash === '#onboarding') {
         setCurrentView('onboarding');
       } else if (hash === '#home' || hash === '#feed') {
@@ -91,60 +85,57 @@ export default function App() {
     };
 
     window.addEventListener('hashchange', handleHashChange);
-
-    return () => {
-      window.removeEventListener('hashchange', handleHashChange);
-    };
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
   const handleSignIn = () => {
     const useMock = import.meta.env.VITE_USE_MOCK_DATA !== 'false';
-
     if (!useMock) {
-      authService.startGitHubLogin();
+      if (typeof authService?.startGitHubLogin === 'function') {
+        authService.startGitHubLogin();
+      }
     } else {
       navigateTo('onboarding');
     }
   };
 
   const handleOnboardingComplete = (data) => {
-    // Prefer the newly submitted survey value.
-    // Fall back to session storage if the callback has no difficulty.
-    const submittedDifficulty =
-      data?.preferredDifficulty ??
-      sessionStorage.getItem('fimmit_user_difficulty') ??
-      'medium';
-
-    const difficulty = normalizeDifficulty(submittedDifficulty);
-
-    // Update React state so the Navbar badge rerenders immediately.
-    setProfileDifficulty(difficulty);
-
-    // Persist the normalized value for the current session.
-    sessionStorage.setItem('fimmit_user_difficulty', difficulty);
-
-    if (Array.isArray(data?.preferredTechStack)) {
-      const tags = data.preferredTechStack
-        .filter(
-          (tag) => typeof tag === 'string' && tag.trim().length > 0
-        )
-        .map((tag) => tag.trim());
-
-      setBackendTechTags(tags);
-      sessionStorage.setItem('fimmit_tech_tags', JSON.stringify(tags));
+    if (data?.preferredDifficulty) {
+      const rawDiff = data.preferredDifficulty.toLowerCase();
+      setProfileDifficulty(rawDiff);
+      sessionStorage.setItem('fimmit_user_difficulty', rawDiff);
     }
-
+    if (data?.preferredTechStack && Array.isArray(data.preferredTechStack)) {
+      setBackendTechTags(data.preferredTechStack);
+      sessionStorage.setItem('fimmit_tech_tags', JSON.stringify(data.preferredTechStack));
+    }
     navigateTo('home');
   };
 
-  const handleNavClick = (event) => {
-    const href = event.currentTarget.getAttribute('href');
+  const handleLogout = async () => {
+    try {
+      if (typeof authService?.logout === 'function') {
+        await authService.logout();
+      }
+    } catch (err) {
+      console.error('Error during logout service call:', err);
+    } finally {
+      // Clear user session state and cache
+      setUser(null);
+      sessionStorage.removeItem('fimmit_user_data');
+      sessionStorage.removeItem('fimmit_user_difficulty');
+      sessionStorage.removeItem('fimmit_tech_tags');
+      
+      // Redirect to landing view
+      navigateTo('landing');
+    }
+  };
 
+  const handleNavClick = (e) => {
+    const href = e.currentTarget.getAttribute('href');
     if (href?.startsWith('#')) {
-      event.preventDefault();
-
+      e.preventDefault();
       const target = document.querySelector(href);
-
       if (target) {
         target.scrollIntoView({ behavior: 'smooth' });
       }
@@ -164,32 +155,27 @@ export default function App() {
           savedCount={savedCount}
           userLevel={getDifficultyLabel(profileDifficulty)}
           backendTechTags={backendTechTags}
+          username={user?.username || null}
           onSignIn={handleSignIn}
           onOpenFeed={() => navigateTo('home')}
           onSavedClick={() => {
             if (currentView !== 'home') {
               navigateTo('home');
             }
-
-            const listElement =
-              document.querySelector('.fimmit-home-page') ||
-              document.querySelector('.fimmit-issues-grid');
-
-            if (listElement) {
-              listElement.scrollIntoView({ behavior: 'smooth' });
+            const listEl = document.querySelector('.fimmit-home-page') || document.querySelector('.fimmit-issues-grid');
+            if (listEl) {
+              listEl.scrollIntoView({ behavior: 'smooth' });
             }
           }}
           onNavClick={handleNavClick}
+          onLogout={handleLogout}
         >
           {currentView === 'landing' ? (
             <LandingPage
               onContinueWithGithub={handleSignIn}
               onHowItWorks={() => {
                 const section = document.getElementById('how-it-works');
-
-                if (section) {
-                  section.scrollIntoView({ behavior: 'smooth' });
-                }
+                if (section) section.scrollIntoView({ behavior: 'smooth' });
               }}
             />
           ) : (

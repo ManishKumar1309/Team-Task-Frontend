@@ -28,8 +28,7 @@ export const MatchingPreview = () => {
               <span className="fimmit-sample-card__name">react</span>
             </div>
             <div className="fimmit-sample-card__badges">
-              <Badge variant="orange">94% match</Badge>
-              <Badge variant="yellow">Good First Issue</Badge>
+              <Badge variant="yellow">MEDIUM</Badge>
             </div>
           </div>
 

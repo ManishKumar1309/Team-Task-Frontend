@@ -13,6 +13,7 @@ export const Navbar = ({
   onSavedClick,
   onNavClick,
   className = '',
+  backendTechTags = [],
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -29,18 +30,32 @@ export const Navbar = ({
           </a>
         </div>
 
-        {/* Center: Navigation (Empty for Dashboard to keep it clean) */}
+        {/* Center: Navigation or Technology Tags */}
         <nav className="fimmit-navbar__nav">
-          {variant === 'landing' && (
+          {variant === 'landing' ? (
             <>
               <a href="#how-it-works" className="fimmit-nav-link" onClick={onNavClick}>How it works</a>
               <a href="#features" className="fimmit-nav-link" onClick={onNavClick}>Features</a>
               <a href="#about" className="fimmit-nav-link" onClick={onNavClick}>About</a>
             </>
+          ) : (
+            /* ISSUE 4A FIX: Display-only Technology Tags */
+            Array.isArray(backendTechTags) && backendTechTags.length > 0 ? (
+              <div className="fimmit-navbar__lang-tags" aria-label="Technology tags">
+                {backendTechTags.map((tag) => {
+                  const cleanTag = String(tag).replace(/^#/, '').toLowerCase();
+                  return (
+                    <span key={cleanTag} className="fimmit-nav-display-tag">
+                      #{cleanTag}
+                    </span>
+                  );
+                })}
+              </div>
+            ) : null
           )}
         </nav>
 
-        {/* Right Side: Actions & Profile */}
+        {/* Right Side Actions */}
         <div className="fimmit-navbar__actions">
           {variant === 'landing' ? (
             <>
@@ -49,13 +64,36 @@ export const Navbar = ({
             </>
           ) : (
             <>
-              {/* Updated Saved Button Style (Outline to stand out gracefully) */}
-              <Button variant="outline" size="md" onClick={onSavedClick}>
-                🔖 Saved issues ({savedCount})
-              </Button>
+              {/* ISSUE 4B FIX: Properly Formatted Saved Issues Pill Button */}
+              <button
+                type="button"
+                className="fimmit-nav-saved-pill"
+                onClick={onSavedClick}
+                aria-label={`Saved issues (${savedCount})`}
+              >
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <span>Saved ({savedCount})</span>
+              </button>
               
-              {/* Properly Formatted Profile Button */}
-              <button className="fimmit-navbar__profile-btn" onClick={() => alert('Profile clicked!')}>
+              {/* Profile Block with Dynamic User Level */}
+              <button
+                type="button"
+                className="fimmit-navbar__profile-btn"
+                onClick={() => alert('Profile clicked!')}
+                aria-label={`Profile level: ${userLevel}`}
+              >
                 <div className="fimmit-profile-icon">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -71,7 +109,13 @@ export const Navbar = ({
           )}
         </div>
 
-        <button type="button" className="fimmit-navbar__mobile-toggle" onClick={toggleMobileMenu}>
+        {/* Mobile Hamburger Toggle */}
+        <button
+          type="button"
+          className="fimmit-navbar__mobile-toggle"
+          onClick={toggleMobileMenu}
+          aria-label="Toggle mobile menu"
+        >
           <span className="fimmit-hamburger-line"></span>
           <span className="fimmit-hamburger-line"></span>
           <span className="fimmit-hamburger-line"></span>
@@ -93,9 +137,16 @@ export const Navbar = ({
             </>
           ) : (
             <div className="fimmit-mobile-actions">
-              <Button variant="outline" size="md" onClick={() => { toggleMobileMenu(); onSavedClick?.(); }}>
-                🔖 Saved issues ({savedCount})
-              </Button>
+              <button
+                type="button"
+                className="fimmit-nav-saved-pill"
+                onClick={() => { toggleMobileMenu(); onSavedClick?.(); }}
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <span>Saved ({savedCount})</span>
+              </button>
               <div className="fimmit-mobile-profile" style={{ marginTop: '1rem' }}>
                 <span>Your Profile</span>
                 <Badge variant="yellow" size="sm">{userLevel}</Badge>

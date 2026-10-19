@@ -11,7 +11,7 @@ export function useOnboarding(onSuccess) {
     otherTech: '',
     interests: [],
     otherInterests: '',
-    preferredDifficulty: 'EASY',
+    preferredDifficulty: 'Intermediate',
   });
 
   const [stepError, setStepError] = useState('');
@@ -147,19 +147,36 @@ export function useOnboarding(onSuccess) {
         fullInterests.push(...others);
       }
 
+      // Map UI choices (Beginner, Intermediate, Expert) to exact lowercase backend strings
+      let finalDifficultyString = 'medium';
+      const currentDiffUI = String(formData.preferredDifficulty || '').toLowerCase();
+
+      if (currentDiffUI === 'beginner' || currentDiffUI === 'easy') {
+        finalDifficultyString = 'easy';
+      } else if (currentDiffUI === 'expert' || currentDiffUI === 'hard') {
+        finalDifficultyString = 'hard';
+      } else {
+        finalDifficultyString = 'medium';
+      }
+
       const payload = {
         introduction: formData.introduction,
         preferredTechStack: fullTechStack.filter((t) => t !== 'Other'),
         interests: fullInterests.filter((i) => i !== 'Other'),
-        preferredDifficulty: formData.preferredDifficulty,
-        mainGoal: formData.mainGoal,
+        preferredDifficulty: finalDifficultyString,
         preferredLanguage: formData.preferredLanguage,
       };
+
+      // Persist locally for immediate state synchronization
+      sessionStorage.setItem('fimmit_user_difficulty', finalDifficultyString);
+      if (payload.preferredTechStack.length > 0) {
+        sessionStorage.setItem('fimmit_tech_tags', JSON.stringify(payload.preferredTechStack));
+      }
 
       const result = await onboardingService.savePreferences(payload);
       setSubmissionSuccess(true);
       if (onSuccess) {
-        onSuccess(result);
+        onSuccess(result || payload);
       }
     } catch (err) {
       setStepError(err.message || 'Failed to save preferences. Please try again.');

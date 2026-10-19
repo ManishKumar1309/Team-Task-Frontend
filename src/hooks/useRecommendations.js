@@ -1,6 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
+
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { recommendationService } from '../services/recommendationService';
 import { onboardingService } from '../services/onboardingService';
+
+const COOLDOWN_SECONDS = 120;
+const STORAGE_KEY = 'fimmit_refresh_available_at';
+
+function getRemainingSeconds() {
+  const availableAt = Number(sessionStorage.getItem(STORAGE_KEY) || 0);
+  return Math.max(0, Math.ceil((availableAt - Date.now()) / 1000));
+}
 
 export function useRecommendations() {
   const [issues, setIssues] = useState([]);
@@ -9,57 +18,84 @@ export function useRecommendations() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [isMock, setIsMock] = useState(false);
-  const [fetchTrigger, setFetchTrigger] = useState(0);
+  const [cooldownSeconds, setCooldownSeconds] = useState(getRemainingSeconds);
 
-  useEffect(() => {
-    let isMounted = true;
+  const refreshLock = useRef(false);
 
-    Promise.all([
-      onboardingService.getProfile(),
-      recommendationService.getRecommendations(),
-    ])
-      .then(([profileRes, recRes]) => {
-        if (isMounted) {
-          setProfile(profileRes || {});
-          const rawIssues = recRes?.issues || [];
-          setIssues(rawIssues);
-          setIsMock(Boolean(recRes?.isMock || profileRes?.isMock));
-          setIsLoading(false);
-        }
-      })
-      .catch((err) => {
-        if (isMounted) {
-          setError(err.message || 'Failed to load recommendations.');
-          setIsLoading(false);
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [fetchTrigger]);
-
-  const reload = useCallback(() => {
+  const loadData = useCallback(async () => {
     setIsLoading(true);
     setError('');
-    setFetchTrigger((prev) => prev + 1);
+
+    try {
+      const [profileRes, recRes] = await Promise.all([
+        onboardingService.getProfile(),
+        recommendationService.getRecommendations(),
+      ]);
+
+      setProfile(profileRes || {});
+      setIssues(recRes?.issues || []);
+      setIsMock(Boolean(recRes?.isMock || profileRes?.isMock));
+    } catch (err) {
+      setError(err.message || 'Failed to load recommendations.');
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  const refreshFeed = useCallback(async () => {
-    setIsRefreshing(true);
-    try {
-      const res = await recommendationService.refreshRecommendations();
-      if (res?.issues && res.issues.length > 0) {
-        setIssues(res.issues);
-      } else {
-        reload();
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  useEffect(() => {
+    const updateTimer = () => {
+      const remaining = getRemainingSeconds();
+      setCooldownSeconds(remaining);
+
+      if (remaining === 0) {
+        sessionStorage.removeItem(STORAGE_KEY);
       }
-    } catch {
-      reload();
+    };
+
+    updateTimer();
+    const intervalId = window.setInterval(updateTimer, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
+
+  const reload = useCallback(() => {
+    loadData();
+  }, [loadData]);
+
+  const refreshFeed = useCallback(async () => {
+    if (refreshLock.current || getRemainingSeconds() > 0) return;
+
+    refreshLock.current = true;
+
+    // Start the timer immediately, before waiting for the API.
+    sessionStorage.setItem(
+      STORAGE_KEY,
+      String(Date.now() + COOLDOWN_SECONDS * 1000)
+    );
+    setCooldownSeconds(COOLDOWN_SECONDS);
+    setIsRefreshing(true);
+    setError('');
+
+    try {
+      const result = await recommendationService.refreshRecommendations();
+
+      if (Array.isArray(result?.issues)) {
+        setIssues(result.issues);
+        setIsMock(Boolean(result.isMock));
+      } else {
+        await loadData();
+      }
+    } catch (err) {
+      setError(err.message || 'Could not refresh your feed.');
     } finally {
+      refreshLock.current = false;
       setIsRefreshing(false);
     }
-  }, [reload]);
+  }, [loadData]);
 
   return {
     issues,
@@ -70,5 +106,7 @@ export function useRecommendations() {
     isMock,
     reload,
     refreshFeed,
+    cooldownSeconds,
+    canRefresh: cooldownSeconds === 0 && !isRefreshing,
   };
 }

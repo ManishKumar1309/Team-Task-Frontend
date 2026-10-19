@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { OnboardingLayout } from '../layouts/OnboardingLayout';
 import { OnboardingCard } from '../components/onboarding/OnboardingCard';
 import { StepIntroduction } from '../components/onboarding/StepIntroduction';
@@ -27,6 +27,17 @@ const STEP_TITLES = {
   },
 };
 
+const validateCustomInput = (input) => {
+  const val = (input || '').trim();
+  if (!val) return 'Cannot be empty or just whitespace.';
+  if (val.length < 2) return 'Must be at least 2 characters long.';
+  if (val.length > 40) return 'Must be under 40 characters.';
+  if (/^(.)\1{4,}$/.test(val)) return 'Please enter a meaningful technical answer.';
+  if (!/[a-zA-Z]/.test(val)) return 'Must contain valid alphabetical characters.';
+  if (!/^[a-zA-Z0-9\s\.\-\+\#]+$/.test(val)) return 'Contains invalid symbols.';
+  return '';
+};
+
 export const OnboardingPage = ({ onComplete, onExit }) => {
   const {
     currentStep,
@@ -38,7 +49,6 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
     goNext,
     goBack,
     updateIntroduction,
-    updateMainGoal,
     toggleTech,
     updatePreferredLanguage,
     updateOtherTech,
@@ -46,6 +56,50 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
     updateOtherInterests,
     updateDifficulty,
   } = useOnboarding(onComplete);
+
+  const [localError, setLocalError] = useState('');
+
+  const handleNext = () => {
+    setLocalError('');
+
+    if (currentStep === 1) {
+      const intro = (formData.introduction || '').trim();
+      if (!intro) {
+        setLocalError('Please provide a brief introduction.');
+        return;
+      }
+      if (intro.length > 200) {
+        setLocalError('Introduction must be 200 characters or fewer.');
+        return;
+      }
+    }
+
+    if (currentStep === 2) {
+      const techs = formData.preferredTechStack || [];
+      const hasOther = Array.isArray(techs) ? techs.includes('Other') : techs === 'Other';
+      if (hasOther) {
+        const err = validateCustomInput(formData.otherTech);
+        if (err) {
+          setLocalError(`Tech Stack: ${err}`);
+          return;
+        }
+      }
+    }
+
+    if (currentStep === 3) {
+      const interests = formData.interests || [];
+      const hasOther = Array.isArray(interests) ? interests.includes('Other') : interests === 'Other';
+      if (hasOther) {
+        const err = validateCustomInput(formData.otherInterests);
+        if (err) {
+          setLocalError(`Domain: ${err}`);
+          return;
+        }
+      }
+    }
+
+    goNext();
+  };
 
   const { title, subtitle } = STEP_TITLES[currentStep];
 
@@ -58,16 +112,14 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
         subtitle={subtitle}
         canGoBack={canGoBack}
         onBack={goBack}
-        onNext={goNext}
+        onNext={handleNext}
         isSubmitting={isSubmitting}
-        error={stepError}
+        error={localError || stepError}
       >
         {currentStep === 1 && (
           <StepIntroduction
             introduction={formData.introduction}
-            mainGoal={formData.mainGoal}
             onChangeIntroduction={updateIntroduction}
-            onSelectGoal={updateMainGoal}
           />
         )}
 

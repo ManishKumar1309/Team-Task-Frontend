@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { MainLayout } from './layouts/MainLayout';
 import { LandingPage } from './pages/LandingPage';
@@ -6,9 +7,41 @@ import { OnboardingPage } from './pages/OnboardingPage';
 import { authService } from './services/authService';
 import { useSavedIssues } from './hooks/useSavedIssues';
 
+const normalizeDifficulty = (value) => {
+  const difficulty = String(value || '').toLowerCase();
+
+  return {
+    beginner: 'easy',
+    intermediate: 'medium',
+    expert: 'hard',
+    easy: 'easy',
+    medium: 'medium',
+    hard: 'hard',
+  }[difficulty] || 'medium';
+};
+
+const getDifficultyLabel = (difficulty) => {
+  return {
+    easy: 'Beginner',
+    medium: 'Intermediate',
+    hard: 'Expert',
+  }[normalizeDifficulty(difficulty)];
+};
+
+const readStoredTags = () => {
+  try {
+    const saved = sessionStorage.getItem('fimmit_tech_tags');
+    const tags = saved ? JSON.parse(saved) : [];
+    return Array.isArray(tags) ? tags : [];
+  } catch {
+    return [];
+  }
+};
+
 export default function App() {
   const [currentView, setCurrentView] = useState(() => {
     const hash = window.location.hash.toLowerCase();
+
     if (hash === '#onboarding') return 'onboarding';
     if (hash === '#home' || hash === '#feed') return 'home';
     return 'landing';
@@ -16,18 +49,32 @@ export default function App() {
 
   const { savedCount, savedIssueIds, toggleSave } = useSavedIssues();
 
+  const [profileDifficulty, setProfileDifficulty] = useState(() =>
+    normalizeDifficulty(sessionStorage.getItem('fimmit_user_difficulty'))
+  );
+
+  const [backendTechTags, setBackendTechTags] = useState(readStoredTags);
+
   const navigateTo = useCallback((view) => {
     setCurrentView(view);
+
     const targetHash = view === 'landing' ? '' : `#${view}`;
+
     if (window.location.hash !== targetHash) {
-      window.history.pushState(null, '', targetHash || window.location.pathname);
+      window.history.pushState(
+        null,
+        '',
+        targetHash || window.location.pathname
+      );
     }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.toLowerCase();
+
       if (hash === '#onboarding') {
         setCurrentView('onboarding');
       } else if (hash === '#home' || hash === '#feed') {
@@ -43,6 +90,7 @@ export default function App() {
 
   const handleSignIn = () => {
     const useMock = import.meta.env.VITE_USE_MOCK_DATA !== 'false';
+
     if (!useMock) {
       authService.startGitHubLogin();
     } else {
@@ -50,14 +98,32 @@ export default function App() {
     }
   };
 
-  const handleOnboardingComplete = () => {
+  const handleOnboardingComplete = (data) => {
+    if (data?.preferredDifficulty) {
+      const difficulty = normalizeDifficulty(data.preferredDifficulty);
+
+      setProfileDifficulty(difficulty);
+      sessionStorage.setItem('fimmit_user_difficulty', difficulty);
+    }
+
+    if (Array.isArray(data?.preferredTechStack)) {
+      const tags = data.preferredTechStack
+        .filter((tag) => typeof tag === 'string' && tag.trim())
+        .map((tag) => tag.trim());
+
+      setBackendTechTags(tags);
+      sessionStorage.setItem('fimmit_tech_tags', JSON.stringify(tags));
+    }
+
     navigateTo('home');
   };
 
-  const handleNavClick = (e) => {
-    const href = e.currentTarget.getAttribute('href');
+  const handleNavClick = (event) => {
+    const href = event.currentTarget.getAttribute('href');
+
     if (href?.startsWith('#')) {
-      e.preventDefault();
+      event.preventDefault();
+
       const target = document.querySelector(href);
       if (target) {
         target.scrollIntoView({ behavior: 'smooth' });
@@ -76,16 +142,21 @@ export default function App() {
         <MainLayout
           navbarVariant={currentView}
           savedCount={savedCount}
-          userLevel="Intermediate"
+          userLevel={getDifficultyLabel(profileDifficulty)}
+          backendTechTags={backendTechTags}
           onSignIn={handleSignIn}
           onOpenFeed={() => navigateTo('home')}
           onSavedClick={() => {
             if (currentView !== 'home') {
               navigateTo('home');
             }
-            const listEl = document.querySelector('.fimmit-home-page') || document.querySelector('.fimmit-issues-grid');
-            if (listEl) {
-              listEl.scrollIntoView({ behavior: 'smooth' });
+
+            const listElement =
+              document.querySelector('.fimmit-home-page') ||
+              document.querySelector('.fimmit-issues-grid');
+
+            if (listElement) {
+              listElement.scrollIntoView({ behavior: 'smooth' });
             }
           }}
           onNavClick={handleNavClick}
@@ -95,7 +166,9 @@ export default function App() {
               onContinueWithGithub={handleSignIn}
               onHowItWorks={() => {
                 const section = document.getElementById('how-it-works');
-                if (section) section.scrollIntoView({ behavior: 'smooth' });
+                if (section) {
+                  section.scrollIntoView({ behavior: 'smooth' });
+                }
               }}
             />
           ) : (

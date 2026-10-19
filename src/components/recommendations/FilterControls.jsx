@@ -88,18 +88,7 @@ export const FilterControls = ({
           </div>
         </div>
 
-        <div className="fimmit-filter-group fimmit-score-group">
-          <span className="fimmit-control-label">Match Score:</span>
-          <select 
-            className="fimmit-select" 
-            value={minScore} 
-            onChange={(e) => setMinScore(Number(e.target.value))}
-          >
-            <option value="0">Any</option>
-            <option value="0.75">&gt; 75% Match</option>
-            <option value="0.90">&gt; 90% Match</option>
-          </select>
-        </div>
+
       </div>
 
       {hasActiveFilters && (

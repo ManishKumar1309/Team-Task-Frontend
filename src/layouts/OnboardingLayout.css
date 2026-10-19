@@ -1,0 +1,48 @@
+.fimmit-onboarding-layout {
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--color-yellow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md) var(--space-md);
+  position: relative;
+  box-sizing: border-box;
+}
+
+.fimmit-onboarding-layout__header {
+  position: absolute;
+  top: var(--space-md);
+  left: var(--space-lg);
+  right: var(--space-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fimmit-onboarding-layout__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  text-decoration: none;
+  color: var(--color-black);
+}
+
+.fimmit-onboarding-layout__logo {
+  width: 34px;
+  height: 34px;
+}
+
+.fimmit-onboarding-layout__title {
+  font-family: var(--font-family-display);
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-extrabold);
+  letter-spacing: -0.02em;
+}
+
+.fimmit-onboarding-layout__card-container {
+  width: 100%;
+  max-width: 620px;
+  margin: var(--space-xxl) auto var(--space-lg);
+}

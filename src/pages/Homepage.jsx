@@ -1,9 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { FilterControls } from '../components/recommendations/FilterControls';
 import { IssueCard } from '../components/recommendations/IssueCard';
+import { LoadingState } from '../components/common/LoadingState';
+import { ErrorState } from '../components/common/ErrorState';
+import { Button } from '../components/common/Button';
+import { useRecommendations } from '../hooks/useRecommendations';
 import './HomePage.css';
 
-// EXPANDED MOCK DATA (Top 10 Repositories)
+// EXPANDED MOCK DATA (Top 10 Repositories as safe fallback)
 const MOCK_ISSUES = [
   {
     id: "101",
@@ -117,24 +121,48 @@ const MOCK_ISSUES = [
   }
 ];
 
-export const HomePage = () => {
+export const HomePage = ({
+  savedIssueIds: propSavedIssueIds,
+  onToggleSave: propToggleSave,
+  issues: propIssues,
+  isLoading: propIsLoading,
+  error: propError,
+  onRetry: propOnRetry,
+}) => {
+  // Fetch real/mock recommendations from API service layer
+  const recData = useRecommendations();
+
+  const issues = propIssues !== undefined ? propIssues : recData.issues;
+  const isLoading = propIsLoading !== undefined ? propIsLoading : recData.isLoading;
+  const error = propError !== undefined ? propError : recData.error;
+  const onRetry = propOnRetry || recData.reload;
+  const { refreshFeed, isRefreshing, profile } = recData;
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDiff, setSelectedDiff] = useState('ALL');
   const [selectedTech, setSelectedTech] = useState([]);
   const [minScore, setMinScore] = useState(0);
   const [sortBy, setSortBy] = useState('BEST_MATCH'); 
   
-  // NEW: Lifted state to keep track of which issue IDs are saved
-  const [savedIssueIds, setSavedIssueIds] = useState(new Set());
+  // Local fallback if not supplied via props
+  const [localSavedIds, setLocalSavedIds] = useState(new Set());
+  const savedIssueIds = propSavedIssueIds || localSavedIds;
+
+  // Use fetched issues from endpoint, fallback to MOCK_ISSUES if empty & not loading/error
+  const baseIssues = useMemo(() => {
+    if (issues && issues.length > 0) return issues;
+    if (isLoading || error) return [];
+    return MOCK_ISSUES;
+  }, [issues, isLoading, error]);
 
   const availableTechs = useMemo(() => {
     const techs = new Set();
-    MOCK_ISSUES.forEach(issue => issue.techStack?.forEach(t => techs.add(t)));
+    baseIssues.forEach(issue => issue.techStack?.forEach(t => techs.add(t)));
     return Array.from(techs).sort();
-  }, []);
+  }, [baseIssues]);
 
   const processedIssues = useMemo(() => {
-    const filtered = MOCK_ISSUES.filter(issue => {
+    const filtered = baseIssues.filter(issue => {
       const searchLower = searchQuery.toLowerCase();
       const matchesSearch = issue.title.toLowerCase().includes(searchLower) || 
                             issue.repository.toLowerCase().includes(searchLower);
@@ -163,7 +191,7 @@ export const HomePage = () => {
       }
       return 0;
     });
-  }, [searchQuery, selectedDiff, selectedTech, minScore, sortBy]);
+  }, [baseIssues, searchQuery, selectedDiff, selectedTech, minScore, sortBy]);
 
   const handleClearFilters = () => {
     setSearchQuery('');
@@ -174,12 +202,17 @@ export const HomePage = () => {
   };
 
   const handleToggleSave = (issueId) => {
-    setSavedIssueIds(prev => {
+    if (propToggleSave) {
+      propToggleSave(issueId);
+      return;
+    }
+    setLocalSavedIds(prev => {
       const next = new Set(prev);
-      if (next.has(issueId)) {
-        next.delete(issueId);
+      const strId = String(issueId);
+      if (next.has(strId)) {
+        next.delete(strId);
       } else {
-        next.add(issueId);
+        next.add(strId);
       }
       return next;
     });
@@ -190,11 +223,24 @@ export const HomePage = () => {
   return (
     <div className="fimmit-home-page">
       <div className="fimmit-home-page__container">
-        <header className="fimmit-home-header">
-          <h1 className="fimmit-home-header__title">Welcome back, Developer.</h1>
-          <p className="fimmit-home-header__subtitle">
-            We found <strong>{processedIssues.length}</strong> open-source issues tuned to your exact tech stack and experience level today.
-          </p>
+        <header className="fimmit-home-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <h1 className="fimmit-home-header__title">
+              Welcome back{profile?.username ? `, ${profile.username}` : ', Developer'}.
+            </h1>
+            <p className="fimmit-home-header__subtitle">
+              We found <strong>{processedIssues.length}</strong> open-source issues tuned to your exact tech stack and experience level today.
+            </p>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={refreshFeed}
+            disabled={isRefreshing || isLoading}
+            aria-label="Refresh recommendation feed"
+          >
+            {isRefreshing ? 'Refreshing...' : '↻ Refresh feed'}
+          </Button>
         </header>
 
         <FilterControls 
@@ -213,27 +259,41 @@ export const HomePage = () => {
           hasActiveFilters={hasActiveFilters}
         />
 
-        <section className="fimmit-issues-grid" aria-live="polite">
-          {processedIssues.length > 0 ? (
-            processedIssues.map(issue => (
-              <IssueCard 
-                key={issue.id} 
-                issue={issue} 
-                isSaved={savedIssueIds.has(issue.id)}
-                onToggleSave={() => handleToggleSave(issue.id)}
-              />
-            ))
-          ) : (
-            <div className="fimmit-issues-empty">
-              <h3 className="fimmit-empty-title">No issues found</h3>
-              <p>Try adjusting your search, difficulty, or technology filters to see more results.</p>
-              <button type="button" className="fimmit-clear-link-btn" onClick={handleClearFilters}>
-                Clear all filters
-              </button>
-            </div>
-          )}
-        </section>
+        {isLoading ? (
+          <div style={{ padding: '4rem 1rem', display: 'flex', justifyContent: 'center' }}>
+            <LoadingState message="Fetching personalized recommendations matching your profile..." />
+          </div>
+        ) : error ? (
+          <div style={{ padding: '2rem 1rem' }}>
+            <ErrorState
+              title="Failed to load recommendations"
+              message={error}
+              onRetry={onRetry}
+            />
+          </div>
+        ) : (
+          <section className="fimmit-issues-grid" aria-live="polite">
+            {processedIssues.length > 0 ? (
+              processedIssues.map(issue => (
+                <IssueCard 
+                  key={issue.id} 
+                  issue={issue} 
+                  isSaved={savedIssueIds?.has(String(issue.id)) || savedIssueIds?.has(issue.id)}
+                  onToggleSave={() => handleToggleSave(issue.id)}
+                />
+              ))
+            ) : (
+              <div className="fimmit-issues-empty">
+                <h3 className="fimmit-empty-title">No issues found</h3>
+                <p>Try adjusting your search, difficulty, or technology filters to see more results.</p>
+                <button type="button" className="fimmit-clear-link-btn" onClick={handleClearFilters}>
+                  Clear all filters
+                </button>
+              </div>
+            )}
+          </section>
+        )}
       </div>
     </div>
   );
-};
+};

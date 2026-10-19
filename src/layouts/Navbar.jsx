@@ -21,7 +21,7 @@ export const Navbar = ({
     <header className={`fimmit-navbar-container ${className}`}>
       <div className="fimmit-navbar">
         
-        {/* Left Side: Logo ONLY */}
+        {/* Left Side: Logo */}
         <div className="fimmit-navbar__left">
           <a href="#home" className="fimmit-logo" aria-label="Fimmit Home">
             <img src={logoSrc} alt="Fimmit Logo" className="fimmit-logo__img" />
@@ -29,24 +29,18 @@ export const Navbar = ({
           </a>
         </div>
 
-        {/* Center: Language Tags */}
+        {/* Center: Navigation (Empty for Dashboard to keep it clean) */}
         <nav className="fimmit-navbar__nav">
-          {variant === 'landing' ? (
+          {variant === 'landing' && (
             <>
               <a href="#how-it-works" className="fimmit-nav-link" onClick={onNavClick}>How it works</a>
               <a href="#features" className="fimmit-nav-link" onClick={onNavClick}>Features</a>
               <a href="#about" className="fimmit-nav-link" onClick={onNavClick}>About</a>
             </>
-          ) : (
-            <div className="fimmit-navbar__lang-tags">
-              <span className="fimmit-lang-tag">#JavaScript</span>
-              <span className="fimmit-lang-tag">#React</span>
-              <span className="fimmit-lang-tag">#TypeScript</span>
-            </div>
           )}
         </nav>
 
-        {/* Right Side Actions: Saved Button + Profile (Rightmost) */}
+        {/* Right Side: Actions & Profile */}
         <div className="fimmit-navbar__actions">
           {variant === 'landing' ? (
             <>
@@ -55,24 +49,28 @@ export const Navbar = ({
             </>
           ) : (
             <>
-              <Button variant="black" size="md" onClick={onSavedClick}>
-                🔖 Saved ({savedCount})
+              {/* Updated Saved Button Style (Outline to stand out gracefully) */}
+              <Button variant="outline" size="md" onClick={onSavedClick}>
+                🔖 Saved issues ({savedCount})
               </Button>
               
-              {/* Profile now lives on the rightmost side */}
-              <div className="fimmit-navbar__profile-summary" role="region">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-                <span className="fimmit-navbar__profile-label">Profile</span>
-                <Badge variant="yellow" size="sm">{userLevel}</Badge>
-              </div>
+              {/* Properly Formatted Profile Button */}
+              <button className="fimmit-navbar__profile-btn" onClick={() => alert('Profile clicked!')}>
+                <div className="fimmit-profile-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                </div>
+                <div className="fimmit-profile-details">
+                  <span className="fimmit-profile-name">Your Profile</span>
+                  <Badge variant="yellow" size="sm">{userLevel}</Badge>
+                </div>
+              </button>
             </>
           )}
         </div>
 
-        {/* Mobile Toggle */}
         <button type="button" className="fimmit-navbar__mobile-toggle" onClick={toggleMobileMenu}>
           <span className="fimmit-hamburger-line"></span>
           <span className="fimmit-hamburger-line"></span>
@@ -80,7 +78,7 @@ export const Navbar = ({
         </button>
       </div>
       
-      {/* Mobile Drawer Menu (Kept unchanged) */}
+      {/* Mobile Drawer */}
       {isMobileMenuOpen && (
         <div className="fimmit-mobile-menu" role="dialog" aria-label="Mobile navigation menu">
           {variant === 'landing' ? (
@@ -94,17 +92,15 @@ export const Navbar = ({
               </div>
             </>
           ) : (
-            <>
-              <div className="fimmit-mobile-actions">
-                <Button variant="black" size="md" onClick={() => { toggleMobileMenu(); onSavedClick?.(); }}>
-                  🔖 Saved ({savedCount})
-                </Button>
-                <div className="fimmit-mobile-profile" style={{ marginTop: '1rem' }}>
-                  <span>Your profile</span>
-                  <Badge variant="yellow" size="sm">{userLevel}</Badge>
-                </div>
+            <div className="fimmit-mobile-actions">
+              <Button variant="outline" size="md" onClick={() => { toggleMobileMenu(); onSavedClick?.(); }}>
+                🔖 Saved issues ({savedCount})
+              </Button>
+              <div className="fimmit-mobile-profile" style={{ marginTop: '1rem' }}>
+                <span>Your Profile</span>
+                <Badge variant="yellow" size="sm">{userLevel}</Badge>
               </div>
-            </>
+            </div>
           )}
         </div>
       )}

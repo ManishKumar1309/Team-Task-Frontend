@@ -1,17 +1,10 @@
-import React, { useState } from 'react';
-import { Button } from '../common/Button';
+import React from 'react';
+import { Button } from '../common/Button'; 
 import { Badge } from '../common/Badge';
 import { Pill } from '../common/Pill';
 import './IssueCard.css';
 
-/**
- * Fimmit IssueCard Component
- * Displays a recommended open-source issue with match scores, difficulty, and reasons.
- */
-export const IssueCard = ({ issue }) => {
-  const [isSaved, setIsSaved] = useState(false);
-
-  // Determine difficulty badge color
+export const IssueCard = ({ issue, isSaved, onToggleSave }) => {
   const getDifficultyColor = (diff) => {
     switch (diff?.toUpperCase()) {
       case 'EASY': return 'success';
@@ -54,13 +47,14 @@ export const IssueCard = ({ issue }) => {
         </div>
         
         <div className="fimmit-issue-card__actions">
-          <button 
-            className={`fimmit-save-btn ${isSaved ? 'is-saved' : ''}`}
-            onClick={() => setIsSaved(!isSaved)}
+          <Button 
+            variant={isSaved ? "black" : "outline"} 
+            size="md"
+            onClick={onToggleSave}
             aria-label={isSaved ? "Unsave issue" : "Save issue"}
           >
             {isSaved ? '🔖 Saved' : '🔖 Save'}
-          </button>
+          </Button>
           <a href={issue.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
             <Button variant="primary" size="md">View Issue →</Button>
           </a>

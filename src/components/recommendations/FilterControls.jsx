@@ -1,33 +1,114 @@
 import React from 'react';
 import { Input } from '../common/Input';
 import { Pill } from '../common/Pill';
+import { Button } from '../common/Button';
 import './FilterControls.css';
 
-export const FilterControls = ({ searchQuery, setSearchQuery, selectedDiff, setSelectedDiff }) => {
+export const FilterControls = ({ 
+  searchQuery, setSearchQuery, 
+  selectedDiff, setSelectedDiff,
+  selectedTech, setSelectedTech, availableTechs,
+  minScore, setMinScore,
+  sortBy, setSortBy,
+  onClearAll, hasActiveFilters
+}) => {
   const difficulties = ['ALL', 'EASY', 'MEDIUM', 'HARD'];
 
+  const toggleTech = (tech) => {
+    if (selectedTech.includes(tech)) {
+      setSelectedTech(selectedTech.filter(t => t !== tech));
+    } else {
+      setSelectedTech([...selectedTech, tech]);
+    }
+  };
+
   return (
-    <div className="fimmit-filters">
-      <div className="fimmit-filters__search">
-        <Input 
-          placeholder="Search repositories, tags, or titles..." 
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
-      <div className="fimmit-filters__pills">
-        <span className="fimmit-filters__label">Difficulty:</span>
-        {difficulties.map(diff => (
-          <Pill 
-            key={diff}
-            interactive
-            selected={selectedDiff === diff}
-            onClick={() => setSelectedDiff(diff)}
+    <div className="fimmit-filters-panel" aria-label="Filter and Sort Controls">
+      <div className="fimmit-filters-top">
+        <div className="fimmit-search-wrapper">
+          <Input 
+            placeholder="Search repositories, tags, or titles..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button className="fimmit-search-clear" onClick={() => setSearchQuery('')} aria-label="Clear search">×</button>
+          )}
+        </div>
+        
+        <div className="fimmit-sort-wrapper">
+          <label htmlFor="sort-select" className="fimmit-control-label">Sort by:</label>
+          <select 
+            id="sort-select" 
+            className="fimmit-select" 
+            value={sortBy} 
+            onChange={(e) => setSortBy(e.target.value)}
           >
-            {diff}
-          </Pill>
-        ))}
+            <option value="BEST_MATCH">Best match</option>
+            <option value="EASIEST">Easiest first</option>
+            <option value="MEDIUM_FIRST">Medium first</option>
+            <option value="HARD_FIRST">Hard first</option>
+            <option value="TITLE_AZ">Title (A-Z)</option>
+          </select>
+        </div>
       </div>
+
+      <hr className="fimmit-filters-divider" />
+
+      <div className="fimmit-filters-bottom">
+        <div className="fimmit-filter-group">
+          <span className="fimmit-control-label">Difficulty:</span>
+          <div className="fimmit-pill-group">
+            {difficulties.map(diff => (
+              <Pill 
+                key={diff}
+                interactive
+                selected={selectedDiff === diff}
+                onClick={() => setSelectedDiff(diff)}
+              >
+                {diff}
+              </Pill>
+            ))}
+          </div>
+        </div>
+
+        <div className="fimmit-filter-group">
+          <span className="fimmit-control-label">Technology:</span>
+          <div className="fimmit-pill-group">
+            {availableTechs.map(tech => (
+              <Pill 
+                key={tech}
+                interactive
+                selected={selectedTech.includes(tech)}
+                onClick={() => toggleTech(tech)}
+              >
+                {tech}
+              </Pill>
+            ))}
+          </div>
+        </div>
+
+        <div className="fimmit-filter-group fimmit-score-group">
+          <span className="fimmit-control-label">Match Score:</span>
+          <select 
+            className="fimmit-select" 
+            value={minScore} 
+            onChange={(e) => setMinScore(Number(e.target.value))}
+          >
+            <option value="0">Any</option>
+            <option value="0.75">&gt; 75% Match</option>
+            <option value="0.90">&gt; 90% Match</option>
+          </select>
+        </div>
+      </div>
+
+      {hasActiveFilters && (
+        <div className="fimmit-filters-actions">
+          <Button variant="outline" size="sm" onClick={onClearAll}>
+            Reset all filters
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

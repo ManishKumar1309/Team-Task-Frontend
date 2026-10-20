@@ -167,14 +167,14 @@ export const HomePage = ({
   const [sortBy, setSortBy] = useState('BEST_MATCH');
 
   // Refresh only when the cooldown has ended.
-const handleRefreshClick = () => {
-  console.log("REFRESH BUTTON CLICKED");
-  console.log({ canRefresh, isLoading, isRefreshing, cooldownSeconds });
+  const handleRefreshClick = () => {
+    console.log("REFRESH BUTTON CLICKED");
+    console.log({ canRefresh, isLoading, isRefreshing, cooldownSeconds });
 
-  if (!canRefresh || isLoading || isRefreshing) return;
+    if (!canRefresh || isLoading || isRefreshing) return;
 
-  refreshFeed();
-};
+    refreshFeed();
+  };
   const [localSavedIds, setLocalSavedIds] = useState(new Set());
 
   const savedIssueIds = propSavedIssueIds || localSavedIds;
@@ -255,15 +255,19 @@ const handleRefreshClick = () => {
     setSortBy('BEST_MATCH');
   };
 
-  const handleToggleSave = (issueId) => {
+  const handleToggleSave = (issueOrId) => {
+    const issueObj = typeof issueOrId === 'object' && issueOrId !== null
+      ? issueOrId
+      : baseIssues.find((i) => String(i.id) === String(issueOrId)) || { id: String(issueOrId) };
+
     if (propToggleSave) {
-      propToggleSave(issueId);
+      propToggleSave(issueObj);
       return;
     }
 
     setLocalSavedIds((previous) => {
       const next = new Set(previous);
-      const strId = String(issueId);
+      const strId = String(issueObj.id || issueObj.url || issueOrId);
 
       if (next.has(strId)) {
         next.delete(strId);
@@ -349,17 +353,17 @@ const handleRefreshClick = () => {
 
 
                 <Button
-  variant="black"
-  onClick={handleRefreshClick}
-  disabled={!canRefresh || isLoading}
-  aria-live="polite"
->
-  {isRefreshing
-    ? 'Refreshing...'
-    : cooldownSeconds > 0
-      ? `↻ Refresh Feed (${String(Math.floor(cooldownSeconds / 60)).padStart(2, '0')}:${String(cooldownSeconds % 60).padStart(2, '0')})`
-      : '↻ Refresh Feed'}
-</Button>
+                  variant="black"
+                  onClick={handleRefreshClick}
+                  disabled={!canRefresh || isLoading}
+                  aria-live="polite"
+                >
+                  {isRefreshing
+                    ? 'Refreshing...'
+                    : cooldownSeconds > 0
+                      ? `↻ Refresh Feed (${formatTime(cooldownSeconds)})`
+                      : '↻ Refresh Feed'}
+                </Button>
               </div>
             </div>
 
@@ -393,9 +397,10 @@ const handleRefreshClick = () => {
                       issue={issue}
                       isSaved={
                         savedIssueIds?.has(String(issue.id)) ||
-                        savedIssueIds?.has(issue.id)
+                        savedIssueIds?.has(issue.id) ||
+                        (Boolean(issue.url) && savedIssueIds?.has(issue.url))
                       }
-                      onToggleSave={() => handleToggleSave(issue.id)}
+                      onToggleSave={() => handleToggleSave(issue)}
                     />
                   ))
                 ) : (

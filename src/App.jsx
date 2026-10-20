@@ -5,6 +5,7 @@ import { HomePage } from './pages/HomePage';
 import { OnboardingPage } from './pages/OnboardingPage';
 import { authService } from './services/authService';
 import { useSavedIssues } from './hooks/useSavedIssues';
+import { SavedIssuesDrawer } from './components/recommendations/SavedIssuesDrawer';
 
 export default function App() {
   const [currentView, setCurrentView] = useState(() => {
@@ -14,7 +15,16 @@ export default function App() {
     return 'landing';
   });
 
-  const { savedCount, savedIssueIds, toggleSave } = useSavedIssues();
+  const {
+    savedIssues,
+    savedIssueIds,
+    savedCount,
+    isDrawerOpen,
+    openDrawer,
+    closeDrawer,
+    toggleSave,
+    removeSavedIssue,
+  } = useSavedIssues();
 
   // Profile Difficulty State
   const [profileDifficulty, setProfileDifficulty] = useState(() => {
@@ -30,7 +40,7 @@ export default function App() {
     if (savedUser) {
       try {
         return JSON.parse(savedUser);
-      } catch (e) {
+      } catch {
         // Fallback if parsing fails
       }
     }
@@ -56,7 +66,7 @@ export default function App() {
     if (saved) {
       try {
         return JSON.parse(saved);
-      } catch (e) {
+      } catch {
         // Fallback
       }
     }
@@ -95,6 +105,22 @@ export default function App() {
         authService.startGitHubLogin();
       }
     } else {
+      const mockUser = {
+        username: 'developer',
+        avatarUrl: 'https://avatars.githubusercontent.com/u/583231?v=4',
+      };
+      setUser(mockUser);
+      authService.setCurrentUser(mockUser);
+    }
+  };
+
+  const handleHeroGetStarted = () => {
+    const useMock = import.meta.env.VITE_USE_MOCK_DATA !== 'false';
+    if (!useMock) {
+      if (typeof authService?.startGitHubLogin === 'function') {
+        authService.startGitHubLogin();
+      }
+    } else {
       navigateTo('onboarding');
     }
   };
@@ -109,6 +135,12 @@ export default function App() {
       setBackendTechTags(data.preferredTechStack);
       sessionStorage.setItem('fimmit_tech_tags', JSON.stringify(data.preferredTechStack));
     }
+    const authedUser = authService.getCurrentUser() || {
+      username: 'developer',
+      avatarUrl: 'https://avatars.githubusercontent.com/u/583231?v=4',
+    };
+    setUser(authedUser);
+    authService.setCurrentUser(authedUser);
     navigateTo('home');
   };
 
@@ -125,7 +157,7 @@ export default function App() {
       sessionStorage.removeItem('fimmit_user_data');
       sessionStorage.removeItem('fimmit_user_difficulty');
       sessionStorage.removeItem('fimmit_tech_tags');
-      
+
       // Redirect to landing view
       navigateTo('landing');
     }
@@ -156,23 +188,17 @@ export default function App() {
           userLevel={getDifficultyLabel(profileDifficulty)}
           backendTechTags={backendTechTags}
           username={user?.username || null}
+          user={user}
+          isAuthenticated={Boolean(user)}
           onSignIn={handleSignIn}
           onOpenFeed={() => navigateTo('home')}
-          onSavedClick={() => {
-            if (currentView !== 'home') {
-              navigateTo('home');
-            }
-            const listEl = document.querySelector('.fimmit-home-page') || document.querySelector('.fimmit-issues-grid');
-            if (listEl) {
-              listEl.scrollIntoView({ behavior: 'smooth' });
-            }
-          }}
+          onSavedClick={openDrawer}
           onNavClick={handleNavClick}
           onLogout={handleLogout}
         >
           {currentView === 'landing' ? (
             <LandingPage
-              onContinueWithGithub={handleSignIn}
+              onContinueWithGithub={handleHeroGetStarted}
               onHowItWorks={() => {
                 const section = document.getElementById('how-it-works');
                 if (section) section.scrollIntoView({ behavior: 'smooth' });
@@ -186,6 +212,14 @@ export default function App() {
           )}
         </MainLayout>
       )}
+
+      {/* Persistent Saved Issues Side Drawer */}
+      <SavedIssuesDrawer
+        isOpen={isDrawerOpen}
+        onClose={closeDrawer}
+        savedIssues={savedIssues}
+        onRemove={removeSavedIssue}
+      />
     </>
   );
 }

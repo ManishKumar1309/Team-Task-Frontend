@@ -76,7 +76,7 @@ export const Navbar = ({
   return (
     <header className={`fimmit-navbar-container ${className}`}>
       <div className="fimmit-navbar">
-        
+
         {/* Left Side: Logo */}
         <div className="fimmit-navbar__left">
           <a href="#home" className="fimmit-logo" aria-label="Fimmit Home">
@@ -140,7 +140,7 @@ export const Navbar = ({
                 </svg>
                 <span>Saved ({savedCount})</span>
               </button>
-              
+
               {/* Interactive Profile Button & Dropdown Container */}
               <div className="fimmit-navbar__profile-wrapper" ref={dropdownRef}>
                 <button
@@ -188,9 +188,9 @@ export const Navbar = ({
                         {username ? `@${username}` : 'Authenticated User'}
                       </span>
                     </div>
-                    
+
                     <hr className="fimmit-dropdown-divider" />
-                    
+
                     <button
                       type="button"
                       className="fimmit-dropdown-item fimmit-dropdown-item--logout"
@@ -224,7 +224,7 @@ export const Navbar = ({
           <span className="fimmit-hamburger-line"></span>
         </button>
       </div>
-      
+
       {/* Mobile Drawer */}
       {isMobileMenuOpen && (
         <div className="fimmit-mobile-menu" role="dialog" aria-label="Mobile navigation menu">
@@ -250,13 +250,13 @@ export const Navbar = ({
                 </svg>
                 <span>Saved ({savedCount})</span>
               </button>
-              
+
               <div className="fimmit-mobile-profile" style={{ marginTop: '1rem', flexDirection: 'column', alignItems: 'stretch', gap: '0.75rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <span className="fimmit-profile-name">{username ? `@${username}` : 'Your Profile'}</span>
                   <Badge variant="yellow" size="sm">{userLevel}</Badge>
                 </div>
-                
+
                 <Button variant="outline" size="md" onClick={handleLogoutClick} disabled={isLoggingOut}>
                   {isLoggingOut ? 'Logging out...' : 'Log out'}
                 </Button>

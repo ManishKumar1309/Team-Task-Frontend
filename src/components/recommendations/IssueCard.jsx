@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from '../common/Button'; 
+import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
 import { Pill } from '../common/Pill';
 import './IssueCard.css';
@@ -25,18 +25,16 @@ export const IssueCard = ({ issue, isSaved, onToggleSave }) => {
         </div>
         <div className="fimmit-issue-card__badges">
           <Badge variant={getDifficultyColor(issue.difficulty)}>{issue.difficulty}</Badge>
-          {/* Match Score Badge has been completely removed per Requirement 5 */}
         </div>
       </div>
 
       <h3 className="fimmit-issue-card__title">{issue.title}</h3>
-      
+
       <div className="fimmit-issue-card__reasons">
         <span className="fimmit-issue-card__reasons-label" style={{ fontWeight: '700', color: 'var(--text-primary, #000)', display: 'block', marginBottom: '0.25rem' }}>
           Repository description:
         </span>
         <p className="fimmit-issue-card__repo-desc" style={{ margin: 0, color: 'var(--text-secondary, #444)', lineHeight: '1.4' }}>
-          {/* Fallback implemented gracefully if the backend doesn't provide a description */}
           {issue.repoDescription || 'No description provided for this repository.'}
         </p>
       </div>
@@ -48,34 +46,30 @@ export const IssueCard = ({ issue, isSaved, onToggleSave }) => {
           ))}
           <Pill>{issue.issueType}</Pill>
         </div>
-        
+
         <div className="fimmit-issue-card__actions">
-          <button 
-            className={`fimmit-card-save-pill ${isSaved ? 'is-saved' : ''}`}
-            onClick={onToggleSave}
+          <button
+            type="button"
+            className={`fimmit-card-save-btn ${isSaved ? 'is-saved' : ''}`}
+            onClick={() => onToggleSave?.(issue)}
             aria-label={isSaved ? "Unsave issue" : "Save issue"}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              fontFamily: 'var(--font-family-body, sans-serif)',
-              fontSize: '0.9rem',
-              fontWeight: '700',
-              color: 'var(--color-black, #000)',
-              backgroundColor: isSaved ? 'var(--color-cream, #F7F4EC)' : 'var(--bg-surface, #ffffff)',
-              border: '2px solid var(--color-black, #000)',
-              borderRadius: '9999px',
-              padding: '0.35rem 1rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill={isSaved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill={isSaved ? "currentColor" : "none"}
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
             </svg>
-            <span>{isSaved ? 'Saved' : 'Save'}</span>
+            <span>{isSaved ? 'Saved' : 'Save issue'}</span>
           </button>
-          
+
           <a href={issue.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
             <Button variant="primary" size="md">View Issue →</Button>
           </a>

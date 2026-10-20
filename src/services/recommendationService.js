@@ -130,7 +130,22 @@ const FALLBACK_ISSUES = [
   }
 ];
 
-let mockSavedSet = new Set(['101', '103']);
+function getInitialMockSavedSet() {
+  try {
+    const raw = localStorage.getItem('fimmit_saved_issues');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return new Set(parsed.map((item) => String(item.id || item.url)));
+      }
+    }
+  } catch {
+    return new Set();
+  }
+  return new Set();
+}
+
+let mockSavedSet = getInitialMockSavedSet();
 
 export function adaptBackendIssue(raw) {
   if (!raw) return null;
@@ -200,10 +215,21 @@ export const recommendationService = {
 
   async getSavedIssues() {
     if (USE_MOCK) {
-      const savedList = FALLBACK_ISSUES.filter((i) => mockSavedSet.has(i.id)).map(adaptBackendIssue);
+      let savedList = [];
+      try {
+        const raw = localStorage.getItem('fimmit_saved_issues');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            savedList = parsed;
+          }
+        }
+      } catch {
+        savedList = [];
+      }
       return {
         savedIssues: savedList,
-        count: mockSavedSet.size,
+        count: savedList.length,
         isMock: true,
       };
     }

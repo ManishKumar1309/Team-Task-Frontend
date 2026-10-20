@@ -76,7 +76,7 @@
   gap: 1rem;
   margin-top: 0.5rem;
   padding-top: 1rem;
-  border-top: 1px solid rgba(0,0,0,0.1);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .fimmit-issue-card__tags {
@@ -89,23 +89,66 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 
-.fimmit-save-btn {
-  background: none;
-  border: none;
-  font-family: var(--font-family-body, sans-serif);
-  font-weight: 700;
+/* Save button matching Sign In button sizing (.fimmit-btn--md) */
+.fimmit-card-save-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs, 0.5rem);
+  font-family: var(--font-family-body, Arial, Helvetica, sans-serif);
+  font-weight: var(--font-weight-bold, 700);
+  font-size: 1rem;
+  padding: 0.6rem 1.25rem;
+  border: var(--border-width-default, 2px) solid var(--color-black, #000000);
+  border-radius: var(--radius-pill, 9999px);
+  box-shadow: var(--shadow-button, 2px 2px 0px #000000);
+  background-color: var(--bg-surface, #FFFFFF);
+  color: var(--color-black, #000000);
   cursor: pointer;
-  color: var(--text-secondary, #444);
-  transition: color 0.2s;
-  padding: 0;
+  user-select: none;
+  white-space: nowrap;
+  min-width: 142px;
+  transition: transform var(--transition-fast, 150ms ease),
+              background-color var(--transition-fast, 150ms ease),
+              box-shadow var(--transition-fast, 150ms ease);
 }
 
-.fimmit-save-btn:hover {
-  color: var(--color-orange, #EE8138);
+.fimmit-card-save-btn:hover {
+  background-color: var(--color-cream, #F7F4EC);
 }
 
-.fimmit-save-btn.is-saved {
-  color: var(--color-orange, #EE8138);
+.fimmit-card-save-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.fimmit-card-save-btn.is-saved {
+  background-color: var(--color-cream, #F7F4EC);
+  color: var(--color-black, #000000);
+}
+
+.fimmit-card-save-btn.is-saved:hover {
+  background-color: var(--color-yellow, #F6D945);
+}
+
+.fimmit-card-save-btn:focus-visible {
+  outline: 2px solid var(--color-black, #000000);
+  outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .fimmit-issue-card__actions {
+    width: 100%;
+    gap: 0.75rem;
+  }
+
+  .fimmit-card-save-btn,
+  .fimmit-issue-card__actions a,
+  .fimmit-issue-card__actions a .fimmit-btn {
+    width: 100%;
+    justify-content: center;
+  }
 }

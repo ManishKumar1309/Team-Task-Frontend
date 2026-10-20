@@ -34,7 +34,7 @@ const validateCustomInput = (input) => {
   if (val.length > 40) return 'Must be under 40 characters.';
   if (/^(.)\1{4,}$/.test(val)) return 'Please enter a meaningful technical answer.';
   if (!/[a-zA-Z]/.test(val)) return 'Must contain valid alphabetical characters.';
-  if (!/^[a-zA-Z0-9\s\.\-\+\#]+$/.test(val)) return 'Contains invalid symbols.';
+  if (!/^[a-zA-Z0-9\s.+\-#]+$/.test(val)) return 'Contains invalid symbols.';
   return '';
 };
 

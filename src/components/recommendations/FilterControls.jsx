@@ -1,16 +1,16 @@
 import React from 'react';
-import { Input } from '../common/Input';
 import { Pill } from '../common/Pill';
 import { Button } from '../common/Button';
 import './FilterControls.css';
 
-export const FilterControls = ({ 
-  searchQuery, setSearchQuery, 
-  selectedDiff, setSelectedDiff,
-  selectedTech, setSelectedTech, availableTechs,
-  minScore, setMinScore,
-  sortBy, setSortBy,
-  onClearAll, hasActiveFilters
+export const FilterControls = ({
+  selectedDiff,
+  setSelectedDiff,
+  selectedTech,
+  setSelectedTech,
+  availableTechs,
+  onClearAll,
+  hasActiveFilters,
 }) => {
   const difficulties = ['ALL', 'EASY', 'MEDIUM', 'HARD'];
 
@@ -30,7 +30,7 @@ export const FilterControls = ({
           <span className="fimmit-control-label">Difficulty:</span>
           <div className="fimmit-pill-group">
             {difficulties.map(diff => (
-              <Pill 
+              <Pill
                 key={diff}
                 interactive
                 selected={selectedDiff === diff}
@@ -42,13 +42,13 @@ export const FilterControls = ({
           </div>
         </div>
 
-        
+
 
         <div className="fimmit-filter-group">
           <span className="fimmit-control-label">Technology:</span>
           <div className="fimmit-pill-group">
             {availableTechs.map(tech => (
-              <Pill 
+              <Pill
                 key={tech}
                 interactive
                 selected={selectedTech.includes(tech)}

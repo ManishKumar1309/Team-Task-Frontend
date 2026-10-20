@@ -10,7 +10,7 @@
 .fimmit-navbar {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 1rem 1.5rem; 
+  padding: 1rem 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -47,7 +47,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin: 0 auto; 
+  margin: 0 auto;
 }
 
 .fimmit-nav-link {
@@ -87,7 +87,7 @@
 .fimmit-navbar__actions {
   display: flex;
   align-items: center;
-  gap: 1rem; 
+  gap: 1rem;
 }
 
 .fimmit-nav-saved-pill {
@@ -123,10 +123,10 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.35rem 0.75rem 0.35rem 0.35rem; 
+  padding: 0.35rem 0.75rem 0.35rem 0.35rem;
   background-color: transparent;
   border: 2px solid transparent;
-  border-left: 2px solid rgba(0, 0, 0, 0.15); 
+  border-left: 2px solid rgba(0, 0, 0, 0.15);
   border-radius: var(--radius-sm, 4px);
   cursor: pointer;
   transition: background-color 0.2s, border-color 0.2s;
@@ -199,6 +199,7 @@
     opacity: 0;
     transform: translateY(-6px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -321,18 +322,21 @@
 
 @media (max-width: 1100px) {
   .fimmit-navbar__profile-wrapper {
-    display: none; 
+    display: none;
   }
 }
 
 @media (max-width: 768px) {
+
   .fimmit-navbar__nav,
   .fimmit-navbar__actions {
     display: none;
   }
+
   .fimmit-navbar__mobile-toggle {
     display: flex;
   }
+
   .fimmit-mobile-menu {
     display: flex;
   }

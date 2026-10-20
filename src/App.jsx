@@ -77,7 +77,7 @@ export default function App() {
     setCurrentView(view);
     const targetHash = view === 'landing' ? '' : `#${view}`;
     if (window.location.hash !== targetHash) {
-      window.history.pushState(null, '', targetHash || window.location.pathname);
+      window.location.hash = targetHash || '#top';
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
@@ -99,30 +99,30 @@ export default function App() {
   }, []);
 
   const handleSignIn = () => {
-    const useMock = import.meta.env.VITE_USE_MOCK_DATA !== 'false';
-    if (!useMock) {
-      if (typeof authService?.startGitHubLogin === 'function') {
-        authService.startGitHubLogin();
+    try {
+      const useMock = import.meta.env.VITE_USE_MOCK_DATA !== 'false';
+      if (!useMock) {
+        if (typeof authService?.startGitHubLogin === 'function') {
+          authService.startGitHubLogin();
+          return;
+        }
       }
-    } else {
-      const mockUser = {
+
+      const mockUser = authService.getCurrentUser() || {
         username: 'developer',
         avatarUrl: 'https://avatars.githubusercontent.com/u/583231?v=4',
       };
       setUser(mockUser);
       authService.setCurrentUser(mockUser);
+    } catch (err) {
+      console.warn('Sign in error, proceeding to onboarding:', err);
+    } finally {
+      navigateTo('onboarding');
     }
   };
 
   const handleHeroGetStarted = () => {
-    const useMock = import.meta.env.VITE_USE_MOCK_DATA !== 'false';
-    if (!useMock) {
-      if (typeof authService?.startGitHubLogin === 'function') {
-        authService.startGitHubLogin();
-      }
-    } else {
-      navigateTo('onboarding');
-    }
+    handleSignIn();
   };
 
   const handleOnboardingComplete = (data) => {

@@ -7,6 +7,7 @@ import { ErrorState } from '../components/common/ErrorState';
 import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
 import { useRecommendations } from '../hooks/useRecommendations';
+import { getIssueKey } from '../hooks/useSavedIssues';
 
 import './HomePage.css';
 
@@ -267,7 +268,7 @@ export const HomePage = ({
 
     setLocalSavedIds((previous) => {
       const next = new Set(previous);
-      const strId = String(issueObj.id || issueObj.url || issueOrId);
+      const strId = getIssueKey(issueObj);
 
       if (next.has(strId)) {
         next.delete(strId);
@@ -391,18 +392,22 @@ export const HomePage = ({
                 aria-live="polite"
               >
                 {processedIssues.length > 0 ? (
-                  processedIssues.map((issue) => (
-                    <IssueCard
-                      key={issue.id}
-                      issue={issue}
-                      isSaved={
-                        savedIssueIds?.has(String(issue.id)) ||
-                        savedIssueIds?.has(issue.id) ||
-                        (Boolean(issue.url) && savedIssueIds?.has(issue.url))
-                      }
-                      onToggleSave={() => handleToggleSave(issue)}
-                    />
-                  ))
+                  processedIssues.map((issue) => {
+                    const issueKey = getIssueKey(issue);
+                    const isSaved = Boolean(
+                      (issueKey && savedIssueIds?.has(issueKey)) ||
+                      (issue.id !== undefined && issue.id !== null && savedIssueIds?.has(String(issue.id).trim()))
+                    );
+
+                    return (
+                      <IssueCard
+                        key={issueKey || issue.id}
+                        issue={issue}
+                        isSaved={isSaved}
+                        onToggleSave={() => handleToggleSave(issue)}
+                      />
+                    );
+                  })
                 ) : (
                   <div className="fimmit-issues-empty">
                     <h3 className="fimmit-empty-title">

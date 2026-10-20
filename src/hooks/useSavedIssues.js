@@ -5,17 +5,34 @@ const STORAGE_KEY = 'fimmit_saved_issues';
 
 /**
  * Helper to obtain a consistent, stable string identifier from an issue object or primitive id.
+ * Never uses generic placeholder URLs (like https://github.com) as keys.
  */
 export function getIssueKey(issue) {
   if (!issue) return '';
   if (typeof issue === 'string' || typeof issue === 'number') {
-    return String(issue);
+    return String(issue).trim();
   }
-  return String(issue.id || issue.url || '');
+  if (issue.id !== undefined && issue.id !== null && String(issue.id).trim() !== '') {
+    return String(issue.id).trim();
+  }
+  if (
+    issue.url &&
+    typeof issue.url === 'string' &&
+    issue.url !== 'https://github.com' &&
+    issue.url !== 'https://github.com/' &&
+    issue.url !== '#' &&
+    issue.url.trim() !== ''
+  ) {
+    return issue.url.trim();
+  }
+  if (issue.repository && issue.title) {
+    return `${issue.repository}#${issue.title}`.trim();
+  }
+  return String(issue.title || '').trim();
 }
 
 /**
- * Safely parse initial saved issues from localStorage.
+ * Safely parse initial saved issues from localStorage, deduplicating by issue key.
  */
 function loadInitialSavedIssues() {
   try {
@@ -23,7 +40,17 @@ function loadInitialSavedIssues() {
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) {
-      return parsed.filter((item) => item && (item.id || item.url));
+      const seen = new Set();
+      const deduped = [];
+      for (const item of parsed) {
+        if (!item || typeof item !== 'object') continue;
+        const key = getIssueKey(item);
+        if (key && !seen.has(key)) {
+          seen.add(key);
+          deduped.push(item);
+        }
+      }
+      return deduped;
     }
     return [];
   } catch (err) {
@@ -38,7 +65,6 @@ function loadInitialSavedIssues() {
 export function useSavedIssues() {
   const [savedIssues, setSavedIssues] = useState(loadInitialSavedIssues);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
 
   // Persist whenever savedIssues changes
@@ -74,12 +100,15 @@ export function useSavedIssues() {
     };
   }, [persistSavedIssues]);
 
-  // Derived set of string IDs/URLs for O(1) membership checks in cards
+  // Derived set of string IDs for O(1) membership checks in cards
   const savedIssueIds = useMemo(() => {
     const ids = new Set();
     savedIssues.forEach((issue) => {
-      if (issue.id) ids.add(String(issue.id));
-      if (issue.url) ids.add(String(issue.url));
+      const key = getIssueKey(issue);
+      if (key) ids.add(key);
+      if (issue.id !== undefined && issue.id !== null && String(issue.id).trim() !== '') {
+        ids.add(String(issue.id).trim());
+      }
     });
     return ids;
   }, [savedIssues]);
@@ -103,17 +132,21 @@ export function useSavedIssues() {
 
     setSavedIssues((prev) => {
       const next = prev.filter((i) => getIssueKey(i) !== targetKey);
-      persistSavedIssues(next);
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch (err) {
+        console.error('Failed to persist saved issues to localStorage:', err);
+      }
       return next;
     });
 
     // Fire and forget background sync
     recommendationService.removeSavedIssue(targetKey).catch(() => {});
-  }, [persistSavedIssues]);
+  }, []);
 
   /**
    * Toggles the saved status of an issue.
-   * If not saved: saves issue, persists, and slides in the right-side drawer.
+   * If not saved: saves issue, persists, and prevents duplicate saves.
    * If saved: unsaves issue and updates list immediately.
    */
   const toggleSave = useCallback((issue) => {
@@ -122,33 +155,34 @@ export function useSavedIssues() {
     if (!targetKey) return;
 
     setSaveError('');
-    setIsSaving(true);
 
-    try {
-      setSavedIssues((prev) => {
-        const isAlreadySaved = prev.some((i) => getIssueKey(i) === targetKey);
+    setSavedIssues((prev) => {
+      const isAlreadySaved = prev.some((i) => getIssueKey(i) === targetKey);
+      let next;
 
-        if (isAlreadySaved) {
-          // Unsave
-          const next = prev.filter((i) => getIssueKey(i) !== targetKey);
-          persistSavedIssues(next);
-          recommendationService.removeSavedIssue(targetKey).catch(() => {});
-          return next;
-        } else {
-          // Save and open drawer immediately
-          const next = [issue, ...prev];
-          persistSavedIssues(next);
-          recommendationService.saveIssue(targetKey).catch(() => {});
-          setIsDrawerOpen(true);
-          return next;
-        }
-      });
-    } catch (err) {
-      setSaveError(err.message || 'Failed to update saved status');
-    } finally {
-      setIsSaving(false);
-    }
-  }, [persistSavedIssues]);
+      if (isAlreadySaved) {
+        // Unsave
+        next = prev.filter((i) => getIssueKey(i) !== targetKey);
+      } else {
+        // Save and ensure no duplicates
+        next = [issue, ...prev.filter((i) => getIssueKey(i) !== targetKey)];
+      }
+
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch (err) {
+        console.error('Failed to persist saved issues to localStorage:', err);
+      }
+
+      if (isAlreadySaved) {
+        recommendationService.removeSavedIssue(targetKey).catch(() => {});
+      } else {
+        recommendationService.saveIssue(targetKey).catch(() => {});
+      }
+
+      return next;
+    });
+  }, []);
 
   return {
     savedIssues,
@@ -160,7 +194,6 @@ export function useSavedIssues() {
     setIsDrawerOpen,
     toggleSave,
     removeSavedIssue,
-    isSaving,
     saveError,
   };
 }

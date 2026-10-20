@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { getIssueKey } from '../../hooks/useSavedIssues';
 import './SavedIssuesDrawer.css';
 
 /**
@@ -119,7 +120,7 @@ export const SavedIssuesDrawer = ({
           ) : (
             <div className="fimmit-saved-cards-list">
               {savedIssues.map((issue, index) => {
-                const stableKey = String(issue.id || issue.url || index);
+                const stableKey = getIssueKey(issue) || `saved-${index}`;
                 const issueNumber = getDisplayIssueNumber(issue);
                 const hasValidUrl = Boolean(issue.url && issue.url !== '#');
 

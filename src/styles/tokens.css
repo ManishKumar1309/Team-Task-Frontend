@@ -1,0 +1,65 @@
+:root {
+  /* 1. Core Brand Palette */
+  --color-cream: #F7F4EC;
+  --color-black: #000000;
+  --color-orange: #EE8138;
+  --color-yellow: #F6D945;
+  --color-red: #E4452F;
+  --color-green: #4BD08B;
+
+  /* 2. Semantic Color Aliases */
+  --bg-primary: var(--color-cream);
+  --bg-card: var(--color-cream);
+  --bg-surface: #FFFFFF;
+
+  --text-primary: var(--color-black);
+  --text-secondary: rgba(0, 0, 0, 0.7);
+  --text-muted: rgba(0, 0, 0, 0.5);
+
+  --action-primary: var(--color-orange);
+  --action-primary-hover: #d8722b;
+  --action-highlight: var(--color-yellow);
+  --action-selected: var(--color-yellow);
+
+  --border-primary: var(--color-black);
+  --border-subtle: rgba(0, 0, 0, 0.2);
+
+  --status-success: var(--color-green);
+  --status-error: var(--color-red);
+  --status-warning: var(--color-yellow);
+
+  /* 3. Typography */
+  --font-family-display: Georgia, "Times New Roman", serif;
+  --font-family-body: Arial, Helvetica, sans-serif;
+  --font-family-mono: "Courier New", monospace;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+
+  /* 4. Spacing Scale */
+  --space-xxs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-xxl: 3rem;
+
+  /* 5. Border Radii */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 9999px;
+  --radius-card: 16px;
+
+  /* 6. Shadows & Outlines */
+  --border-width-default: 2px;
+  --shadow-card: 4px 4px 0px var(--color-black);
+  --shadow-button: 2px 2px 0px var(--color-black);
+
+  /* 7. Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+}

@@ -1,122 +1,225 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import React, { useState, useEffect, useCallback } from 'react';
+import { MainLayout } from './layouts/MainLayout';
+import { LandingPage } from './pages/LandingPage';
+import { HomePage } from './pages/HomePage';
+import { OnboardingPage } from './pages/OnboardingPage';
+import { authService } from './services/authService';
+import { useSavedIssues } from './hooks/useSavedIssues';
+import { SavedIssuesDrawer } from './components/recommendations/SavedIssuesDrawer';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [currentView, setCurrentView] = useState(() => {
+    const hash = window.location.hash.toLowerCase();
+    if (hash === '#onboarding') return 'onboarding';
+    if (hash === '#home' || hash === '#feed') return 'home';
+    return 'landing';
+  });
+
+  const {
+    savedIssues,
+    savedIssueIds,
+    savedCount,
+    isDrawerOpen,
+    openDrawer,
+    closeDrawer,
+    toggleSave,
+    removeSavedIssue,
+  } = useSavedIssues();
+
+  // Profile Difficulty State
+  const [profileDifficulty, setProfileDifficulty] = useState(() => {
+    return sessionStorage.getItem('fimmit_user_difficulty') || 'medium';
+  });
+
+  // Authenticated GitHub User State
+  const [user, setUser] = useState(() => {
+    if (typeof authService?.getCurrentUser === 'function') {
+      return authService.getCurrentUser() || null;
+    }
+    const savedUser = sessionStorage.getItem('fimmit_user_data');
+    if (savedUser) {
+      try {
+        return JSON.parse(savedUser);
+      } catch {
+        // Fallback if parsing fails
+      }
+    }
+    return null;
+  });
+
+  const getDifficultyLabel = (diff) => {
+    switch (diff?.toLowerCase()) {
+      case 'easy':
+        return 'Beginner';
+      case 'medium':
+        return 'Intermediate';
+      case 'hard':
+        return 'Expert';
+      default:
+        return 'Intermediate';
+    }
+  };
+
+  // Backend-Provided Technology Tags
+  const [backendTechTags, setBackendTechTags] = useState(() => {
+    const saved = sessionStorage.getItem('fimmit_tech_tags');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        // Fallback
+      }
+    }
+    return ['javascript', 'react', 'python'];
+  });
+
+  const navigateTo = useCallback((view) => {
+    setCurrentView(view);
+    const targetHash = view === 'landing' ? '' : `#${view}`;
+    if (window.location.hash !== targetHash) {
+      window.history.pushState(null, '', targetHash || window.location.pathname);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.toLowerCase();
+      if (hash === '#onboarding') {
+        setCurrentView('onboarding');
+      } else if (hash === '#home' || hash === '#feed') {
+        setCurrentView('home');
+      } else if (!hash || hash === '#top') {
+        setCurrentView('landing');
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  const handleSignIn = () => {
+    const useMock = import.meta.env.VITE_USE_MOCK_DATA !== 'false';
+    if (!useMock) {
+      if (typeof authService?.startGitHubLogin === 'function') {
+        authService.startGitHubLogin();
+      }
+    } else {
+      const mockUser = {
+        username: 'developer',
+        avatarUrl: 'https://avatars.githubusercontent.com/u/583231?v=4',
+      };
+      setUser(mockUser);
+      authService.setCurrentUser(mockUser);
+    }
+  };
+
+  const handleHeroGetStarted = () => {
+    const useMock = import.meta.env.VITE_USE_MOCK_DATA !== 'false';
+    if (!useMock) {
+      if (typeof authService?.startGitHubLogin === 'function') {
+        authService.startGitHubLogin();
+      }
+    } else {
+      navigateTo('onboarding');
+    }
+  };
+
+  const handleOnboardingComplete = (data) => {
+    if (data?.preferredDifficulty) {
+      const rawDiff = data.preferredDifficulty.toLowerCase();
+      setProfileDifficulty(rawDiff);
+      sessionStorage.setItem('fimmit_user_difficulty', rawDiff);
+    }
+    if (data?.preferredTechStack && Array.isArray(data.preferredTechStack)) {
+      setBackendTechTags(data.preferredTechStack);
+      sessionStorage.setItem('fimmit_tech_tags', JSON.stringify(data.preferredTechStack));
+    }
+    const authedUser = authService.getCurrentUser() || {
+      username: 'developer',
+      avatarUrl: 'https://avatars.githubusercontent.com/u/583231?v=4',
+    };
+    setUser(authedUser);
+    authService.setCurrentUser(authedUser);
+    navigateTo('home');
+  };
+
+  const handleLogout = async () => {
+    try {
+      if (typeof authService?.logout === 'function') {
+        await authService.logout();
+      }
+    } catch (err) {
+      console.error('Error during logout service call:', err);
+    } finally {
+      // Clear user session state and cache
+      setUser(null);
+      sessionStorage.removeItem('fimmit_user_data');
+      sessionStorage.removeItem('fimmit_user_difficulty');
+      sessionStorage.removeItem('fimmit_tech_tags');
+
+      // Redirect to landing view
+      navigateTo('landing');
+    }
+  };
+
+  const handleNavClick = (e) => {
+    const href = e.currentTarget.getAttribute('href');
+    if (href?.startsWith('#')) {
+      e.preventDefault();
+      const target = document.querySelector(href);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
 
   return (
     <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
+      {currentView === 'onboarding' ? (
+        <OnboardingPage
+          onComplete={handleOnboardingComplete}
+          onExit={() => navigateTo('landing')}
+        />
+      ) : (
+        <MainLayout
+          navbarVariant={currentView}
+          savedCount={savedCount}
+          userLevel={getDifficultyLabel(profileDifficulty)}
+          backendTechTags={backendTechTags}
+          username={user?.username || null}
+          user={user}
+          isAuthenticated={Boolean(user)}
+          onSignIn={handleSignIn}
+          onOpenFeed={() => navigateTo('home')}
+          onSavedClick={openDrawer}
+          onNavClick={handleNavClick}
+          onLogout={handleLogout}
         >
-          Count is {count}
-        </button>
-      </section>
+          {currentView === 'landing' ? (
+            <LandingPage
+              onContinueWithGithub={handleHeroGetStarted}
+              onHowItWorks={() => {
+                const section = document.getElementById('how-it-works');
+                if (section) section.scrollIntoView({ behavior: 'smooth' });
+              }}
+            />
+          ) : (
+            <HomePage
+              savedIssueIds={savedIssueIds}
+              onToggleSave={toggleSave}
+            />
+          )}
+        </MainLayout>
+      )}
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
+      {/* Persistent Saved Issues Side Drawer */}
+      <SavedIssuesDrawer
+        isOpen={isDrawerOpen}
+        onClose={closeDrawer}
+        savedIssues={savedIssues}
+        onRemove={removeSavedIssue}
+      />
     </>
-  )
+  );
 }
-
-export default App

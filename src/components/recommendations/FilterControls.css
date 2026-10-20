@@ -1,0 +1,124 @@
+.fimmit-filters-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  background-color: var(--bg-surface, #ffffff);
+  border: var(--border-width-default, 2px) solid var(--color-black, #000000);
+  border-radius: var(--radius-md, 8px);
+  box-shadow: 4px 4px 0px var(--color-black, #000000);
+  margin-bottom: 2rem;
+}
+
+/* --- Top Row: Search and Sort --- */
+.fimmit-filters-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.fimmit-search-wrapper {
+  flex: 1;
+  min-width: 250px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.fimmit-search-clear {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-muted, #888);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.fimmit-search-clear:hover {
+  color: var(--color-red, #E4452F);
+}
+
+.fimmit-sort-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* --- Common Control Labels & Selects --- */
+.fimmit-control-label {
+  font-family: var(--font-family-body, sans-serif);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-primary, #000);
+}
+
+.fimmit-select {
+  font-family: var(--font-family-body, sans-serif);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  border: 2px solid var(--color-black, #000);
+  border-radius: var(--radius-sm, 4px);
+  background-color: var(--color-cream, #F7F4EC);
+  color: var(--color-black, #000);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+}
+
+.fimmit-select:focus {
+  outline: 2px solid var(--color-orange, #EE8138);
+  outline-offset: 2px;
+}
+
+.fimmit-filters-divider {
+  border: none;
+  border-top: 1px dashed rgba(0, 0, 0, 0.2);
+  margin: 0;
+}
+
+/* --- Bottom Row: Detailed Filters --- */
+.fimmit-filters-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.fimmit-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fimmit-pill-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.fimmit-score-group {
+  margin-left: auto; /* Pushes match score to the right on wide screens */
+}
+
+/* --- Clear Filters Action --- */
+.fimmit-filters-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .fimmit-score-group {
+    margin-left: 0;
+  }
+}

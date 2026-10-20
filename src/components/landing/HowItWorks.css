@@ -1,0 +1,94 @@
+/**
+ * Fimmit Design System - HowItWorks Component Styles
+ */
+
+.fimmit-how-section {
+  width: 100%;
+  padding: 6rem var(--space-lg);
+  border-top: var(--border-width-default) solid var(--color-black);
+  border-bottom: var(--border-width-default) solid var(--color-black);
+  background-color: var(--color-cream);
+}
+
+.fimmit-how__container {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.fimmit-how__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxs);
+}
+
+.fimmit-how__eyebrow {
+  font-family: var(--font-family-mono);
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.fimmit-how__title {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-extrabold);
+  font-size: clamp(2.2rem, 4vw, 3.5rem);
+  letter-spacing: -0.03em;
+  color: var(--color-black);
+}
+
+.fimmit-how__steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-xl);
+}
+
+.fimmit-step-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  background-color: var(--bg-surface);
+  border: var(--border-width-default) solid var(--color-black);
+  border-radius: var(--radius-sm);
+  box-shadow: 4px 4px 0px var(--color-black);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.fimmit-step-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--color-black);
+}
+
+.fimmit-step-card__number {
+  font-family: var(--font-family-display);
+  font-size: 2.5rem;
+  font-weight: var(--font-weight-extrabold);
+  color: var(--color-orange);
+  line-height: 1;
+}
+
+.fimmit-step-card__title {
+  font-family: var(--font-family-display);
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-black);
+}
+
+.fimmit-step-card__desc {
+  font-family: var(--font-family-body);
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .fimmit-how__steps-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+}

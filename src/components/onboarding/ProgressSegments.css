@@ -1,0 +1,42 @@
+.fimmit-progress-segments {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  width: 100%;
+  margin-bottom: var(--space-lg);
+}
+
+.fimmit-progress-segments__label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fimmit-progress-segments__step-label {
+  font-family: var(--font-family-mono);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  color: var(--color-black);
+  letter-spacing: 0.05em;
+}
+
+.fimmit-progress-segments__bars {
+  display: flex;
+  gap: var(--space-xs);
+  width: 100%;
+}
+
+.fimmit-progress-segments__bar {
+  flex: 1;
+  height: 8px;
+  background-color: rgba(0, 0, 0, 0.15);
+  border: 1.5px solid var(--color-black);
+  border-radius: var(--radius-pill);
+  transition: background-color var(--transition-fast);
+}
+
+.fimmit-progress-segments__bar--completed,
+.fimmit-progress-segments__bar--active {
+  background-color: var(--color-orange);
+}

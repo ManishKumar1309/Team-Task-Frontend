@@ -1,0 +1,11 @@
+/**
+ * Fimmit Design System - LandingPage Container Styles
+ */
+
+.fimmit-landing-page {
+  width: 100%;
+  background-color: var(--color-cream);
+  display: flex;
+  flex-direction: column;
+  scroll-behavior: smooth;
+}

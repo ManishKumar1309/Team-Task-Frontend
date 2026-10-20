@@ -1,0 +1,134 @@
+.fimmit-onboarding-page {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--color-cream, #F7F4EC);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+}
+
+.fimmit-onboarding-container {
+  max-width: 600px;
+  width: 100%;
+  background-color: var(--bg-surface, #ffffff);
+  border: 2px solid var(--color-black, #000000);
+  border-radius: var(--radius-md, 8px);
+  padding: 2.5rem;
+  box-shadow: 6px 6px 0px var(--color-black, #000000);
+}
+
+.fimmit-onboarding-header {
+  margin-bottom: 2rem;
+}
+
+.fimmit-onboarding-title {
+  font-family: var(--font-family-display, sans-serif);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-black, #000000);
+  margin-bottom: 0.5rem;
+}
+
+.fimmit-onboarding-subtitle {
+  font-family: var(--font-family-body, sans-serif);
+  font-size: 1rem;
+  color: var(--text-secondary, #444);
+}
+
+.fimmit-onboarding-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.fimmit-onboarding-error {
+  background-color: #FDECEA;
+  color: var(--color-red, #E4452F);
+  border: 2px solid var(--color-red, #E4452F);
+  border-radius: var(--radius-sm, 4px);
+  padding: 1rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.fimmit-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Character Counter Styles */
+.fimmit-form-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.fimmit-char-counter {
+  font-family: var(--font-family-mono, monospace);
+  font-size: 0.8rem;
+  color: var(--text-muted, #888);
+  font-weight: 600;
+}
+
+.fimmit-form-label {
+  font-family: var(--font-family-display, sans-serif);
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--color-black, #000);
+}
+
+.fimmit-textarea {
+  width: 100%;
+  font-family: var(--font-family-body, sans-serif);
+  font-size: 1rem;
+  padding: 0.75rem;
+  border: 2px solid var(--color-black, #000);
+  border-radius: var(--radius-sm, 4px);
+  background-color: var(--color-cream, #F7F4EC);
+  resize: vertical;
+}
+
+.fimmit-textarea:focus {
+  outline: 2px solid var(--color-orange, #EE8138);
+  outline-offset: 2px;
+}
+
+.fimmit-pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.fimmit-outline-pill {
+  font-family: var(--font-family-body, sans-serif);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-black, #000);
+  background-color: var(--bg-surface, #ffffff);
+  border: 2px solid var(--color-black, #000);
+  border-radius: var(--radius-pill, 9999px);
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fimmit-outline-pill:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.fimmit-outline-pill.is-active {
+  background-color: var(--color-yellow, #F6D945); 
+  box-shadow: inset 0 0 0 1px var(--color-black, #000);
+}
+
+.fimmit-other-input-wrapper {
+  margin-top: 0.5rem;
+}
+
+.fimmit-onboarding-actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+}

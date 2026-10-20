@@ -1,0 +1,181 @@
+/**
+ * Fimmit Design System - Hero Component Styles
+ * Styling for the landing page hero section, oversized typography, tilted orange highlight,
+ * rotating circular badge, and GitHub CTA button.
+ */
+
+.fimmit-hero {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 4rem var(--space-lg) 6rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+/* --- Eyebrow Line --- */
+.fimmit-hero__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-family-mono);
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.fimmit-hero__dot {
+  color: var(--color-orange);
+}
+
+/* --- Header Grid & Oversized Title --- */
+.fimmit-hero__header-grid {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  gap: var(--space-xl);
+}
+
+.fimmit-hero__title {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-extrabold);
+  font-size: clamp(3rem, 6vw, 5.5rem);
+  line-height: 1.05;
+  color: var(--color-black);
+  max-width: 850px;
+  letter-spacing: -0.04em;
+}
+
+/* Tilted Orange Highlight Box */
+.fimmit-hero__highlight {
+  display: inline-block;
+  background-color: var(--color-orange);
+  color: var(--color-black);
+  padding: 0.1em 0.3em;
+  transform: rotate(-1.5deg);
+  border-radius: var(--radius-sm);
+  box-shadow: 3px 3px 0px var(--color-black);
+  margin-left: 0.15em;
+}
+
+/* --- Circular Badge --- */
+.fimmit-hero__circular-badge-wrapper {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fimmit-circular-badge {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  background-color: var(--color-yellow);
+  border: var(--border-width-default) solid var(--color-black);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 4px 4px 0px var(--color-black);
+}
+
+.fimmit-circular-badge__svg {
+  position: absolute;
+  width: 115%;
+  height: 115%;
+  animation: fimmit-spin-slow 20s linear infinite;
+}
+
+@keyframes fimmit-spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.fimmit-circular-badge__text {
+  font-family: var(--font-family-mono);
+  font-size: 9.5px;
+  font-weight: var(--font-weight-bold);
+  fill: var(--color-black);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.fimmit-circular-badge__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-family: var(--font-family-body);
+  font-size: 0.75rem;
+  line-height: 1.1;
+  color: var(--color-black);
+  z-index: 1;
+}
+
+.fimmit-circular-badge__center strong {
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-extrabold);
+}
+
+/* --- Content Row (Description & How it works link) --- */
+.fimmit-hero__content-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  max-width: 600px;
+}
+
+.fimmit-hero__description {
+  font-family: var(--font-family-body);
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.fimmit-hero__how-link {
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-bold);
+  font-size: 1rem;
+  color: var(--color-black);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  border-bottom: 2px solid var(--status-success);
+  transition: color var(--transition-fast);
+}
+
+.fimmit-hero__how-link:hover {
+  color: var(--color-orange);
+}
+
+/* --- GitHub CTA --- */
+.fimmit-hero__cta-wrapper {
+  margin-top: var(--space-md);
+}
+
+.fimmit-hero__github-btn {
+  font-size: 1.1rem;
+  padding: 0.85rem 2rem;
+}
+
+/* --- Responsive Adaptations --- */
+@media (max-width: 900px) {
+  .fimmit-hero__header-grid {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .fimmit-hero__circular-badge-wrapper {
+    align-self: flex-start;
+    margin-top: var(--space-sm);
+  }
+}

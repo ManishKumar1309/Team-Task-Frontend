@@ -1,11 +1,960 @@
-/**
- * Fimmit Design System - LandingPage Container Styles
- */
+/* Google Fonts Import for DM Sans, Caveat Brush, and Space Mono */
+@import url('https://fonts.googleapis.com/css2?family=Caveat+Brush&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Space+Mono:wght@500;700&display=swap');
+
+:root {
+  --font-dm-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-caveat-brush: 'Caveat Brush', cursive, sans-serif;
+  --font-space-mono: 'Space Mono', monospace, sans-serif;
+}
 
 .fimmit-landing-page {
   width: 100%;
-  background-color: var(--color-cream);
+  background-color: #F7F4EC;
+  color: #000000;
   display: flex;
   flex-direction: column;
-  scroll-behavior: smooth;
+  justify-content: space-between;
+  box-sizing: border-box;
+  font-family: var(--font-dm-sans);
+  overflow-x: hidden;
+}
+
+.fimmit-page-content {
+  flex: 1;
+  padding: 2.5rem 3.5rem 3rem 3.5rem;
+}
+
+.fimmit-landing-container {
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.fimmit-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-family: var(--font-space-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #333333;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.fimmit-eyebrow-dot {
+  color: #EE8138;
+  font-weight: 900;
+  font-size: 1rem;
+}
+
+/* --- Hero Section --- */
+.fimmit-hero-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  margin-bottom: 3.5rem;
+}
+
+.fimmit-hero-left {
+  flex: 1;
+  max-width: 820px;
+}
+
+.fimmit-hero-headline {
+  font-family: var(--font-dm-sans);
+  font-size: clamp(3.8rem, 7.2vw, 6.8rem);
+  font-weight: 900;
+  line-height: 0.88;
+  letter-spacing: -0.04em;
+  color: #000000;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.fimmit-headline-line {
+  display: block;
+}
+
+.fimmit-headline-banner-wrapper {
+  display: inline-block;
+  margin-top: 1rem;
+  position: relative;
+  z-index: 2;
+}
+
+.fimmit-orange-banner {
+  display: inline-block;
+  background-color: #EE8138;
+  color: #000000;
+  padding: 0.12em 0.45em;
+  border-radius: 12px;
+  border: 4px solid #FFFFFF;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  transform: rotate(-2.2deg);
+  transform-origin: left center;
+}
+
+.fimmit-hero-right {
+  position: relative;
+  padding-top: 6rem;
+  padding-right: 2rem;
+  display: flex;
+  justify-content: flex-end; 
+}
+
+.fimmit-sticker-container {
+  position: relative;
+  width: 220px; 
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fimmit-sticker-outer-circle {
+  width: 220px;
+  height: 220px;
+  background-color: #F6D945;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.fimmit-sticker-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+  animation: rotateStickerRing 16s linear infinite;
+  transform-origin: center center;
+}
+
+@keyframes rotateStickerRing {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.fimmit-sticker-circular-text {
+  font-family: var(--font-space-mono);
+  font-size: 11px;
+  font-weight: 700;
+  fill: #000000;
+  letter-spacing: 2px;
+}
+
+.fimmit-sticker-inner-circle {
+  width: 115px; 
+  height: 115px;
+  background-color: #000000;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #F6D945;
+  font-family: var(--font-dm-sans);
+  font-size: 0.9rem; 
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+  z-index: 2;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.fimmit-bottom-hero {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr; 
+  align-items: flex-end;
+  gap: 2rem;
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.fimmit-bottom-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+  max-width: 320px;
+}
+
+.fimmit-matching-link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-dm-sans);
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #000000;
+  cursor: pointer;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.fimmit-matching-link-btn::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 2.5px;
+  background-color: #4BD08B;
+}
+
+.fimmit-arrow {
+  font-weight: 700;
+  transition: transform 0.2s ease;
+}
+
+.fimmit-matching-link-btn:hover .fimmit-arrow {
+  transform: translateX(3px);
+}
+
+.fimmit-bottom-description {
+  font-family: var(--font-dm-sans);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #111111;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.fimmit-bottom-center {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 0.5rem; 
+}
+
+.fimmit-github-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: #EE8138;
+  color: #000000;
+  font-family: var(--font-dm-sans);
+  font-size: 1.05rem;
+  font-weight: 800;
+  padding: 0.75rem 1.75rem 0.75rem 0.85rem;
+  border: 2px solid #000000;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.fimmit-github-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.fimmit-github-cta-btn:active {
+  transform: translateY(0);
+}
+
+.fimmit-github-icon-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: #000000;
+  border-radius: 50%;
+}
+
+.fimmit-github-svg {
+  width: 30px;
+  height: 30px;
+  filter: invert(1);
+}
+
+.fimmit-bottom-right {
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: 3rem;
+}
+
+.fimmit-handwritten-accent {
+  font-family: var(--font-caveat-brush);
+  font-size: 1.85rem; 
+  font-weight: 400;
+  color: #414CE1;
+  transform: rotate(2.5deg);
+  display: inline-block;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* --- Preview Section --- */
+.fimmit-preview-section {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  padding-top: 6rem;
+  padding-bottom: 3.5rem;
+}
+
+.fimmit-preview-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.fimmit-preview-headline {
+  font-family: var(--font-dm-sans);
+  font-size: clamp(3.5rem, 5.5vw, 4.8rem);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: #000000;
+  margin: 0 0 1.5rem 0;
+}
+
+.fimmit-preview-desc {
+  font-family: var(--font-dm-sans);
+  font-size: 1.1rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: #111111;
+  max-width: 480px;
+  margin: 0 0 1rem 0;
+}
+
+.fimmit-preview-handwritten {
+  font-family: var(--font-caveat-brush);
+  font-size: 1.65rem;
+  font-weight: 400;
+  color: #414CE1;
+  transform: rotate(-2deg);
+  display: inline-block;
+  letter-spacing: 0.02em;
+  margin-left: 2.5rem;
+  margin-top: 0.5rem;
+}
+
+.fimmit-preview-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.fimmit-preview-card {
+  width: 100%;
+  max-width: 580px;
+  background-color: transparent;
+  border: 1.5px solid #000000;
+  border-radius: 12px;
+  padding: 1.75rem;
+  box-sizing: border-box;
+}
+
+.fimmit-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.fimmit-card-repo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-dm-sans);
+  font-size: 1rem;
+  font-weight: 800;
+  color: #000000;
+}
+
+.fimmit-card-star {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.fimmit-card-star svg {
+  margin-bottom: 2px;
+}
+
+.fimmit-card-difficulty {
+  font-family: var(--font-dm-sans);
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.15rem 0.65rem;
+  border-radius: 9999px;
+  border: 1.5px solid #000000;
+}
+
+.fimmit-diff-hard {
+  background-color: #E4452F;
+  color: #FFFFFF;
+}
+
+.fimmit-card-title {
+  font-family: var(--font-dm-sans);
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.35;
+  color: #000000;
+  margin: 0 0 1rem 0;
+}
+
+.fimmit-card-issue-num {
+  color: #555555;
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+.fimmit-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.fimmit-card-tag {
+  background-color: #000000;
+  color: #FFFFFF;
+  font-family: var(--font-dm-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+}
+
+.fimmit-card-match-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.fimmit-match-score {
+  background-color: #000000;
+  color: #F6D945;
+  font-family: var(--font-dm-sans);
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+.fimmit-match-desc {
+  font-family: var(--font-dm-sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #222222;
+}
+
+.fimmit-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.fimmit-card-btn-open,
+.fimmit-card-btn-saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-dm-sans);
+  font-size: 0.9rem;
+  font-weight: 800;
+  padding: 0.45rem 1.1rem;
+  border-radius: 9999px;
+  border: 1.5px solid #000000;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.fimmit-card-btn-open:hover,
+.fimmit-card-btn-saved:hover {
+  transform: translateY(-1px);
+}
+
+.fimmit-card-btn-open {
+  background-color: #EE8138;
+  color: #000000;
+}
+
+.fimmit-card-btn-saved {
+  background-color: transparent;
+  color: #000000;
+}
+
+.fimmit-section-divider {
+  width: 100%;
+  height: 2px;
+  background-color: #000000;
+  margin-top: 1rem;
+}
+
+/* --- How it works Section --- */
+.fimmit-how-it-works-section {
+  width: 100%;
+  padding-top: 5rem;
+  padding-bottom: 2rem;
+}
+
+.fimmit-hiw-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 5rem;
+}
+
+.fimmit-hiw-title {
+  font-family: var(--font-dm-sans);
+  font-size: clamp(3.2rem, 5.5vw, 4.5rem);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  color: #000000;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fimmit-hiw-banner-wrapper {
+  display: inline-block;
+  transform: translateY(-0.1rem);
+}
+
+.fimmit-hiw-orange-banner {
+  display: inline-block;
+  margin-left: 0.7rem;
+  background-color: #EE8138;
+  color: #000000;
+  padding: 0.08em 0.35em;
+  border-radius: 12px;
+  border: 3.5px solid #FFFFFF;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  transform: rotate(-3.5deg);
+}
+
+.fimmit-hiw-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-family: var(--font-space-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #333333;
+  letter-spacing: 0.05em;
+  margin-top: 1.5rem;
+}
+
+.fimmit-hiw-eyebrow-dot {
+  color: #EE8138;
+  font-weight: 900;
+  font-size: 1rem;
+}
+
+.fimmit-hiw-timeline-area {
+  position: relative;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.fimmit-hiw-svg-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.fimmit-hiw-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.fimmit-hiw-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12rem;
+  width: 100%;
+}
+
+.fimmit-hiw-col.left-col {
+  align-items: flex-end; 
+}
+
+.fimmit-hiw-col.right-col {
+  align-items: flex-start;
+  padding-top: 11rem; 
+}
+
+.fimmit-hiw-step-container {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+}
+
+.fimmit-hiw-card {
+  width: 100%;
+  border: 1.5px solid #000000;
+  border-radius: 6px;
+  padding: 1.25rem 1.5rem;
+  box-sizing: border-box;
+}
+
+.bg-yellow { background-color: #F6D945; }
+.bg-orange { background-color: #EE8138; }
+.bg-teal { background-color: #78E2D8; }
+.bg-green { background-color: #4BD08B; }
+
+.fimmit-hiw-badge {
+  width: 26px;
+  height: 26px;
+  background-color: #FFFFFF;
+  border: 1.5px solid #000000;
+  border-radius: 50%;
+  font-family: var(--font-dm-sans);
+  font-size: 0.9rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.85rem;
+  color: #000000;
+}
+
+.fimmit-hiw-card-title {
+  font-family: var(--font-dm-sans);
+  font-size: 1.15rem;
+  font-weight: 900;
+  line-height: 1.2;
+  color: #000000;
+  margin: 0 0 0.35rem 0;
+}
+
+.fimmit-hiw-card-desc {
+  font-family: var(--font-dm-sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.45;
+  color: #111111;
+  margin: 0;
+}
+
+.fimmit-hiw-blue-note {
+  font-family: var(--font-caveat-brush);
+  font-size: 1.65rem;
+  color: #414CE1;
+  position: absolute;
+  white-space: nowrap;
+}
+
+.fimmit-hiw-blue-note.note-1 {
+  transform: rotate(-3deg);
+  bottom: 100%;
+  left: -2.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.fimmit-hiw-blue-note.note-2 {
+  transform: rotate(2deg);
+  top: 100%;
+  right: -1.5rem;
+  margin-top: 0.5rem;
+}
+
+/* --- FAQ / Quick Answers Section --- */
+.fimmit-faq-section {
+  width: 100%;
+  max-width: 760px;
+  margin: 4rem auto 3rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fimmit-faq-title {
+  font-family: var(--font-dm-sans);
+  font-size: clamp(3rem, 5vw, 4rem);
+  font-weight: 900;
+  margin: 0 0 2.5rem 0;
+  letter-spacing: -0.02em;
+  text-align: center;
+  color: #000000;
+}
+
+.fimmit-faq-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.fimmit-faq-item {
+  border: 1.5px solid #000000;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.fimmit-faq-item.active {
+  background-color: #F6D945;
+}
+
+.fimmit-faq-item:not(.active):hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.fimmit-faq-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fimmit-faq-question {
+  font-family: var(--font-dm-sans);
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: #000000;
+}
+
+.fimmit-faq-icon {
+  font-family: var(--font-space-mono);
+  font-weight: 900;
+  font-size: 1.35rem;
+  color: #000000;
+  line-height: 1;
+}
+
+.fimmit-faq-answer {
+  font-family: var(--font-dm-sans);
+  margin-top: 0.6rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: #222222;
+  padding-right: 2rem;
+}
+
+/* --- Footer Section --- */
+.fimmit-footer-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.fimmit-cta-banner {
+  background-color: #EE8138;
+  border-top: 2px solid #000000;
+  border-bottom: 2px solid #000000;
+  padding: 4.5rem 4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fimmit-cta-title {
+  font-family: var(--font-dm-sans);
+  font-size: clamp(2.8rem, 5vw, 4rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: #000000;
+  margin: 0;
+}
+
+.fimmit-footer-github-btn {
+  background-color: #000000;
+  color: #FFFFFF;
+  border: 2px solid #000000;
+  border-radius: 9999px;
+  padding: 0.9rem 2.25rem;
+  font-family: var(--font-dm-sans);
+  font-size: 1.1rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.fimmit-footer-github-btn:hover {
+  transform: translateY(-2px);
+}
+
+.fimmit-footer-github-icon {
+  width: 22px;
+  height: 22px;
+  filter: invert(1);
+}
+
+.fimmit-sub-footer {
+  background-color: #F7F4EC;
+  padding: 1.25rem 4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fimmit-sub-footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-dm-sans);
+  font-weight: 900;
+  font-size: 1.5rem;
+  color: #000000;
+  letter-spacing: -0.03em;
+}
+
+.fimmit-sub-footer-logo img {
+  height: 24px;
+}
+
+.fimmit-sub-footer-copy {
+  font-family: var(--font-space-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #000000;
+  margin-top: 2px;
+}
+
+.fimmit-back-to-top {
+  font-family: var(--font-dm-sans);
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #000000;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.fimmit-back-to-top:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 1024px) {
+  .fimmit-hero-section {
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+  .fimmit-hero-right {
+    align-self: flex-start;
+    padding: 0;
+  }
+  .fimmit-bottom-hero {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  .fimmit-bottom-right {
+    grid-column: span 2;
+    justify-content: flex-start;
+  }
+  .fimmit-preview-section {
+    grid-template-columns: 1fr;
+    gap: 3.5rem;
+    padding-top: 4rem;
+  }
+  .fimmit-preview-right {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 900px) {
+  .fimmit-hiw-header {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .fimmit-hiw-grid {
+    grid-template-columns: 1fr;
+    gap: 4rem;
+  }
+  .fimmit-hiw-col {
+    gap: 4rem;
+  }
+  .fimmit-hiw-col.left-col,
+  .fimmit-hiw-col.right-col {
+    align-items: center;
+    padding-top: 0;
+  }
+  .fimmit-hiw-svg-line {
+    display: none;
+  }
+  .fimmit-hiw-blue-note.note-1 {
+    left: 0;
+  }
+  .fimmit-hiw-blue-note.note-2 {
+    right: 0;
+  }
+  .fimmit-cta-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2.5rem;
+    padding: 3rem 2.5rem;
+  }
+  .fimmit-sub-footer {
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 2rem 2.5rem;
+  }
+}
+
+@media (max-width: 680px) {
+  .fimmit-page-content {
+    padding: 1.5rem 1.25rem;
+  }
+  .fimmit-hero-headline {
+    font-size: 3.2rem;
+  }
+  .fimmit-bottom-hero {
+    grid-template-columns: 1fr;
+  }
+  .fimmit-bottom-right {
+    grid-column: span 1;
+  }
+  .fimmit-github-cta-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .fimmit-preview-headline {
+    font-size: 3.2rem;
+  }
+  .fimmit-preview-handwritten {
+    margin-left: 0;
+  }
+  .fimmit-card-match-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .fimmit-cta-banner,
+  .fimmit-sub-footer {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
 }

@@ -16,12 +16,10 @@ export default function App() {
 
   const { savedCount, savedIssueIds, toggleSave } = useSavedIssues();
 
-  // Profile Difficulty State
   const [profileDifficulty, setProfileDifficulty] = useState(() => {
     return sessionStorage.getItem('fimmit_user_difficulty') || 'medium';
   });
 
-  // Authenticated GitHub User State
   const [user, setUser] = useState(() => {
     if (typeof authService?.getCurrentUser === 'function') {
       return authService.getCurrentUser() || null;
@@ -31,7 +29,6 @@ export default function App() {
       try {
         return JSON.parse(savedUser);
       } catch (e) {
-        // Fallback if parsing fails
       }
     }
     return null;
@@ -57,7 +54,6 @@ export default function App() {
       try {
         return JSON.parse(saved);
       } catch (e) {
-        // Fallback
       }
     }
     return ['javascript', 'react', 'python'];
@@ -120,7 +116,6 @@ export default function App() {
     } catch (err) {
       console.error('Error during logout service call:', err);
     } finally {
-      // Clear user session state and cache
       setUser(null);
       sessionStorage.removeItem('fimmit_user_data');
       sessionStorage.removeItem('fimmit_user_difficulty');
@@ -169,6 +164,7 @@ export default function App() {
           }}
           onNavClick={handleNavClick}
           onLogout={handleLogout}
+          onContinueWithGithub={handleSignIn}
         >
           {currentView === 'landing' ? (
             <LandingPage

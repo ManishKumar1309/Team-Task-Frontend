@@ -1,7 +1,6 @@
 .fimmit-navbar-container {
   width: 100%;
-  background-color: var(--color-cream, #F7F4EC);
-  border-bottom: var(--border-width-default, 2px) solid var(--color-black, #000000);
+  background-color: #F7F4EC;
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -10,330 +9,107 @@
 .fimmit-navbar {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 1rem 1.5rem; 
+  padding: 1.25rem 3.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1.5rem;
-}
-
-.fimmit-navbar__left {
-  display: flex;
-  align-items: center;
+  box-sizing: border-box;
 }
 
 .fimmit-logo {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-family: system-ui, -apple-system, sans-serif;
-  font-weight: 800;
-  font-size: 1.5rem;
-  color: var(--color-black, #000000);
+  gap: 0.4rem;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  font-weight: 900;
+  font-size: 1.6rem;
+  color: #000000;
   text-decoration: none;
-}
-
-.fimmit-logo__img {
-  height: 28px;
-  width: auto;
-  object-fit: contain;
-}
-
-.fimmit-logo__text {
   letter-spacing: -0.03em;
 }
 
-.fimmit-navbar__nav {
+.fimmit-logo__img {
+  height: 26px;
+  width: auto;
+}
+
+.fimmit-logo__registered {
+  font-size: 0.75rem;
+  font-weight: 700;
+  vertical-align: super;
+  margin-left: 0.05rem;
+}
+
+.fimmit-navbar__right {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin: 0 auto; 
+  gap: 2rem;
+}
+
+.fimmit-navbar__links {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
 }
 
 .fimmit-nav-link {
-  font-family: system-ui, -apple-system, sans-serif;
-  font-weight: 500;
-  font-size: 0.95rem;
-  color: var(--text-primary, #000000);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: #000000;
   text-decoration: none;
-  transition: color 150ms ease;
-  padding: 0.25rem 0.5rem;
+  transition: opacity 0.15s ease;
 }
 
 .fimmit-nav-link:hover {
-  color: var(--color-orange, #EE8138);
-}
-
-.fimmit-navbar__lang-tags {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.fimmit-nav-display-tag {
-  font-family: var(--font-family-mono, monospace);
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--color-black, #000000);
-  background-color: transparent;
-  padding: 0.3rem 0.75rem;
-  border: 2px solid var(--color-black, #000000);
-  border-radius: var(--radius-pill, 9999px);
-  user-select: none;
-  cursor: default;
-  pointer-events: none;
+  opacity: 0.7;
 }
 
 .fimmit-navbar__actions {
   display: flex;
   align-items: center;
-  gap: 1rem; 
-}
-
-.fimmit-nav-saved-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-family: system-ui, -apple-system, sans-serif;
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--color-black, #000000);
-  background-color: #ffffff;
-  border: 2px solid var(--color-black, #000000);
-  border-radius: var(--radius-pill, 9999px);
-  padding: 0.35rem 1rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 2px 2px 0px var(--color-black, #000000);
-}
-
-.fimmit-nav-saved-pill:hover {
-  background-color: var(--color-cream, #F7F4EC);
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px var(--color-black, #000000);
-}
-
-/* Profile Dropdown Container */
-.fimmit-navbar__profile-wrapper {
-  position: relative;
-  display: inline-flex;
-}
-
-.fimmit-navbar__profile-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.35rem 0.75rem 0.35rem 0.35rem; 
-  background-color: transparent;
-  border: 2px solid transparent;
-  border-left: 2px solid rgba(0, 0, 0, 0.15); 
-  border-radius: var(--radius-sm, 4px);
-  cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s;
-  text-align: left;
-}
-
-.fimmit-navbar__profile-btn:hover,
-.fimmit-navbar__profile-btn.is-active {
-  background-color: rgba(0, 0, 0, 0.04);
-  border-color: rgba(0, 0, 0, 0.15);
-}
-
-.fimmit-profile-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  background-color: var(--color-orange, #EE8138);
-  border: 2px solid var(--color-black, #000000);
-  border-radius: 50%;
-  color: var(--color-black, #000000);
-  box-shadow: 2px 2px 0px var(--color-black, #000000);
-}
-
-.fimmit-profile-details {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.15rem;
-}
-
-.fimmit-profile-name {
-  font-family: system-ui, -apple-system, sans-serif;
-  font-size: 0.85rem;
-  font-weight: 800;
-  color: var(--color-black, #000000);
-  line-height: 1;
-}
-
-.fimmit-profile-chevron {
-  transition: transform 0.2s ease;
-  color: var(--color-black, #000000);
-}
-
-.fimmit-profile-chevron.is-open {
-  transform: rotate(180deg);
-}
-
-/* Profile Dropdown Floating Menu */
-.fimmit-profile-dropdown {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
-  min-width: 210px;
-  background-color: var(--color-cream, #F7F4EC);
-  border: 2px solid var(--color-black, #000000);
-  border-radius: var(--radius-md, 8px);
-  box-shadow: 4px 4px 0px var(--color-black, #000000);
-  padding: 0.75rem;
-  z-index: 1100;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  animation: fimmitDropdownFade 0.15s ease-out;
-}
-
-@keyframes fimmitDropdownFade {
-  from {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.fimmit-dropdown-header {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  padding: 0.25rem 0.5rem;
-}
-
-.fimmit-dropdown-label {
-  font-size: 0.72rem;
-  color: var(--text-muted, #666666);
-  font-family: system-ui, sans-serif;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.fimmit-dropdown-username {
-  font-size: 0.95rem;
-  color: var(--color-black, #000000);
-  font-family: var(--font-family-mono, monospace);
-  font-weight: 800;
-  word-break: break-all;
-}
-
-.fimmit-dropdown-divider {
-  border: none;
-  border-top: 1px solid var(--color-black, #000000);
-  opacity: 0.2;
-  margin: 0.2rem 0;
-}
-
-.fimmit-dropdown-item {
-  display: flex;
-  align-items: center;
   gap: 0.6rem;
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  border: 2px solid transparent;
-  border-radius: var(--radius-sm, 4px);
-  background: transparent;
-  font-family: system-ui, -apple-system, sans-serif;
-  font-size: 0.9rem;
+}
+
+.fimmit-btn-orange-pill {
+  background-color: #EE8138;
+  color: #000000;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.88rem;
   font-weight: 700;
-  color: var(--color-black, #000000);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  text-align: left;
-}
-
-.fimmit-dropdown-item--logout:hover {
-  background-color: var(--color-red, #E4452F);
-  color: #ffffff;
-  border-color: var(--color-black, #000000);
-  box-shadow: 2px 2px 0px var(--color-black, #000000);
-}
-
-.fimmit-dropdown-item:focus-visible {
-  outline: 2px solid var(--color-orange, #EE8138);
-  outline-offset: 2px;
-}
-
-.fimmit-navbar__mobile-toggle {
-  display: none;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 28px;
-  height: 22px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-}
-
-.fimmit-hamburger-line {
-  width: 100%;
-  height: 3px;
-  background-color: var(--color-black, #000000);
+  padding: 0.45rem 1.1rem;
+  border: 1.5px solid #000000;
   border-radius: 9999px;
-  transition: transform 150ms ease;
+  cursor: pointer;
+  transition: transform 0.15s ease;
 }
 
-.fimmit-mobile-menu {
-  display: none;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 1rem 1.5rem 1.5rem;
-  background-color: var(--color-cream, #F7F4EC);
-  border-bottom: 2px solid var(--color-black, #000000);
+.fimmit-btn-orange-pill:hover {
+  transform: translateY(-1px);
 }
 
-.fimmit-mobile-link {
-  font-family: system-ui, -apple-system, sans-serif;
+.fimmit-btn-black-pill {
+  background-color: #000000;
+  color: #FFFFFF;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.88rem;
   font-weight: 700;
-  font-size: 1.1rem;
-  color: var(--color-black, #000000);
-  text-decoration: none;
+  padding: 0.45rem 1.15rem;
+  border: 1.5px solid #000000;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
 }
 
-.fimmit-mobile-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding-top: 0.5rem;
-}
-
-.fimmit-mobile-profile {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-weight: 700;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-}
-
-@media (max-width: 1100px) {
-  .fimmit-navbar__profile-wrapper {
-    display: none; 
-  }
+.fimmit-btn-black-pill:hover {
+  transform: translateY(-1px);
 }
 
 @media (max-width: 768px) {
-  .fimmit-navbar__nav,
-  .fimmit-navbar__actions {
+  .fimmit-navbar {
+    padding: 1rem 1.25rem;
+  }
+  .fimmit-navbar__links {
     display: none;
-  }
-  .fimmit-navbar__mobile-toggle {
-    display: flex;
-  }
-  .fimmit-mobile-menu {
-    display: flex;
   }
 }

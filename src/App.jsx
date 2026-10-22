@@ -34,16 +34,16 @@ export default function App() {
     return null;
   });
 
-  const getDifficultyLabel = (diff) => {
+const getDifficultyLabel = (diff) => {
     switch (diff?.toLowerCase()) {
       case 'easy':
-        return 'Beginner';
+        return 'Easy';
       case 'medium':
-        return 'Intermediate';
+        return 'Medium';
       case 'hard':
-        return 'Expert';
+        return 'Hard';
       default:
-        return 'Intermediate';
+        return 'Medium';
     }
   };
 

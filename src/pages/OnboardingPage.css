@@ -1,134 +1,391 @@
-.fimmit-onboarding-page {
-  width: 100%;
+/* --- Global Wrapper --- */
+.fimmit-onboarding-wrapper {
+  width: 100vw;
   min-height: 100vh;
-  background-color: var(--color-cream, #F7F4EC);
+  background-color: #F6D945; /* Fimmit Yellow */
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 3rem 1.5rem;
+  position: relative;
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
 }
 
-.fimmit-onboarding-container {
-  max-width: 600px;
+/* --- Topbar & Exit Button --- */
+.fimmit-onboarding-topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  background-color: var(--bg-surface, #ffffff);
-  border: 2px solid var(--color-black, #000000);
-  border-radius: var(--radius-md, 8px);
-  padding: 2.5rem;
-  box-shadow: 6px 6px 0px var(--color-black, #000000);
+  padding: 2rem 3.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
 }
 
-.fimmit-onboarding-header {
-  margin-bottom: 2rem;
+.fimmit-onboarding-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
-.fimmit-onboarding-title {
-  font-family: var(--font-family-display, sans-serif);
-  font-size: 2rem;
+.fimmit-onboarding-logo-icon {
+  height: 24px;
+}
+
+.fimmit-onboarding-logo-text {
+  font-weight: 900;
+  font-size: 1.5rem;
+  color: #000000;
+  letter-spacing: -0.03em;
+}
+
+.fimmit-onboarding-exit-btn {
+  background-color: #FFFFFF;
+  color: #000000;
+  border: 1.5px solid #000000;
+  border-radius: 9999px;
+  padding: 0.35rem 1rem;
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-size: 0.85rem;
   font-weight: 800;
-  color: var(--color-black, #000000);
-  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
 }
 
-.fimmit-onboarding-subtitle {
-  font-family: var(--font-family-body, sans-serif);
-  font-size: 1rem;
-  color: var(--text-secondary, #444);
+.fimmit-onboarding-exit-btn:hover {
+  background-color: #F7F4EC;
 }
 
-.fimmit-onboarding-form {
+/* --- Main Survey Card --- */
+.fimmit-onboarding-card {
+  width: 100%;
+  max-width: 580px;
+  background-color: #F7F4EC; /* Off-white */
+  border: 1.5px solid #000000;
+  border-radius: 12px;
+  padding: 2.5rem;
+  box-sizing: border-box;
+  box-shadow: 6px 6px 0px #000000; /* Neo-brutalist shadow applied to main card */
+}
+
+/* --- Progress Bar --- */
+.fimmit-onboarding-progress {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.fimmit-progress-segment {
+  flex: 1;
+  height: 6px;
+  border-radius: 9999px;
+  border: 1.5px solid #000000;
+  background-color: transparent;
+  transition: background-color 0.3s ease;
+}
+
+.fimmit-progress-segment.active {
+  background-color: #EE8138; /* Fimmit Orange */
+}
+
+/* --- Step Content --- */
+.fimmit-step-pane {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  align-items: flex-start;
+  min-height: 280px;
 }
 
-.fimmit-onboarding-error {
-  background-color: #FDECEA;
-  color: var(--color-red, #E4452F);
-  border: 2px solid var(--color-red, #E4452F);
-  border-radius: var(--radius-sm, 4px);
-  padding: 1rem;
+.fimmit-step-eyebrow {
+  font-family: var(--font-space-mono, 'Space Mono', monospace);
+  font-size: 0.75rem;
   font-weight: 700;
-  font-size: 0.9rem;
+  color: #000000;
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.fimmit-form-group {
+.fimmit-step-title {
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #000000;
+  margin: 0 0 1rem 0;
+  letter-spacing: -0.03em;
+}
+
+.fimmit-step-subtitle {
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #222222;
+  margin: 0 0 2rem 0;
+}
+
+/* Inputs & Textareas */
+.fimmit-input-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fimmit-input-label {
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #000000;
+}
+
+.fimmit-textarea {
+  width: 100%;
+  background-color: #FFFFFF;
+  border: 1.5px solid #000000;
+  border-radius: 8px;
+  padding: 1rem;
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-size: 0.95rem;
+  color: #000000;
+  box-sizing: border-box;
+  resize: none;
+  min-height: 120px;
+}
+
+.fimmit-textarea::placeholder {
+  color: #A0A0A0;
+}
+
+.fimmit-word-count {
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #555555;
+  align-self: flex-end;
+}
+
+/* --- Multi-Select Pills --- */
+.fimmit-pills-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.fimmit-pill {
+  background-color: #FFFFFF;
+  color: #000000;
+  border: 1.5px solid #000000;
+  border-radius: 9999px;
+  padding: 0.45rem 1.1rem;
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: none !important;
+}
+
+/* Hover effects for unselected pills */
+.fimmit-pill:not(.active):hover {
+  background-color: #EAE6D9; /* Subtle gray/off-white */
+  transform: translateY(-1px);
+}
+
+/* Alternate colors for active pills */
+.fimmit-pill.active:nth-child(odd) {
+  background-color: #EE8138; /* Orange */
+  transform: translateY(-1px);
+}
+
+.fimmit-pill.active:nth-child(even) {
+  background-color: #F6D945; /* Yellow */
+  transform: translateY(-1px);
+}
+
+/* --- Difficulty Blocks (Question 4) --- */
+.fimmit-difficulty-blocks {
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-/* Character Counter Styles */
-.fimmit-form-label-row {
+.fimmit-diff-block {
+  width: 100%;
+  background-color: #FFFFFF;
+  border: 1.5px solid #000000;
+  border-radius: 8px;
+  padding: 1.25rem 1.25rem;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Subtle hover effect for unselected difficulty options */
+.fimmit-diff-block:not([class*="active-"]):hover {
+  background-color: #EAE6D9; 
+  transform: translateX(3px);
+}
+
+.fimmit-diff-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.fimmit-diff-title {
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #000000;
+  margin: 0;
+}
+
+.fimmit-diff-badge {
+  font-family: var(--font-space-mono, 'Space Mono', monospace);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.1rem 0.5rem;
+  border: 1.5px solid #000000;
+  border-radius: 9999px;
+  color: #000000;
+}
+.fimmit-diff-badge.easy { background-color: #FFFFFF; }
+.fimmit-diff-badge.medium { background-color: #F6D945; }
+.fimmit-diff-badge.hard { background-color: #EE8138; }
+
+.fimmit-diff-sub {
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #444444;
+  margin: 0;
+}
+
+/* Custom Radio Indicator */
+.fimmit-radio-circle {
+  position: absolute;
+  right: 1.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #000000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #FFFFFF;
+}
+
+.fimmit-radio-fill {
+  width: 10px;
+  height: 10px;
+  background-color: #000000;
+  border-radius: 50%;
+}
+
+/* Restored colored states mapped from design */
+.fimmit-diff-block.active-easy { 
+  background-color: #F6D945; /* Yellow */
+  border-width: 2.5px;
+}
+
+.fimmit-diff-block.active-medium { 
+  background-color: #EE8138; /* Orange */
+  border-width: 2.5px;
+}
+
+.fimmit-diff-block.active-hard { 
+  background-color: #E4452F; /* Fimmit Red */
+  border-width: 2.5px;
+}
+
+/* Contrast adjustments for the red (Hard) block */
+.fimmit-diff-block.active-hard .fimmit-diff-title,
+.fimmit-diff-block.active-hard .fimmit-diff-sub {
+  color: #FFFFFF; 
+}
+.fimmit-diff-block.active-hard .fimmit-radio-circle {
+  background-color: #E4452F;
+  border-color: #FFFFFF;
+}
+.fimmit-diff-block.active-hard .fimmit-radio-fill {
+  background-color: #FFFFFF;
+}
+
+/* --- Card Footer Navigation --- */
+.fimmit-onboarding-footer {
+  width: 100%;
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: center;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1.5px solid #E2DFD6;
 }
 
-.fimmit-char-counter {
-  font-family: var(--font-family-mono, monospace);
-  font-size: 0.8rem;
-  color: var(--text-muted, #888);
-  font-weight: 600;
-}
-
-.fimmit-form-label {
-  font-family: var(--font-family-display, sans-serif);
+.fimmit-btn-back {
+  background-color: #FFFFFF;
+  color: #000000;
+  border: 1.5px solid #000000;
+  border-radius: 9999px;
+  padding: 0.5rem 1.5rem;
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-size: 0.95rem;
   font-weight: 800;
-  font-size: 1.1rem;
-  color: var(--color-black, #000);
-}
-
-.fimmit-textarea {
-  width: 100%;
-  font-family: var(--font-family-body, sans-serif);
-  font-size: 1rem;
-  padding: 0.75rem;
-  border: 2px solid var(--color-black, #000);
-  border-radius: var(--radius-sm, 4px);
-  background-color: var(--color-cream, #F7F4EC);
-  resize: vertical;
-}
-
-.fimmit-textarea:focus {
-  outline: 2px solid var(--color-orange, #EE8138);
-  outline-offset: 2px;
-}
-
-.fimmit-pill-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.fimmit-outline-pill {
-  font-family: var(--font-family-body, sans-serif);
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--color-black, #000);
-  background-color: var(--bg-surface, #ffffff);
-  border: 2px solid var(--color-black, #000);
-  border-radius: var(--radius-pill, 9999px);
-  padding: 0.5rem 1rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.15s ease;
 }
 
-.fimmit-outline-pill:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+.fimmit-btn-back:hover {
+  background-color: #E2DFD6;
 }
 
-.fimmit-outline-pill.is-active {
-  background-color: var(--color-yellow, #F6D945); 
-  box-shadow: inset 0 0 0 1px var(--color-black, #000);
+.fimmit-btn-next {
+  background-color: #EE8138;
+  color: #000000;
+  border: 1.5px solid #000000;
+  border-radius: 9999px;
+  padding: 0.5rem 1.5rem;
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.2s ease;
 }
 
-.fimmit-other-input-wrapper {
-  margin-top: 0.5rem;
+.fimmit-btn-next:hover:not(:disabled) {
+  transform: translateY(-2px);
 }
 
-.fimmit-onboarding-actions {
-  margin-top: 1rem;
-  display: flex;
-  justify-content: flex-end;
+/* Disabled State for required fields */
+.fimmit-btn-next:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 680px) {
+  .fimmit-onboarding-topbar {
+    padding: 1.5rem;
+  }
+  .fimmit-onboarding-card {
+    margin: 1.5rem;
+    padding: 1.5rem;
+    box-shadow: 4px 4px 0px #000000;
+  }
+  .fimmit-step-title {
+    font-size: 2rem;
+  }
 }

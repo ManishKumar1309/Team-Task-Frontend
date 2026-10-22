@@ -1,115 +1,380 @@
-.fimmit-navbar-container {
+/* --- Navbar Global Wrapper --- */
+.fimmit-navbar {
   width: 100%;
   background-color: #F7F4EC;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-
-.fimmit-navbar {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 1.25rem 3.5rem;
+  border-bottom: 2px solid transparent;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  padding: 0 3.5rem;
   box-sizing: border-box;
+  position: relative;
+  z-index: 100;
 }
 
-.fimmit-logo {
+/* Landing gets a fixed height, Home adapts to stacked layout */
+.fimmit-navbar.landing {
+  height: 70px;
+}
+
+.fimmit-navbar.home {
+  border-bottom: 2px solid #000000;
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+
+.fimmit-nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* --- Brand / Logo --- */
+.fimmit-nav-brand {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+}
+
+.fimmit-nav-logo-icon {
+  height: 24px;
+}
+
+.fimmit-nav-logo-text {
   font-weight: 900;
   font-size: 1.6rem;
   color: #000000;
-  text-decoration: none;
   letter-spacing: -0.03em;
+  display: flex;
+  align-items: flex-start;
 }
 
-.fimmit-logo__img {
-  height: 26px;
-  width: auto;
-}
-
-.fimmit-logo__registered {
+.fimmit-nav-reg {
   font-size: 0.75rem;
-  font-weight: 700;
-  vertical-align: super;
-  margin-left: 0.05rem;
+  font-weight: 800;
+  margin-left: 0.1rem;
+  margin-top: 0.25rem;
 }
 
-.fimmit-navbar__right {
+/* --- Home: Stacked Left Area --- */
+.fimmit-nav-left-stacked {
   display: flex;
-  align-items: center;
-  gap: 2rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.8rem;
 }
 
-.fimmit-navbar__links {
-  display: flex;
-  align-items: center;
-  gap: 1.75rem;
-}
-
-.fimmit-nav-link {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-weight: 700;
-  font-size: 0.88rem;
-  color: #000000;
-  text-decoration: none;
-  transition: opacity 0.15s ease;
-}
-
-.fimmit-nav-link:hover {
-  opacity: 0.7;
-}
-
-.fimmit-navbar__actions {
+.fimmit-nav-tags-row {
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  flex-wrap: wrap;
 }
 
-.fimmit-btn-orange-pill {
+.fimmit-nav-tags-label {
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #333333;
+  margin-right: 0.5rem;
+}
+
+.fimmit-nav-tag {
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #000000;
+  background-color: #FFFFFF;
+  border: 1.5px solid #000000;
+  border-radius: 9999px;
+  padding: 0.2rem 0.8rem;
+}
+
+/* --- Center: Landing Links --- */
+.fimmit-nav-center-links {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.fimmit-nav-center-links a {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #000000;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.fimmit-nav-center-links a:hover {
+  opacity: 0.7;
+}
+
+/* --- Right Side Containers --- */
+.fimmit-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Landing Buttons */
+.fimmit-nav-btn {
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  border: 2px solid #000000;
+  transition: transform 0.15s ease;
+}
+
+.fimmit-nav-btn:hover {
+  transform: translateY(-2px);
+}
+
+.fimmit-nav-btn.primary {
   background-color: #EE8138;
   color: #000000;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 0.88rem;
-  font-weight: 700;
-  padding: 0.45rem 1.1rem;
-  border: 1.5px solid #000000;
-  border-radius: 9999px;
-  cursor: pointer;
-  transition: transform 0.15s ease;
 }
 
-.fimmit-btn-orange-pill:hover {
-  transform: translateY(-1px);
-}
-
-.fimmit-btn-black-pill {
+.fimmit-nav-btn.secondary {
   background-color: #000000;
   color: #FFFFFF;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 0.88rem;
-  font-weight: 700;
-  padding: 0.45rem 1.15rem;
-  border: 1.5px solid #000000;
-  border-radius: 9999px;
-  cursor: pointer;
-  transition: transform 0.15s ease;
 }
 
-.fimmit-btn-black-pill:hover {
+/* --- Auth Controls (Home Variant) --- */
+.fimmit-nav-auth-controls {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* Solid Black Saved Button */
+.fimmit-nav-saved-btn.solid-black {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #000000;
+  color: #FFFFFF;
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 0.45rem 1.15rem;
+  border: 1.5px solid #000000;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.fimmit-nav-saved-btn.solid-black:hover {
+  opacity: 0.85;
+}
+
+/* Vertical Divider */
+.fimmit-nav-divider {
+  width: 1px;
+  height: 44px;
+  background-color: #A0A0A0;
+}
+
+/* Profile Area */
+.fimmit-nav-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.fimmit-nav-profile:hover {
+  opacity: 0.8;
+}
+
+.fimmit-nav-avatar {
+  width: 42px;
+  height: 42px;
+  background-color: #F0803C;
+  border: 1.5px solid #000000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fimmit-nav-profile-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+/* --- Profile Wrapper & Dropdown Updates --- */
+.fimmit-nav-profile-wrapper {
+  position: relative;
+}
+
+.fimmit-nav-profile-name {
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: #000000;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.fimmit-nav-profile-badge {
+  background-color: #F6D945;
+  color: #000000;
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 0.15rem 0.6rem;
+  border: 1.5px solid #000000;
+  border-radius: 9999px;
+  line-height: 1.2;
+}
+
+.fimmit-nav-chevron {
+  transition: transform 0.2s ease;
+}
+
+.fimmit-nav-chevron.open {
+  transform: rotate(180deg);
+}
+
+/* Dropdown Menu Box */
+.fimmit-nav-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  min-width: 210px;
+  background-color: #F7F4EC;
+  border: 1.5px solid #000000;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  z-index: 200;
+  animation: dropdownFade 0.1s ease-out forwards;
+}
+
+@keyframes dropdownFade {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fimmit-nav-dropdown-content {
+  padding: 1.15rem 1rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.fimmit-nav-dropdown-title {
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-size: 1rem;
+  font-weight: 900;
+  color: #000000;
+  margin-bottom: 0.8rem;
+  letter-spacing: -0.01em;
+}
+
+.fimmit-nav-dropdown-user {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.85rem;
+}
+
+.fimmit-nav-dropdown-mini-avatar {
+  width: 16px;
+  height: 16px;
+  background-color: #F0803C;
+  border: 1.5px solid #000000;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.fimmit-nav-dropdown-username {
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #000000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fimmit-nav-dropdown-divider {
+  width: 100%;
+  height: 1.5px;
+  background-color: #000000;
+  margin-bottom: 1rem;
+}
+
+.fimmit-nav-dropdown-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  background-color: #E4452F;
+  color: #FFFFFF;
+  border: 1.5px solid #000000;
+  border-radius: 6px;
+  padding: 0.55rem 1rem;
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+}
+
+.fimmit-nav-dropdown-logout-btn:hover {
+  opacity: 0.9;
   transform: translateY(-1px);
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 1024px) {
+  .fimmit-nav-center-links {
+    display: none; 
+  }
 }
 
 @media (max-width: 768px) {
-  .fimmit-navbar {
-    padding: 1rem 1.25rem;
+  .fimmit-navbar.home {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
-  .fimmit-navbar__links {
+  .fimmit-nav-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+  }
+  .fimmit-nav-left-stacked {
+    width: 100%;
+  }
+  .fimmit-nav-auth-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .fimmit-nav-divider {
     display: none;
+  }
+}
+
+@media (max-width: 680px) {
+  .fimmit-navbar.landing {
+    padding: 0 1.25rem;
+  }
+  .fimmit-nav-btn.primary {
+    display: none; 
   }
 }

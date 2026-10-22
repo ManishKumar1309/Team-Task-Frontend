@@ -1,53 +1,184 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import logoSrc from '../assets/Logo.svg';
 import './Navbar.css';
 
 export const Navbar = ({
   variant = 'landing',
+  savedCount = 0,
+  userLevel = 'Intermediate',
+  backendTechTags = [],
+  username = null,
   onSignIn,
   onOpenFeed,
+  onSavedClick,
   onNavClick,
-  className = '',
+  onLogout,
 }) => {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown if clicked outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // The default design tags
+  const defaultTags = ['Java', 'Backend', 'Spring boot', 'First-issue', 'API'];
+  
+  // Start with whatever the user actually has
+  let displayTags = Array.isArray(backendTechTags) ? [...backendTechTags] : [];
+
+  // Pad the array with default tags until we hit exactly 5
+  let i = 0;
+  while (displayTags.length < 5 && i < defaultTags.length) {
+    if (!displayTags.includes(defaultTags[i])) {
+      displayTags.push(defaultTags[i]);
+    }
+    i++;
+  }
+  
+  // Cap strictly at 5
+  const finalTags = displayTags.slice(0, 5);
+
   return (
-    <header className={`fimmit-navbar-container ${className}`}>
-      <div className="fimmit-navbar">
+    <nav className={`fimmit-navbar ${variant}`}>
+      <div className="fimmit-nav-container">
         
-        <div className="fimmit-navbar__left">
-          <a href="#top" className="fimmit-logo" aria-label="Fimmit Home">
-            <img src={logoSrc} alt="Fimmit Logo" className="fimmit-logo__img" />
-            <span className="fimmit-logo__text">Fimmit</span>
-            <span className="fimmit-logo__registered">®</span>
-          </a>
-        </div>
+        {variant === 'home' ? (
+          /* --- AUTHENTICATED VIEW (HOME) --- */
+          <>
+            <div className="fimmit-nav-left-stacked">
+              {/* Top Row: Logo */}
+              <div 
+                className="fimmit-nav-brand" 
+                onClick={onOpenFeed} 
+                style={{ cursor: 'pointer' }}
+                title="Go to Feed"
+              >
+                <img src={logoSrc} alt="Fimmit Logo" className="fimmit-nav-logo-icon" />
+                <span className="fimmit-nav-logo-text">Fimmit<sup className="fimmit-nav-reg">®</sup></span>
+              </div>
+              
+              {/* Bottom Row: Search Tags */}
+              <div className="fimmit-nav-tags-row">
+                <span className="fimmit-nav-tags-label">Search tags</span>
+                {finalTags.map((tag, index) => (
+                  <span key={index} className="fimmit-nav-tag">
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            </div>
 
-        <div className="fimmit-navbar__right">
-          <nav className="fimmit-navbar__links">
-            <a href="#how-it-works" className="fimmit-nav-link" onClick={onNavClick}>How it works</a>
-            <a href="#faqs" className="fimmit-nav-link" onClick={onNavClick}>FAQS</a>
-            <a href="#about" className="fimmit-nav-link" onClick={onNavClick}>About</a>
-          </nav>
+            <div className="fimmit-nav-right">
+              <div className="fimmit-nav-auth-controls">
+                {/* Solid Black Saved Button */}
+                <button type="button" className="fimmit-nav-saved-btn solid-black" onClick={onSavedClick}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                  Saved ({savedCount})
+                </button>
+                
+                {/* Vertical Divider */}
+                <div className="fimmit-nav-divider"></div>
+                
+                {/* Profile Area with Dropdown */}
+                <div className="fimmit-nav-profile-wrapper" ref={dropdownRef}>
+                  <div 
+                    className="fimmit-nav-profile" 
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    title="Account options"
+                  >
+                    <div className="fimmit-nav-avatar">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                      </svg>
+                    </div>
+                    <div className="fimmit-nav-profile-details">
+                      <span className="fimmit-nav-profile-name">
+                        Your Github @{username ? username : ''}
+                        <svg className={`fimmit-nav-chevron ${isDropdownOpen ? 'open' : ''}`} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                      </span>
+                      <span className="fimmit-nav-profile-badge">
+                        {userLevel}
+                      </span>
+                    </div>
+                  </div>
 
-          <div className="fimmit-navbar__actions">
-            <button 
-              type="button" 
-              className="fimmit-btn-orange-pill" 
-              onClick={onOpenFeed}
-            >
-              Open my feed
-            </button>
-            <button 
-              type="button" 
-              className="fimmit-btn-black-pill" 
-              onClick={onSignIn}
-            >
-              Sign in
-            </button>
-          </div>
-        </div>
+                  {/* Dropdown Menu */}
+                  {isDropdownOpen && (
+                    <div className="fimmit-nav-dropdown">
+                      <div className="fimmit-nav-dropdown-content">
+                        <span className="fimmit-nav-dropdown-title">Signed in as</span>
+                        
+                        <div className="fimmit-nav-dropdown-user">
+                          <div className="fimmit-nav-dropdown-mini-avatar"></div>
+                          <span className="fimmit-nav-dropdown-username">
+                            Your Github @{username ? username : ''}
+                          </span>
+                        </div>
+                        
+                        <div className="fimmit-nav-dropdown-divider"></div>
+                        
+                        <button 
+                          className="fimmit-nav-dropdown-logout-btn" 
+                          onClick={() => {
+                            setIsDropdownOpen(false);
+                            if (onLogout) onLogout();
+                          }}
+                        >
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                          </svg>
+                          Log out
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+              </div>
+            </div>
+          </>
+        ) : (
+          /* --- UNAUTHENTICATED VIEW (LANDING) --- */
+          <>
+            <div className="fimmit-nav-brand">
+              <img src={logoSrc} alt="Fimmit Logo" className="fimmit-nav-logo-icon" />
+              <span className="fimmit-nav-logo-text">Fimmit<sup className="fimmit-nav-reg">®</sup></span>
+            </div>
+
+            <div className="fimmit-nav-center-links">
+              <a href="#how-it-works" onClick={onNavClick}>How it works</a>
+              <a href="#faqs" onClick={onNavClick}>FAQS</a>
+              <a href="#about" onClick={onNavClick}>About</a>
+            </div>
+
+            <div className="fimmit-nav-right">
+              <button type="button" className="fimmit-nav-btn primary" onClick={onOpenFeed}>
+                Open my feed
+              </button>
+              <button type="button" className="fimmit-nav-btn secondary" onClick={onSignIn}>
+                Sign in
+              </button>
+            </div>
+          </>
+        )}
 
       </div>
-    </header>
+    </nav>
   );
 };
 

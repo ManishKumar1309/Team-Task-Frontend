@@ -58,3 +58,15 @@ export const DIFFICULTY_MAP = {
   MEDIUM: 'MEDIUM',
   HARD: 'HARD',
 };
+
+export const ISSUE_TYPE_OPTIONS = [
+  'Bug Fixes',
+  'Documentation',
+  'New Features',
+  'Refactoring',
+  'Performance',
+  'Any type',
+  'Good first issue',
+  'Tests',
+];
+

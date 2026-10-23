@@ -40,10 +40,13 @@ export const onboardingService = {
    */
   async savePreferences(payload) {
     const apiPayload = {
-      introduction: payload.introduction || '',
+      introduction: payload.introduction || payload.bio || '',
       preferredTechStack: payload.preferredTechStack || [],
       interests: payload.interests || [],
       preferredDifficulty: DIFFICULTY_MAP[payload.preferredDifficulty] || 'EASY',
+      // Preferred issue categories (Question 5).
+      // Maintained in frontend state; backend schema confirmation is pending.
+      preferredIssues: payload.preferredIssues || [],
     };
 
     if (USE_MOCK) {

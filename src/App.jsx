@@ -26,12 +26,10 @@ export default function App() {
     removeSavedIssue,
   } = useSavedIssues();
 
-  // Profile Difficulty State
   const [profileDifficulty, setProfileDifficulty] = useState(() => {
     return sessionStorage.getItem('fimmit_user_difficulty') || 'medium';
   });
 
-  // Authenticated GitHub User State
   const [user, setUser] = useState(() => {
     if (typeof authService?.getCurrentUser === 'function') {
       return authService.getCurrentUser() || null;
@@ -47,16 +45,16 @@ export default function App() {
     return null;
   });
 
-  const getDifficultyLabel = (diff) => {
+const getDifficultyLabel = (diff) => {
     switch (diff?.toLowerCase()) {
       case 'easy':
-        return 'Beginner';
+        return 'Easy';
       case 'medium':
-        return 'Intermediate';
+        return 'Medium';
       case 'hard':
-        return 'Expert';
+        return 'Hard';
       default:
-        return 'Intermediate';
+        return 'Medium';
     }
   };
 
@@ -135,6 +133,9 @@ export default function App() {
       setBackendTechTags(data.preferredTechStack);
       sessionStorage.setItem('fimmit_tech_tags', JSON.stringify(data.preferredTechStack));
     }
+    if (data?.preferredIssues && Array.isArray(data.preferredIssues)) {
+      sessionStorage.setItem('fimmit_preferred_issues', JSON.stringify(data.preferredIssues));
+    }
     const authedUser = authService.getCurrentUser() || {
       username: 'developer',
       avatarUrl: 'https://avatars.githubusercontent.com/u/583231?v=4',
@@ -152,11 +153,11 @@ export default function App() {
     } catch (err) {
       console.error('Error during logout service call:', err);
     } finally {
-      // Clear user session state and cache
       setUser(null);
       sessionStorage.removeItem('fimmit_user_data');
       sessionStorage.removeItem('fimmit_user_difficulty');
       sessionStorage.removeItem('fimmit_tech_tags');
+      sessionStorage.removeItem('fimmit_preferred_issues');
 
       // Redirect to landing view
       navigateTo('landing');
@@ -195,6 +196,7 @@ export default function App() {
           onSavedClick={openDrawer}
           onNavClick={handleNavClick}
           onLogout={handleLogout}
+          onContinueWithGithub={handleSignIn}
         >
           {currentView === 'landing' ? (
             <LandingPage

@@ -15,6 +15,7 @@ export const MainLayout = ({
   onSavedClick,
   onNavClick,
   onLogout,
+  onContinueWithGithub = () => {},
   className = '',
 }) => {
   return (
@@ -32,7 +33,7 @@ export const MainLayout = ({
         onLogout={onLogout}
       />
       <main className="fimmit-main-content">{children}</main>
-      <Footer />
+      <Footer onContinueWithGithub={onContinueWithGithub} />
     </div>
   );
 };

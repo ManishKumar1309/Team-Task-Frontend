@@ -6,8 +6,12 @@
   background-color: var(--bg-surface, #ffffff);
   border: var(--border-width-default, 2px) solid var(--color-black, #000000);
   border-radius: var(--radius-md, 8px);
-  box-shadow: 4px 4px 0px var(--color-black, #000000);
+  /* box-shadow: 4px 4px 0px var(--color-black, #000000); */
   margin-bottom: 2rem;
+}
+
+.fimmit-filters-panel .fimmit-pill-group button:hover {
+  background-color: #EE8138;
 }
 
 /* --- Top Row: Search and Sort --- */
@@ -107,7 +111,8 @@
 }
 
 .fimmit-score-group {
-  margin-left: auto; /* Pushes match score to the right on wide screens */
+  margin-left: auto;
+  /* Pushes match score to the right on wide screens */
 }
 
 /* --- Clear Filters Action --- */

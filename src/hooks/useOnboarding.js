@@ -12,6 +12,7 @@ export function useOnboarding(onSuccess) {
     interests: [],
     otherInterests: '',
     preferredDifficulty: 'Intermediate',
+    preferredIssues: [],
   });
 
   const [stepError, setStepError] = useState('');
@@ -82,6 +83,17 @@ export function useOnboarding(onSuccess) {
     setStepError('');
   };
 
+  const toggleIssueType = (issueType) => {
+    setFormData((prev) => {
+      const exists = prev.preferredIssues.includes(issueType);
+      const updated = exists
+        ? prev.preferredIssues.filter((i) => i !== issueType)
+        : [...prev.preferredIssues, issueType];
+      return { ...prev, preferredIssues: updated };
+    });
+    setStepError('');
+  };
+
   const validateStep = (step) => {
     if (step === 2) {
       const hasTech = formData.preferredTechStack.length > 0 || formData.otherTech.trim();
@@ -99,6 +111,13 @@ export function useOnboarding(onSuccess) {
       }
     }
 
+    if (step === 5) {
+      if (!formData.preferredIssues || formData.preferredIssues.length === 0) {
+        setStepError('Please select at least one preferred issue type.');
+        return false;
+      }
+    }
+
     setStepError('');
     return true;
   };
@@ -108,7 +127,7 @@ export function useOnboarding(onSuccess) {
       return;
     }
 
-    if (currentStep < 4) {
+    if (currentStep < 5) {
       setCurrentStep((prev) => prev + 1);
     } else {
       await handleSubmit();
@@ -165,12 +184,16 @@ export function useOnboarding(onSuccess) {
         interests: fullInterests.filter((i) => i !== 'Other'),
         preferredDifficulty: finalDifficultyString,
         preferredLanguage: formData.preferredLanguage,
+        preferredIssues: formData.preferredIssues,
       };
 
       // Persist locally for immediate state synchronization
       sessionStorage.setItem('fimmit_user_difficulty', finalDifficultyString);
       if (payload.preferredTechStack.length > 0) {
         sessionStorage.setItem('fimmit_tech_tags', JSON.stringify(payload.preferredTechStack));
+      }
+      if (payload.preferredIssues.length > 0) {
+        sessionStorage.setItem('fimmit_preferred_issues', JSON.stringify(payload.preferredIssues));
       }
 
       const result = await onboardingService.savePreferences(payload);
@@ -187,7 +210,7 @@ export function useOnboarding(onSuccess) {
 
   return {
     currentStep,
-    totalSteps: 4,
+    totalSteps: 5,
     formData,
     stepError,
     isSubmitting,
@@ -203,5 +226,6 @@ export function useOnboarding(onSuccess) {
     toggleInterest,
     updateOtherInterests,
     updateDifficulty,
+    toggleIssueType,
   };
 }

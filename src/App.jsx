@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { MainLayout } from './layouts/MainLayout';
 import { LandingPage } from './pages/LandingPage';
-import { HomePage } from './pages/HomePage';
+import { HomePage } from './pages/Homepage';
 import { OnboardingPage } from './pages/OnboardingPage';
 import { authService } from './services/authService';
 import { useSavedIssues } from './hooks/useSavedIssues';
@@ -45,7 +45,7 @@ export default function App() {
     return null;
   });
 
-const getDifficultyLabel = (diff) => {
+  const getDifficultyLabel = (diff) => {
     switch (diff?.toLowerCase()) {
       case 'easy':
         return 'Easy';

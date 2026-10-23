@@ -5,12 +5,14 @@ import { HomePage } from './pages/HomePage';
 import { OnboardingPage } from './pages/OnboardingPage';
 import { authService } from './services/authService';
 import { useSavedIssues } from './hooks/useSavedIssues';
+import { LoadingPage } from './pages/LoadingPage';
 
 export default function App() {
   const [currentView, setCurrentView] = useState(() => {
     const hash = window.location.hash.toLowerCase();
     if (hash === '#onboarding') return 'onboarding';
     if (hash === '#home' || hash === '#feed') return 'home';
+    if (hash === '#loading') return 'loading';
     return 'landing';
   });
 
@@ -34,7 +36,7 @@ export default function App() {
     return null;
   });
 
-const getDifficultyLabel = (diff) => {
+  const getDifficultyLabel = (diff) => {
     switch (diff?.toLowerCase()) {
       case 'easy':
         return 'Easy';
@@ -75,6 +77,8 @@ const getDifficultyLabel = (diff) => {
         setCurrentView('onboarding');
       } else if (hash === '#home' || hash === '#feed') {
         setCurrentView('home');
+      } else if (hash === '#loading') {
+        setCurrentView('loading');
       } else if (!hash || hash === '#top') {
         setCurrentView('landing');
       }
@@ -105,7 +109,8 @@ const getDifficultyLabel = (diff) => {
       setBackendTechTags(data.preferredTechStack);
       sessionStorage.setItem('fimmit_tech_tags', JSON.stringify(data.preferredTechStack));
     }
-    navigateTo('home');
+    // Route to the loading sequence instead of immediately to home
+    navigateTo('loading');
   };
 
   const handleLogout = async () => {
@@ -144,6 +149,10 @@ const getDifficultyLabel = (diff) => {
           onComplete={handleOnboardingComplete}
           onExit={() => navigateTo('landing')}
         />
+      ) : currentView === 'loading' ? (
+        <LoadingPage 
+          onComplete={() => navigateTo('home')} 
+        />
       ) : (
         <MainLayout
           navbarVariant={currentView}
@@ -178,6 +187,7 @@ const getDifficultyLabel = (diff) => {
             <HomePage
               savedIssueIds={savedIssueIds}
               onToggleSave={toggleSave}
+              username={user?.username || 'Contributor'}
             />
           )}
         </MainLayout>

@@ -250,8 +250,17 @@ export const LandingPage = ({ onContinueWithGithub, onHowItWorks }) => {
               ))}
             </div>
           </section>
-
         </div>
+      </div>
+      
+              <div className="fimmit-cta-banner">
+        <h2 className="fimmit-cta-title">
+          Your next PR is<br />already open<br />somewhere.
+        </h2>
+        <button type="button" className="fimmit-footer-github-btn" onClick={onContinueWithGithub}>
+          <img src={githubIcon} alt="Github" className="fimmit-footer-github-icon" aria-hidden="true" />
+          Continue with Github
+        </button>
       </div>
     </div>
   );

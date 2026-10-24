@@ -667,3 +667,30 @@
     font-size: 15px;
   }
 }
+
+/* --- Error State --- */
+.fimmit-feed-error {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 4rem; /* Pushes it down slightly from the top, matching the design */
+  height: 100%;
+}
+
+.fimmit-feed-error-text {
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: #000000;
+  line-height: 1.6;
+  text-align: center;
+  margin: 0;
+}
+
+.fimmit-error-icon {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin-left: 0.6rem;
+  margin-bottom: 0.2rem;
+}

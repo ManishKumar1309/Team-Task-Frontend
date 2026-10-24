@@ -7,12 +7,12 @@ export const HomePage = ({
   username = 'demo-developer',
   isError = false,
 }) => {
-  const [activeLang, setActiveLang] = useState('JS');
+  const [activeLang, setActiveLang] = useState('');
 
   const [diffFilters, setDiffFilters] = useState({
     easy: false,
-    medium: true,
-    hard: true,
+    medium: false,
+    hard: false,
   });
 
   const toggleDiff = (level) => {
@@ -167,11 +167,11 @@ export const HomePage = ({
   );
 
   const visibleIssues = issues.filter((issue) => {
-    const languageMatches =
-      activeLang === 'JS' ||
-      issue.tags.some(
-        (tag) => tag.toLowerCase() === activeLang.toLowerCase()
-      );
+ const languageMatches =
+  !activeLang ||
+  issue.tags.some(
+    (tag) => tag.toLowerCase() === activeLang.toLowerCase()
+  );
 
     const difficultyMatches =
       selectedDifficulties.length === 0 ||
@@ -320,9 +320,19 @@ export const HomePage = ({
                           aria-pressed={saved}
                           onClick={() => onToggleSave(issue.id)}
                         >
-                          <span aria-hidden="true">
-                            {saved ? '▮' : '♧'}
-                          </span>
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill={saved ? 'currentColor' : 'none'}
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="M6 4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-4-6 4V4.5Z" />
+                        </svg>
 
                           {saved ? 'Saved' : 'Save issue'}
                         </button>

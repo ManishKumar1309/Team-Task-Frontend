@@ -8,8 +8,7 @@ import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
 import { useRecommendations } from '../hooks/useRecommendations';
 import { getIssueKey } from '../hooks/useSavedIssues';
-
-import './HomePage.css';
+import './Homepage.css';
 
 const MOCK_ISSUES = [
   {

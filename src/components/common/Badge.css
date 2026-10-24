@@ -36,13 +36,13 @@
 .fimmit-badge--yellow {
   background-color: var(--color-yellow);
   color: var(--color-black);
-  box-shadow: 2px 2px 0px var(--color-black);
+  /* box-shadow: 2px 2px 0px var(--color-black); */
 }
 
 .fimmit-badge--orange {
   background-color: var(--color-orange);
   color: var(--color-black);
-  box-shadow: 2px 2px 0px var(--color-black);
+  /* box-shadow: 2px 2px 0px var(--color-black); */
 }
 
 .fimmit-badge--success {

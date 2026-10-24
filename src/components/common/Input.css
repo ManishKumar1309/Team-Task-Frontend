@@ -27,7 +27,7 @@
   color: var(--text-primary);
   border: var(--border-width-default) solid var(--color-black);
   border-radius: var(--radius-sm);
-  box-shadow: 2px 2px 0px var(--color-black);
+  /* box-shadow: 2px 2px 0px var(--color-black); */
   transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
 }
 
@@ -38,7 +38,7 @@
 .fimmit-input:focus {
   outline: none;
   border-color: var(--color-black);
-  box-shadow: 3px 3px 0px var(--color-orange);
+  /* box-shadow: 3px 3px 0px var(--color-orange); */
 }
 
 .fimmit-input:disabled {
@@ -51,7 +51,7 @@
 /* --- Error State --- */
 .fimmit-input--error {
   border-color: var(--status-error);
-  box-shadow: 2px 2px 0px var(--status-error);
+  /* box-shadow: 2px 2px 0px var(--status-error); */
 }
 
 .fimmit-input-error-text {

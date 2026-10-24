@@ -60,7 +60,7 @@ export function useSavedIssues() {
 
   return {
     savedCount,
-    savedIssueIds,
+    savedIssueIds: Array.from(savedIssueIds),
     isSaving,
     saveError,
     toggleSave,

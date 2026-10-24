@@ -191,7 +191,7 @@
 
 /* Hover effects for unselected pills */
 .fimmit-pill:not(.active):hover {
-  background-color: #EAE6D9; /* Subtle gray/off-white */
+  background-color: #F6D945; /* Subtle gray/off-white */
   transform: translateY(-1px);
 }
 

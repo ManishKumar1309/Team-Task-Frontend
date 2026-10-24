@@ -8,12 +8,12 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
   const [techStack, setTechStack] = useState([]);
   const [interests, setInterests] = useState([]);
   const [difficulty, setDifficulty] = useState('');
+  const [issueTypes, setIssueTypes] = useState([]);
 
-  // Tech Stack options
+  // Options
   const techOptions = ['C++', 'Python', 'JS', 'Rust', 'React', 'TypeScript', 'Java', 'Go', 'Node.js', 'Ruby'];
-  
-  // Interest options
   const interestOptions = ['Backend', 'AI/ML', 'DevOps', 'App Dev', 'Frontend', 'Web3'];
+  const issueTypeOptions = ['Bug Fixes', 'Documentation', 'New Features', 'Refactoring', 'Performance', 'Any type', 'Good first issue', 'Tests'];
 
   const toggleTech = (tech) => {
     if (techStack.includes(tech)) {
@@ -31,24 +31,42 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
     }
   };
 
+  // Smart toggle logic: Prevents selecting "Any type" alongside specific types
+  const toggleIssueType = (type) => {
+    if (type === 'Any type') {
+      if (issueTypes.includes('Any type')) {
+        setIssueTypes([]);
+      } else {
+        setIssueTypes(['Any type']);
+      }
+      return;
+    }
+
+    // Remove 'Any type' if the user selects a specific option
+    let nextTypes = issueTypes.filter(t => t !== 'Any type');
+
+    if (nextTypes.includes(type)) {
+      nextTypes = nextTypes.filter((t) => t !== type);
+    } else {
+      nextTypes.push(type);
+    }
+    setIssueTypes(nextTypes);
+  };
+
   // Validation to make sure each step is compulsory
   const isStepValid = () => {
     switch (step) {
-      case 1:
-        return bio.trim().length > 0;
-      case 2:
-        return techStack.length > 0;
-      case 3:
-        return interests.length > 0;
-      case 4:
-        return difficulty !== '';
-      default:
-        return false;
+      case 1: return bio.trim().length > 0;
+      case 2: return techStack.length > 0;
+      case 3: return interests.length > 0;
+      case 4: return difficulty !== '';
+      case 5: return issueTypes.length > 0;
+      default: return false;
     }
   };
 
   const handleNext = () => {
-    if (step < 4 && isStepValid()) setStep(step + 1);
+    if (step < 5 && isStepValid()) setStep(step + 1);
   };
 
   const handleBack = () => {
@@ -61,7 +79,8 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
         bio,
         preferredTechStack: techStack,
         interests,
-        preferredDifficulty: difficulty || 'medium' 
+        preferredDifficulty: difficulty || 'medium',
+        preferredIssueTypes: issueTypes 
       });
     }
   };
@@ -69,7 +88,7 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
   return (
     <div className="fimmit-onboarding-wrapper">
       
-      {/* Top Bar with Logo and Exit */}
+      {/* Top Bar */}
       <div className="fimmit-onboarding-topbar">
         <div className="fimmit-onboarding-brand">
           <img src={logoSrc} alt="Fimmit Logo" className="fimmit-onboarding-logo-icon" />
@@ -87,9 +106,9 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
       {/* Main Survey Card */}
       <div className="fimmit-onboarding-card">
         
-        {/* Segmented Progress Bar */}
+        {/* Segmented Progress Bar (Updated to 5 steps) */}
         <div className="fimmit-onboarding-progress">
-          {[1, 2, 3, 4].map((i) => (
+          {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className={`fimmit-progress-segment ${step >= i ? 'active' : ''}`}></div>
           ))}
         </div>
@@ -99,7 +118,7 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
           {/* STEP 1 */}
           {step === 1 && (
             <div className="fimmit-step-pane">
-              <p className="fimmit-step-eyebrow">Question 1 of 4</p>
+              <p className="fimmit-step-eyebrow">Question 1 of 5</p>
               <h2 className="fimmit-step-title">Tell us about you</h2>
               
               <div className="fimmit-input-group">
@@ -119,9 +138,8 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
           {/* STEP 2 */}
           {step === 2 && (
             <div className="fimmit-step-pane">
-              <p className="fimmit-step-eyebrow">Question 2 of 4</p>
+              <p className="fimmit-step-eyebrow">Question 2 of 5</p>
               <h2 className="fimmit-step-title">Your tech stack</h2>
-              
               <p className="fimmit-step-subtitle">Select your technologies (multi-select) *</p>
               
               <div className="fimmit-pills-container">
@@ -141,9 +159,8 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
           {/* STEP 3 */}
           {step === 3 && (
             <div className="fimmit-step-pane">
-              <p className="fimmit-step-eyebrow">Question 3 of 4</p>
+              <p className="fimmit-step-eyebrow">Question 3 of 5</p>
               <h2 className="fimmit-step-title">What you're into</h2>
-              
               <p className="fimmit-step-subtitle">What domains are you into? (multi-select) *</p>
 
               <div className="fimmit-pills-container">
@@ -163,9 +180,8 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
           {/* STEP 4 */}
           {step === 4 && (
             <div className="fimmit-step-pane">
-              <p className="fimmit-step-eyebrow">Question 4 of 4</p>
+              <p className="fimmit-step-eyebrow">Question 4 of 5</p>
               <h2 className="fimmit-step-title">How hard?</h2>
-              
               <p className="fimmit-step-subtitle">Preferred issue difficulty *</p>
 
               <div className="fimmit-difficulty-blocks">
@@ -204,9 +220,30 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
               </div>
             </div>
           )}
+
+          {/* STEP 5 */}
+          {step === 5 && (
+            <div className="fimmit-step-pane">
+              <p className="fimmit-step-eyebrow">Question 5 of 5</p>
+              <h2 className="fimmit-step-title">Preferred issue</h2>
+              <p className="fimmit-step-subtitle">What type of work are you looking for? *</p>
+
+              <div className="fimmit-pills-container">
+                {issueTypeOptions.map((type) => (
+                  <button 
+                    key={type}
+                    className={`fimmit-pill ${issueTypes.includes(type) ? 'active' : ''}`}
+                    onClick={() => toggleIssueType(type)}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Card Footer Controls */}
+        {/* Card Footer */}
         <div className="fimmit-onboarding-footer">
           <button 
             className="fimmit-btn-back" 
@@ -216,7 +253,7 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
             &larr; Back
           </button>
           
-          {step < 4 ? (
+          {step < 5 ? (
             <button 
               className="fimmit-btn-next" 
               onClick={handleNext}

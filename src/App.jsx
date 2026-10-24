@@ -6,6 +6,7 @@ import { OnboardingPage } from './pages/OnboardingPage';
 import { authService } from './services/authService';
 import { useSavedIssues } from './hooks/useSavedIssues';
 import { LoadingPage } from './pages/LoadingPage';
+import { SavedIssuesDrawer } from './components/common/SavedIssuesDrawer';
 
 export default function App() {
   const [currentView, setCurrentView] = useState(() => {
@@ -16,7 +17,8 @@ export default function App() {
     return 'landing';
   });
 
-  const { savedCount, savedIssueIds, toggleSave } = useSavedIssues();
+const [isSavedDrawerOpen, setIsSavedDrawerOpen] = useState(false);
+const { savedCount, savedIssueIds, toggleSave } = useSavedIssues();
 
   const [profileDifficulty, setProfileDifficulty] = useState(() => {
     return sessionStorage.getItem('fimmit_user_difficulty') || 'medium';
@@ -162,15 +164,7 @@ export default function App() {
           username={user?.username || null}
           onSignIn={handleSignIn}
           onOpenFeed={() => navigateTo('home')}
-          onSavedClick={() => {
-            if (currentView !== 'home') {
-              navigateTo('home');
-            }
-            const listEl = document.querySelector('.fimmit-home-page') || document.querySelector('.fimmit-issues-grid');
-            if (listEl) {
-              listEl.scrollIntoView({ behavior: 'smooth' });
-            }
-          }}
+          onSavedClick={() => setIsSavedDrawerOpen(true)}
           onNavClick={handleNavClick}
           onLogout={handleLogout}
           onContinueWithGithub={handleSignIn}
@@ -192,6 +186,12 @@ export default function App() {
           )}
         </MainLayout>
       )}
+      <SavedIssuesDrawer 
+        isOpen={isSavedDrawerOpen}
+        onClose={() => setIsSavedDrawerOpen(false)}
+        savedIssueIds={Array.isArray(savedIssueIds) ? savedIssueIds : []}
+        onRemove={(id) => toggleSave(id)}
+      />
     </>
   );
 }

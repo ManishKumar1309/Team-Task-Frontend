@@ -694,3 +694,28 @@
   margin-left: 0.6rem;
   margin-bottom: 0.2rem;
 }
+
+.fimmit-clear-filter {
+  align-self: flex-start;
+  margin-top: 12px;
+  padding: 7px 14px;
+  background: #f7f4ec;
+  color: #000;
+  border: 1.5px solid #000;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.fimmit-clear-filter:hover:not(:disabled) {
+  background: #f6d945;
+  transform: translateY(-1px);
+}
+
+.fimmit-clear-filter:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

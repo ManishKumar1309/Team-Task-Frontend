@@ -44,7 +44,6 @@ export const HomePage = ({
       title: 'Fix broken sandbox in useDeferredValue docs',
       issueNum: '#6120',
       tags: ['JS', 'react', 'docs'],
-      matchScore: '88%',
       matchDesc: 'Good first issue with a clear fix and active maintainers',
       difficulty: 'hard',
       url: 'https://github.com/reactjs/react.dev/issues/6120',
@@ -56,10 +55,9 @@ export const HomePage = ({
       title: 'Fix hydration mismatch warning on SSR text nodes',
       issueNum: '#70210',
       tags: ['JS', 'React', 'SSR'],
-      matchScore: '86%',
       matchDesc: 'Relevant to React and server-side rendering',
       difficulty: 'medium',
-      url: 'https://github.com/vercel/next.js/issues',
+      url: 'https://github.com/vercel/next.js/issues/70210',
     },
     {
       id: 103,
@@ -68,10 +66,9 @@ export const HomePage = ({
       title: 'Improve error messages for invalid hook usage',
       issueNum: '#28910',
       tags: ['JS', 'React', 'debugging'],
-      matchScore: '84%',
       matchDesc: 'A useful issue for learning React internals',
       difficulty: 'medium',
-      url: 'https://github.com/facebook/react/issues',
+      url: 'https://github.com/facebook/react/issues/28910',
     },
     {
       id: 104,
@@ -80,7 +77,6 @@ export const HomePage = ({
       title: 'Add tests for middleware error handling',
       issueNum: '#5900',
       tags: ['JS', 'Express', 'tests'],
-      matchScore: '82%',
       matchDesc: 'Test-focused task with a clear scope',
       difficulty: 'easy',
       url: 'https://github.com/expressjs/express/issues',
@@ -92,7 +88,6 @@ export const HomePage = ({
       title: 'Improve documentation for asynchronous APIs',
       issueNum: '#55000',
       tags: ['JS', 'Node.js', 'docs'],
-      matchScore: '80%',
       matchDesc: 'Good opportunity to contribute to Node.js',
       difficulty: 'easy',
       url: 'https://github.com/nodejs/node/issues',
@@ -104,7 +99,6 @@ export const HomePage = ({
       title: 'Clarify test timeout configuration documentation',
       issueNum: '#15000',
       tags: ['JS', 'Jest', 'docs'],
-      matchScore: '79%',
       matchDesc: 'Documentation improvement with a focused scope',
       difficulty: 'easy',
       url: 'https://github.com/jestjs/jest/issues',
@@ -116,7 +110,6 @@ export const HomePage = ({
       title: 'Improve error output for failed module resolution',
       issueNum: '#19000',
       tags: ['JS', 'Vite', 'debugging'],
-      matchScore: '77%',
       matchDesc: 'Explore module resolution and development tooling',
       difficulty: 'medium',
       url: 'https://github.com/vitejs/vite/issues',
@@ -128,7 +121,6 @@ export const HomePage = ({
       title: 'Improve accessibility warnings in component diagnostics',
       issueNum: '#12000',
       tags: ['JS', 'Svelte', 'accessibility'],
-      matchScore: '75%',
       matchDesc: 'Contribute to clearer accessibility feedback',
       difficulty: 'medium',
       url: 'https://github.com/sveltejs/svelte/issues',
@@ -140,7 +132,6 @@ export const HomePage = ({
       title: 'Add regression tests for formatting edge cases',
       issueNum: '#17000',
       tags: ['JS', 'tests', 'formatting'],
-      matchScore: '73%',
       matchDesc: 'A test-driven contribution to developer tooling',
       difficulty: 'hard',
       url: 'https://github.com/prettier/prettier/issues',
@@ -152,14 +143,25 @@ export const HomePage = ({
       title: 'Clarify request cancellation examples',
       issueNum: '#6500',
       tags: ['JS', 'HTTP', 'docs'],
-      matchScore: '71%',
       matchDesc: 'Explore HTTP requests and cancellation behavior',
       difficulty: 'easy',
       url: 'https://github.com/axios/axios/issues',
     },
   ];
 
-  const languages = ['C++', 'JS', 'Rust', 'Python', 'Go'];
+  const languages = [
+    'C++',
+    'Python',
+    'JS',
+    'Rust',
+    'React',
+    'TypeScript',
+    'Java',
+    'Go',
+    'Node.js',
+    'Ruby',
+  ];
+
   const difficulties = ['easy', 'medium', 'hard'];
 
   const selectedDifficulties = difficulties.filter(
@@ -167,11 +169,11 @@ export const HomePage = ({
   );
 
   const visibleIssues = issues.filter((issue) => {
- const languageMatches =
-  !activeLang ||
-  issue.tags.some(
-    (tag) => tag.toLowerCase() === activeLang.toLowerCase()
-  );
+    const languageMatches =
+      !activeLang ||
+      issue.tags.some(
+        (tag) => tag.toLowerCase() === activeLang.toLowerCase()
+      );
 
     const difficultyMatches =
       selectedDifficulties.length === 0 ||
@@ -196,12 +198,25 @@ export const HomePage = ({
                     activeLang === lang ? 'active' : ''
                   }`}
                   aria-pressed={activeLang === lang}
-                  onClick={() => setActiveLang(lang)}
+                  onClick={() =>
+                    setActiveLang((current) =>
+                      current === lang ? '' : lang
+                    )
+                  }
                 >
                   {lang}
                 </button>
               ))}
             </div>
+
+            <button
+              type="button"
+              className="fimmit-clear-filter"
+              onClick={() => setActiveLang('')}
+              disabled={!activeLang}
+            >
+              Clear filter
+            </button>
           </section>
 
           <section className="fimmit-sidebar-box">
@@ -235,18 +250,30 @@ export const HomePage = ({
         </aside>
 
         <main className="fimmit-home-feed">
-          {/* THE CONDITIONAL RENDERING BLOCK FOR THE ERROR STATE */}
           {isError ? (
             <div className="fimmit-feed-error">
               <p className="fimmit-feed-error-text">
-                There was an error while fetching the issues.<br/>
+                There was an error while fetching the issues.
+                <br />
                 Please try again in a few seconds
                 <span className="fimmit-error-icon">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="#E8614F" stroke="#000000" strokeWidth="1.5">
+                  <svg
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="#E8614F"
+                    stroke="#000000"
+                    strokeWidth="1.5"
+                    aria-hidden="true"
+                  >
                     <circle cx="12" cy="12" r="10" />
                     <circle cx="8.5" cy="9.5" r="1.5" fill="#000000" stroke="none" />
                     <circle cx="15.5" cy="9.5" r="1.5" fill="#000000" stroke="none" />
-                    <path d="M8 15.5c1.5-2 4.5-2 6 0" fill="none" strokeLinecap="round" />
+                    <path
+                      d="M8 15.5c1.5-2 4.5-2 6 0"
+                      fill="none"
+                      strokeLinecap="round"
+                    />
                   </svg>
                 </span>
               </p>
@@ -320,19 +347,19 @@ export const HomePage = ({
                           aria-pressed={saved}
                           onClick={() => onToggleSave(issue.id)}
                         >
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill={saved ? 'currentColor' : 'none'}
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          aria-hidden="true"
-                        >
-                          <path d="M6 4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-4-6 4V4.5Z" />
-                        </svg>
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill={saved ? 'currentColor' : 'none'}
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                          >
+                            <path d="M6 4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-4-6 4V4.5Z" />
+                          </svg>
 
                           {saved ? 'Saved' : 'Save issue'}
                         </button>

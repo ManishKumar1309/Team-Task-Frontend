@@ -643,9 +643,9 @@
   font-size: 12px;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 860px) {
   .fimmit-home-wrapper {
-    padding: 24px 16px;
+    padding: 20px 16px 32px;
   }
 
   .fimmit-home-container {
@@ -654,17 +654,70 @@
   }
 
   .fimmit-home-headline {
-    font-size: clamp(34px, 8vw, 46px);
+    font-size: clamp(30px, 7vw, 46px);
     flex-wrap: wrap;
+    margin-bottom: 16px;
   }
 
   .fimmit-home-sidebar {
+    position: static;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
 
   .fimmit-card-title {
-    font-size: 15px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 540px) {
+  .fimmit-home-wrapper {
+    padding: 16px 12px 24px;
+  }
+
+  .fimmit-home-sidebar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fimmit-feed-card {
+    padding: 14px 14px;
+  }
+
+  .fimmit-card-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .fimmit-card-match-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .fimmit-card-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .fimmit-card-btn-open,
+  .fimmit-card-btn-saved {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 360px) {
+  .fimmit-home-wrapper {
+    padding: 12px 8px 20px;
+  }
+
+  .fimmit-feed-card {
+    padding: 12px 10px;
+  }
+
+  .fimmit-card-title {
+    font-size: 14px;
   }
 }
 

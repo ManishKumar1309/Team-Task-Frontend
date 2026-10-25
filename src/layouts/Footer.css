@@ -118,3 +118,13 @@
     padding-right: 1.25rem;
   }
 }
+
+@media (max-width: 480px) {
+  .fimmit-sub-footer {
+    padding: 1.5rem 1rem;
+    align-items: flex-start;
+  }
+  .fimmit-sub-footer-logo {
+    font-size: 1.3rem;
+  }
+}

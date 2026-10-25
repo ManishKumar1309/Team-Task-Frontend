@@ -1,11 +1,12 @@
 /* --- Global Wrapper --- */
 .fimmit-loading-wrapper {
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
   background-color: #F7F4EC; /* Match off-white from design */
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
 }
 
@@ -15,19 +16,19 @@
   align-items: center;
   width: 100%;
   max-width: 480px;
-  padding: 2rem;
+  padding: clamp(1.25rem, 4vw, 2rem);
   box-sizing: border-box;
 }
 
 /* --- Headline & Banner --- */
 .fimmit-loading-headline {
   font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
-  font-size: 3.5rem;
+  font-size: clamp(2.1rem, 7.5vw, 3.5rem);
   font-weight: 900;
   color: #000000;
   text-align: center;
   line-height: 1.1;
-  margin: 0 0 3rem 0;
+  margin: 0 0 clamp(1.75rem, 4vh, 3rem) 0;
   letter-spacing: -0.02em;
 }
 
@@ -45,7 +46,6 @@
   border: 3px solid #FFFFFF;
   transform: rotate(3deg);
   box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-  margin-right: 7rem;
 }
 
 /* --- Loading Steps Container --- */

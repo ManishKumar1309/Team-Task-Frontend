@@ -1,11 +1,10 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
-import { recommendationService } from '../services/recommendationService';
 
-const STORAGE_KEY = 'fimmit_saved_issues';
+const STORAGE_KEY_IDS = 'fimmit_saved_issue_ids';
+const STORAGE_KEY_ITEMS = 'fimmit_saved_issues';
 
 /**
  * Helper to obtain a consistent, stable string identifier from an issue object or primitive id.
- * Never uses generic placeholder URLs (like https://github.com) as keys.
  */
 export function getIssueKey(issue) {
   if (!issue) return '';
@@ -31,169 +30,85 @@ export function getIssueKey(issue) {
   return String(issue.title || '').trim();
 }
 
-/**
- * Safely parse initial saved issues from localStorage, deduplicating by issue key.
- */
-function loadInitialSavedIssues() {
+function loadInitialSavedIssueIds() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed)) {
-      const seen = new Set();
-      const deduped = [];
-      for (const item of parsed) {
-        if (!item || typeof item !== 'object') continue;
-        const key = getIssueKey(item);
-        if (key && !seen.has(key)) {
-          seen.add(key);
-          deduped.push(item);
-        }
+    const stored = localStorage.getItem(STORAGE_KEY_IDS);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed)) {
+        return parsed.map((id) => String(id));
       }
-      return deduped;
+    }
+    const legacy = localStorage.getItem(STORAGE_KEY_ITEMS);
+    if (legacy) {
+      const parsed = JSON.parse(legacy);
+      if (Array.isArray(parsed)) {
+        return parsed.map((item) => getIssueKey(item)).filter(Boolean);
+      }
     }
     return [];
-  } catch (err) {
-    console.warn('Failed to parse saved issues from localStorage:', err);
+  } catch {
     return [];
   }
 }
 
-/**
- * Custom hook to manage saved issues state, drawer visibility, and localStorage persistence.
- */
 export function useSavedIssues() {
-  const [savedIssues, setSavedIssues] = useState(loadInitialSavedIssues);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [savedIssueIds, setSavedIssueIds] = useState(loadInitialSavedIssueIds);
+  const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  // Persist whenever savedIssues changes
-  const persistSavedIssues = useCallback((issues) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(issues));
-    } catch (err) {
-      console.error('Failed to persist saved issues to localStorage:', err);
-    }
-  }, []);
-
-  // Sync with backend on startup if available (non-destructive to local offline state)
+  // Persist to localStorage
   useEffect(() => {
-    let isMounted = true;
-    recommendationService.getSavedIssues()
-      .then((res) => {
-        if (!isMounted || !res) return;
-        // If server returns real data (not mock) and local state was empty, populate from server
-        if (!res.isMock && Array.isArray(res.savedIssues) && res.savedIssues.length > 0) {
-          setSavedIssues((prev) => {
-            if (prev.length === 0) {
-              persistSavedIssues(res.savedIssues);
-              return res.savedIssues;
-            }
-            return prev;
-          });
-        }
-      })
-      .catch(() => {});
+    try {
+      localStorage.setItem(STORAGE_KEY_IDS, JSON.stringify(savedIssueIds));
+      localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(savedIssueIds));
+    } catch (err) {
+      console.error('Failed to persist saved issues:', err);
+    }
+  }, [savedIssueIds]);
 
-    return () => {
-      isMounted = false;
-    };
-  }, [persistSavedIssues]);
+  const openDrawer = useCallback(() => setIsDrawerOpen(true), []);
+  const closeDrawer = useCallback(() => setIsDrawerOpen(false), []);
 
-  // Derived set of string IDs for O(1) membership checks in cards
-  const savedIssueIds = useMemo(() => {
-    const ids = new Set();
-    savedIssues.forEach((issue) => {
-      const key = getIssueKey(issue);
-      if (key) ids.add(key);
-      if (issue.id !== undefined && issue.id !== null && String(issue.id).trim() !== '') {
-        ids.add(String(issue.id).trim());
-      }
-    });
-    return ids;
-  }, [savedIssues]);
-
-  const savedCount = savedIssues.length;
-
-  const openDrawer = useCallback(() => {
-    setIsDrawerOpen(true);
-  }, []);
-
-  const closeDrawer = useCallback(() => {
-    setIsDrawerOpen(false);
-  }, []);
-
-  /**
-   * Remove an issue from the saved list by its issue object or key.
-   */
-  const removeSavedIssue = useCallback((issueOrKey) => {
-    const targetKey = getIssueKey(issueOrKey);
-    if (!targetKey) return;
-
-    setSavedIssues((prev) => {
-      const next = prev.filter((i) => getIssueKey(i) !== targetKey);
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      } catch (err) {
-        console.error('Failed to persist saved issues to localStorage:', err);
-      }
-      return next;
-    });
-
-    // Fire and forget background sync
-    recommendationService.removeSavedIssue(targetKey).catch(() => {});
-  }, []);
-
-  /**
-   * Toggles the saved status of an issue.
-   * If not saved: saves issue, persists, and prevents duplicate saves.
-   * If saved: unsaves issue and updates list immediately.
-   */
-  const toggleSave = useCallback((issue) => {
-    if (!issue) return;
-    const targetKey = getIssueKey(issue);
-    if (!targetKey) return;
+  const toggleSave = useCallback((issueOrId) => {
+    if (!issueOrId) return;
+    const id = getIssueKey(issueOrId);
+    if (!id) return;
 
     setSaveError('');
+    setIsSaving(true);
 
-    setSavedIssues((prev) => {
-      const isAlreadySaved = prev.some((i) => getIssueKey(i) === targetKey);
-      let next;
-
-      if (isAlreadySaved) {
-        // Unsave
-        next = prev.filter((i) => getIssueKey(i) !== targetKey);
-      } else {
-        // Save and ensure no duplicates
-        next = [issue, ...prev.filter((i) => getIssueKey(i) !== targetKey)];
+    setSavedIssueIds((prev) => {
+      const exists = prev.includes(id);
+      if (exists) {
+        return prev.filter((item) => item !== id);
       }
-
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      } catch (err) {
-        console.error('Failed to persist saved issues to localStorage:', err);
-      }
-
-      if (isAlreadySaved) {
-        recommendationService.removeSavedIssue(targetKey).catch(() => {});
-      } else {
-        recommendationService.saveIssue(targetKey).catch(() => {});
-      }
-
-      return next;
+      return [id, ...prev];
     });
+
+    setIsSaving(false);
   }, []);
 
+  const removeSavedIssue = useCallback((issueOrId) => {
+    const id = getIssueKey(issueOrId);
+    if (!id) return;
+    setSavedIssueIds((prev) => prev.filter((item) => item !== id));
+  }, []);
+
+  const savedIssueIdSet = useMemo(() => new Set(savedIssueIds), [savedIssueIds]);
+
   return {
-    savedIssues,
+    savedCount: savedIssueIds.length,
     savedIssueIds,
-    savedCount,
+    savedIssueIdSet,
+    isSaving,
+    saveError,
     isDrawerOpen,
     openDrawer,
     closeDrawer,
     setIsDrawerOpen,
     toggleSave,
     removeSavedIssue,
-    saveError,
   };
 }

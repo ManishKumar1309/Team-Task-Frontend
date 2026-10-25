@@ -100,6 +100,7 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
       interests,
       preferredDifficulty: difficulty || 'medium',
       preferredIssues,
+      preferredIssueTypes: preferredIssues,
     };
 
     try {

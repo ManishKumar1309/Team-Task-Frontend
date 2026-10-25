@@ -3,22 +3,23 @@ import { MainLayout } from './layouts/MainLayout';
 import { LandingPage } from './pages/LandingPage';
 import { HomePage } from './pages/Homepage';
 import { OnboardingPage } from './pages/OnboardingPage';
+import { LoadingPage } from './pages/LoadingPage';
 import { authService } from './services/authService';
 import { useSavedIssues } from './hooks/useSavedIssues';
-import { SavedIssuesDrawer } from './components/recommendations/SavedIssuesDrawer';
+import { SavedIssuesDrawer } from './components/common/SavedIssuesDrawer';
 
 export default function App() {
   const [currentView, setCurrentView] = useState(() => {
     const hash = window.location.hash.toLowerCase();
     if (hash === '#onboarding') return 'onboarding';
     if (hash === '#home' || hash === '#feed') return 'home';
+    if (hash === '#loading') return 'loading';
     return 'landing';
   });
 
   const {
-    savedIssues,
-    savedIssueIds,
     savedCount,
+    savedIssueIds,
     isDrawerOpen,
     openDrawer,
     closeDrawer,
@@ -87,6 +88,8 @@ export default function App() {
         setCurrentView('onboarding');
       } else if (hash === '#home' || hash === '#feed') {
         setCurrentView('home');
+      } else if (hash === '#loading') {
+        setCurrentView('loading');
       } else if (!hash || hash === '#top') {
         setCurrentView('landing');
       }
@@ -142,7 +145,9 @@ export default function App() {
     };
     setUser(authedUser);
     authService.setCurrentUser(authedUser);
-    navigateTo('home');
+
+    // Route to loading sequence before showing home feed
+    navigateTo('loading');
   };
 
   const handleLogout = async () => {
@@ -182,6 +187,10 @@ export default function App() {
           onComplete={handleOnboardingComplete}
           onExit={() => navigateTo('landing')}
         />
+      ) : currentView === 'loading' ? (
+        <LoadingPage
+          onComplete={() => navigateTo('home')}
+        />
       ) : (
         <MainLayout
           navbarVariant={currentView}
@@ -210,6 +219,7 @@ export default function App() {
             <HomePage
               savedIssueIds={savedIssueIds}
               onToggleSave={toggleSave}
+              username={user?.username || 'Contributor'}
             />
           )}
         </MainLayout>
@@ -219,8 +229,8 @@ export default function App() {
       <SavedIssuesDrawer
         isOpen={isDrawerOpen}
         onClose={closeDrawer}
-        savedIssues={savedIssues}
-        onRemove={removeSavedIssue}
+        savedIssueIds={Array.isArray(savedIssueIds) ? savedIssueIds : []}
+        onRemove={(id) => removeSavedIssue(id)}
       />
     </>
   );

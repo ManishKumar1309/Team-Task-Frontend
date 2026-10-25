@@ -958,3 +958,283 @@
     padding-right: 1.25rem;
   }
 }
+
+/* =========================================
+   HOW IT WORKS — ANIMATIONS
+   Append to the bottom of LandingPage.css
+   ========================================= */
+
+.fimmit-hiw-grid .fimmit-hiw-step-container {
+  animation: fimmitStepReveal 700ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+.fimmit-hiw-col.left-col .fimmit-hiw-step-container:nth-child(1) {
+  animation-delay: 100ms;
+}
+
+.fimmit-hiw-col.right-col .fimmit-hiw-step-container:nth-child(1) {
+  animation-delay: 300ms;
+}
+
+.fimmit-hiw-col.left-col .fimmit-hiw-step-container:nth-child(2) {
+  animation-delay: 500ms;
+}
+
+.fimmit-hiw-col.right-col .fimmit-hiw-step-container:nth-child(2) {
+  animation-delay: 700ms;
+}
+
+@keyframes fimmitStepReveal {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dashed journey path draws in */
+.fimmit-hiw-svg-line path {
+  stroke-dasharray: 16 16;
+  animation: fimmitPathReveal 1.8s ease-out both;
+}
+
+@keyframes fimmitPathReveal {
+  from {
+    stroke-dashoffset: 180;
+    opacity: 0.2;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+/* Handwritten annotations appear after the cards */
+.fimmit-hiw-blue-note {
+  animation: fimmitNoteReveal 600ms ease-out 900ms both;
+}
+
+@keyframes fimmitNoteReveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px) rotate(-3deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0);
+  }
+}
+
+/* Gentle interaction on the cards */
+.fimmit-hiw-card {
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.fimmit-hiw-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 4px 5px 0 #000;
+}
+
+/* Respect accessibility preferences */
+@media (prefers-reduced-motion: reduce) {
+  .fimmit-hiw-grid .fimmit-hiw-step-container,
+  .fimmit-hiw-svg-line path,
+  .fimmit-hiw-blue-note {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+
+  .fimmit-hiw-card {
+    transition: none;
+  }
+
+  .fimmit-hiw-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+/* =========================================
+   HOW IT WORKS — CARD HOVER + FLOAT
+   ========================================= */
+
+/* Smooth hover transitions */
+.fimmit-hiw-card {
+  position: relative;
+  transition:
+    transform 250ms ease,
+    box-shadow 250ms ease;
+  will-change: transform;
+}
+
+/* Lift the card when hovered */
+.fimmit-hiw-card:hover {
+  transform: translateY(-6px) rotate(-1deg);
+  box-shadow: 5px 6px 0 #000;
+}
+
+/* Gentle floating motion when idle */
+.fimmit-hiw-col.left-col .fimmit-hiw-step-container:first-child .fimmit-hiw-card {
+  animation: fimmitFloat 4s ease-in-out infinite;
+}
+
+.fimmit-hiw-col.right-col .fimmit-hiw-step-container:first-child .fimmit-hiw-card {
+  animation: fimmitFloat 4.5s ease-in-out infinite;
+  animation-delay: -1.5s;
+}
+
+.fimmit-hiw-col.left-col .fimmit-hiw-step-container:nth-child(2) .fimmit-hiw-card {
+  animation: fimmitFloat 5s ease-in-out infinite;
+  animation-delay: -2s;
+}
+
+.fimmit-hiw-col.right-col .fimmit-hiw-step-container:nth-child(2) .fimmit-hiw-card {
+  animation: fimmitFloat 4.3s ease-in-out infinite;
+  animation-delay: -0.8s;
+}
+
+@keyframes fimmitFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Pause floating while hovering so the hover feels intentional */
+.fimmit-hiw-card:hover {
+  animation-play-state: paused;
+}
+
+/* Accessibility: respect reduced-motion settings */
+@media (prefers-reduced-motion: reduce) {
+  .fimmit-hiw-card,
+  .fimmit-hiw-col .fimmit-hiw-card {
+    animation: none !important;
+    transition: none;
+  }
+
+  .fimmit-hiw-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+/* --- Hero Banner Animation (Smash + Float) --- */
+@keyframes brutalistSmash {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) rotate(-15deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.1) rotate(2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-4deg); 
+  }
+}
+
+/* Custom float that maintains the -4deg rotation */
+@keyframes brutalistBannerFloat {
+  0%, 100% {
+    transform: scale(1) rotate(-4deg) translateY(0px);
+  }
+  50% {
+    transform: scale(1) rotate(-4deg) translateY(-10px);
+  }
+}
+
+.animate-hero-banner {
+  display: inline-block;
+  opacity: 0; 
+  transform-origin: center center;
+  /* 
+    Chaining animations: 
+    1. brutalistSmash runs for 0.8s (starting after a 0.2s delay).
+    2. brutalistBannerFloat runs infinitely (starting after a 1.0s delay, exactly when the smash finishes).
+  */
+  animation: 
+    brutalistSmash 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s forwards,
+    brutalistBannerFloat 4s ease-in-out 1.0s infinite;
+}
+
+/* --- Blue Handwritten Text (Rubber Stamp Effect) --- */
+@keyframes handwrittenStamp {
+  0% { 
+    opacity: 0; 
+    transform: scale(1.4) rotate(-15deg); 
+  }
+  60% { 
+    opacity: 1; 
+    transform: scale(0.9) rotate(4deg); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: scale(1) rotate(-3deg); /* Adjust final rotation to match your design */
+  }
+}
+
+.animate-blue-text {
+  display: inline-block;
+  opacity: 0;
+  animation: handwrittenStamp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  animation-delay: 0.6s; /* Lets the main black text load first */
+}
+
+/* --- Preview Card (Hard Slide-in + Continuous Float) --- */
+@keyframes cardSlideIn {
+  0% { 
+    opacity: 0; 
+    transform: translateX(60px) translateY(20px); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateX(0) translateY(0); 
+  }
+}
+
+/* Reusing the shadow stretch logic for the infinite float */
+@keyframes brutalistCardFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+.animate-preview-card {
+  opacity: 0;
+  /* Chain the slide-in (0.6s) to finish right as the float (infinite) starts */
+  animation: 
+    cardSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+    brutalistCardFloat 4s ease-in-out 0.6s infinite;
+}
+
+/* --- Blue Handwritten Text (Gentle Float) --- */
+@keyframes blueTextFloat {
+  0%, 100% { 
+    transform: translateY(0px); 
+  }
+  50% { 
+    transform: translateY(-6px); 
+  }
+}
+
+.animate-blue-text-float {
+  display: inline-block; /* Required for transform to work on text */
+  animation: blueTextFloat 3s ease-in-out infinite;
+}

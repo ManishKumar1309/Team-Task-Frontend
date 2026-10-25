@@ -1,437 +1,385 @@
-import React, { useState, useMemo } from 'react';
-
-import { FilterControls } from '../components/recommendations/FilterControls';
-import { IssueCard } from '../components/recommendations/IssueCard';
-import { LoadingState } from '../components/common/LoadingState';
-import { ErrorState } from '../components/common/ErrorState';
-import { Button } from '../components/common/Button';
-import { Input } from '../components/common/Input';
-import { useRecommendations } from '../hooks/useRecommendations';
-import { getIssueKey } from '../hooks/useSavedIssues';
+import React, { useState } from 'react';
 import './Homepage.css';
 
-const MOCK_ISSUES = [
-  {
-    id: '101',
-    title: 'Add unit tests for authentication middleware',
-    repository: 'fimmit/core-api',
-    url: 'https://github.com',
-    issueType: 'TESTS',
-    difficulty: 'EASY',
-    matchScore: 0.94,
-    repoDescription:
-      'The core backend API for Fimmit, built with Node.js and Express to handle user routing, authentication, and integration services.',
-    techStack: ['JavaScript', 'Jest', 'Express'],
-  },
-  {
-    id: '102',
-    title: 'Migrate user dashboard to React Server Components',
-    repository: 'facebook/react',
-    url: 'https://github.com',
-    issueType: 'FEATURE',
-    difficulty: 'HARD',
-    matchScore: 0.88,
-    repoDescription:
-      'The library for web and native user interfaces. React lets you build user interfaces out of individual pieces called components.',
-    techStack: ['React', 'TypeScript'],
-  },
-  {
-    id: '103',
-    title: 'Fix hydration mismatch warning on SSR text nodes',
-    repository: 'vercel/next.js',
-    url: 'https://github.com',
-    issueType: 'BUG',
-    difficulty: 'MEDIUM',
-    matchScore: 0.91,
-    repoDescription:
-      'The React Framework for the Web. Next.js gives you the best developer experience with all the features you need for production.',
-    techStack: ['React', 'SSR'],
-  },
-  {
-    id: '104',
-    title: 'Implement OAuth2 login provider',
-    repository: 'auth0/nextjs-auth0',
-    url: 'https://github.com',
-    issueType: 'FEATURE',
-    difficulty: 'MEDIUM',
-    matchScore: 0.75,
-    repoDescription: 'Auth0 SDK for Next.js applications.',
-    techStack: ['Node.js', 'Security'],
-  },
-  {
-    id: '105',
-    title: 'Fix broken markdown link in contributing guide',
-    repository: 'fimmit/docs',
-    url: 'https://github.com',
-    issueType: 'DOCS',
-    difficulty: 'EASY',
-    matchScore: 0.60,
-    repoDescription:
-      'Official documentation and open-source contribution guidelines for the Fimmit ecosystem.',
-    techStack: ['Markdown'],
-  },
-  {
-    id: '106',
-    title: 'Optimize tree-shaking for unused CSS variables',
-    repository: 'tailwindlabs/tailwindcss',
-    url: 'https://github.com',
-    issueType: 'PERFORMANCE',
-    difficulty: 'HARD',
-    matchScore: 0.82,
-    repoDescription:
-      'A utility-first CSS framework for rapid UI development.',
-    techStack: ['CSS', 'PostCSS', 'JavaScript'],
-  },
-  {
-    id: '107',
-    title: 'Update devDependencies to resolve dependabot alerts',
-    repository: 'vuejs/core',
-    url: 'https://github.com',
-    issueType: 'CHORE',
-    difficulty: 'EASY',
-    matchScore: 0.65,
-    repoDescription:
-      'Vue.js is a progressive, incrementally-adoptable JavaScript framework for building UI on the web.',
-    techStack: ['TypeScript', 'Vue'],
-  },
-  {
-    id: '108',
-    title: 'Refactor telemetry service to use batching',
-    repository: 'microsoft/vscode',
-    url: 'https://github.com',
-    issueType: 'REFACTOR',
-    difficulty: 'HARD',
-    matchScore: 0.79,
-    repoDescription:
-      'Visual Studio Code is an open-source, cross-platform code editor.',
-    techStack: ['TypeScript', 'Electron'],
-  },
-  {
-    id: '109',
-    title: 'Improve error boundary fallback UI rendering',
-    repository: 'remix-run/remix',
-    url: 'https://github.com',
-    issueType: 'ENHANCEMENT',
-    difficulty: 'MEDIUM',
-    matchScore: 0.85,
-    repoDescription:
-      'Build Better Websites. Create modern, resilient user experiences with web fundamentals.',
-    techStack: ['React', 'TypeScript'],
-  },
-  {
-    id: '110',
-    title: 'Add a11y attributes to the default slider component',
-    repository: 'sveltejs/svelte',
-    url: 'https://github.com',
-    issueType: 'A11Y',
-    difficulty: 'EASY',
-    matchScore: 0.71,
-    repoDescription:
-      'Cybernetically enhanced web apps. A compiler that takes declarative components and converts them to efficient JavaScript.',
-    techStack: ['JavaScript', 'Svelte', 'HTML'],
-  },
-];
-
 export const HomePage = ({
-  savedIssueIds: propSavedIssueIds,
-  onToggleSave: propToggleSave,
-  issues: propIssues,
-  isLoading: propIsLoading,
-  error: propError,
-  onRetry: propOnRetry,
+  savedIssueIds = new Set(),
+  onToggleSave = () => {},
+  username = 'demo-developer',
+  isError = false,
 }) => {
-  const recData = useRecommendations();
+  const [activeLang, setActiveLang] = useState('');
 
-  const issues =
-    propIssues !== undefined ? propIssues : recData.issues;
+  const [diffFilters, setDiffFilters] = useState({
+    easy: false,
+    medium: false,
+    hard: false,
+  });
 
-  const isLoading =
-    propIsLoading !== undefined ? propIsLoading : recData.isLoading;
-
-  const error =
-    propError !== undefined ? propError : recData.error;
-
-  const onRetry = propOnRetry || recData.reload;
-
-  const {
-    refreshFeed,
-    isRefreshing,
-    profile,
-    cooldownSeconds,
-    canRefresh,
-  } = recData;
-
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDiff, setSelectedDiff] = useState('ALL');
-  const [selectedTech, setSelectedTech] = useState([]);
-  const [sortBy, setSortBy] = useState('BEST_MATCH');
-
-  // Refresh only when the cooldown has ended.
-  const handleRefreshClick = () => {
-    console.log("REFRESH BUTTON CLICKED");
-    console.log({ canRefresh, isLoading, isRefreshing, cooldownSeconds });
-
-    if (!canRefresh || isLoading || isRefreshing) return;
-
-    refreshFeed();
-  };
-  const [localSavedIds, setLocalSavedIds] = useState(new Set());
-
-  const savedIssueIds = propSavedIssueIds || localSavedIds;
-
-  const baseIssues = useMemo(() => {
-    if (issues && issues.length > 0) return issues;
-
-    if (isLoading || error) return [];
-
-    return MOCK_ISSUES;
-  }, [issues, isLoading, error]);
-
-  const availableTechs = useMemo(() => {
-    const techs = new Set();
-
-    baseIssues.forEach((issue) =>
-      issue.techStack?.forEach((tech) => techs.add(tech))
-    );
-
-    return Array.from(techs).sort();
-  }, [baseIssues]);
-
-  // Search, difficulty and technology filters.
-  const processedIssues = useMemo(() => {
-    const filtered = baseIssues.filter((issue) => {
-      const searchLower = searchQuery.toLowerCase();
-
-      const matchesSearch =
-        issue.title.toLowerCase().includes(searchLower) ||
-        issue.repository.toLowerCase().includes(searchLower);
-
-      const matchesDiff =
-        selectedDiff === 'ALL' ||
-        issue.difficulty === selectedDiff;
-
-      const matchesTech =
-        selectedTech.length === 0 ||
-        selectedTech.some((tech) => issue.techStack?.includes(tech));
-
-      return matchesSearch && matchesDiff && matchesTech;
-    });
-
-    return filtered.sort((a, b) => {
-      if (sortBy === 'BEST_MATCH') {
-        return b.matchScore - a.matchScore;
-      }
-
-      if (sortBy === 'EASIEST') {
-        const diffMap = { EASY: 1, MEDIUM: 2, HARD: 3 };
-        return (diffMap[a.difficulty] || 99) -
-          (diffMap[b.difficulty] || 99);
-      }
-
-      if (sortBy === 'MEDIUM_FIRST') {
-        const diffMap = { MEDIUM: 1, EASY: 2, HARD: 3 };
-        return (diffMap[a.difficulty] || 99) -
-          (diffMap[b.difficulty] || 99);
-      }
-
-      if (sortBy === 'HARD_FIRST') {
-        const diffMap = { HARD: 1, MEDIUM: 2, EASY: 3 };
-        return (diffMap[a.difficulty] || 99) -
-          (diffMap[b.difficulty] || 99);
-      }
-
-      if (sortBy === 'TITLE_AZ') {
-        return a.title.localeCompare(b.title);
-      }
-
-      return 0;
-    });
-  }, [baseIssues, searchQuery, selectedDiff, selectedTech, sortBy]);
-
-  const handleClearFilters = () => {
-    setSearchQuery('');
-    setSelectedDiff('ALL');
-    setSelectedTech([]);
-    setSortBy('BEST_MATCH');
+  const toggleDiff = (level) => {
+    setDiffFilters((prev) => ({
+      ...prev,
+      [level]: !prev[level],
+    }));
   };
 
-  const handleToggleSave = (issueOrId) => {
-    const issueObj = typeof issueOrId === 'object' && issueOrId !== null
-      ? issueOrId
-      : baseIssues.find((i) => String(i.id) === String(issueOrId)) || { id: String(issueOrId) };
-
-    if (propToggleSave) {
-      propToggleSave(issueObj);
-      return;
+  const isSaved = (id) => {
+    if (savedIssueIds instanceof Set) {
+      return savedIssueIds.has(String(id)) || savedIssueIds.has(id);
     }
 
-    setLocalSavedIds((previous) => {
-      const next = new Set(previous);
-      const strId = getIssueKey(issueObj);
+    if (Array.isArray(savedIssueIds)) {
+      return savedIssueIds.some(
+        (savedId) => String(savedId) === String(id)
+      );
+    }
 
-      if (next.has(strId)) {
-        next.delete(strId);
-      } else {
-        next.add(strId);
-      }
-
-      return next;
-    });
+    return false;
   };
 
-  const hasActiveFilters =
-    selectedDiff !== 'ALL' || selectedTech.length > 0;
+  const issues = [
+    {
+      id: 101,
+      repo: 'reactjs/react.dev',
+      stars: '1k',
+      title: 'Fix broken sandbox in useDeferredValue docs',
+      issueNum: '#6120',
+      tags: ['JS', 'react', 'docs'],
+      matchDesc: 'Good first issue with a clear fix and active maintainers',
+      difficulty: 'hard',
+      url: 'https://github.com/reactjs/react.dev/issues/6120',
+    },
+    {
+      id: 102,
+      repo: 'vercel/next.js',
+      stars: '130k',
+      title: 'Fix hydration mismatch warning on SSR text nodes',
+      issueNum: '#70210',
+      tags: ['JS', 'React', 'SSR'],
+      matchDesc: 'Relevant to React and server-side rendering',
+      difficulty: 'medium',
+      url: 'https://github.com/vercel/next.js/issues/70210',
+    },
+    {
+      id: 103,
+      repo: 'facebook/react',
+      stars: '230k',
+      title: 'Improve error messages for invalid hook usage',
+      issueNum: '#28910',
+      tags: ['JS', 'React', 'debugging'],
+      matchDesc: 'A useful issue for learning React internals',
+      difficulty: 'medium',
+      url: 'https://github.com/facebook/react/issues/28910',
+    },
+    {
+      id: 104,
+      repo: 'expressjs/express',
+      stars: '65k',
+      title: 'Add tests for middleware error handling',
+      issueNum: '#5900',
+      tags: ['JS', 'Express', 'tests'],
+      matchDesc: 'Test-focused task with a clear scope',
+      difficulty: 'easy',
+      url: 'https://github.com/expressjs/express/issues',
+    },
+    {
+      id: 105,
+      repo: 'nodejs/node',
+      stars: '110k',
+      title: 'Improve documentation for asynchronous APIs',
+      issueNum: '#55000',
+      tags: ['JS', 'Node.js', 'docs'],
+      matchDesc: 'Good opportunity to contribute to Node.js',
+      difficulty: 'easy',
+      url: 'https://github.com/nodejs/node/issues',
+    },
+    {
+      id: 106,
+      repo: 'jestjs/jest',
+      stars: '44k',
+      title: 'Clarify test timeout configuration documentation',
+      issueNum: '#15000',
+      tags: ['JS', 'Jest', 'docs'],
+      matchDesc: 'Documentation improvement with a focused scope',
+      difficulty: 'easy',
+      url: 'https://github.com/jestjs/jest/issues',
+    },
+    {
+      id: 107,
+      repo: 'vitejs/vite',
+      stars: '70k',
+      title: 'Improve error output for failed module resolution',
+      issueNum: '#19000',
+      tags: ['JS', 'Vite', 'debugging'],
+      matchDesc: 'Explore module resolution and development tooling',
+      difficulty: 'medium',
+      url: 'https://github.com/vitejs/vite/issues',
+    },
+    {
+      id: 108,
+      repo: 'sveltejs/svelte',
+      stars: '80k',
+      title: 'Improve accessibility warnings in component diagnostics',
+      issueNum: '#12000',
+      tags: ['JS', 'Svelte', 'accessibility'],
+      matchDesc: 'Contribute to clearer accessibility feedback',
+      difficulty: 'medium',
+      url: 'https://github.com/sveltejs/svelte/issues',
+    },
+    {
+      id: 109,
+      repo: 'prettier/prettier',
+      stars: '50k',
+      title: 'Add regression tests for formatting edge cases',
+      issueNum: '#17000',
+      tags: ['JS', 'tests', 'formatting'],
+      matchDesc: 'A test-driven contribution to developer tooling',
+      difficulty: 'hard',
+      url: 'https://github.com/prettier/prettier/issues',
+    },
+    {
+      id: 110,
+      repo: 'axios/axios',
+      stars: '105k',
+      title: 'Clarify request cancellation examples',
+      issueNum: '#6500',
+      tags: ['JS', 'HTTP', 'docs'],
+      matchDesc: 'Explore HTTP requests and cancellation behavior',
+      difficulty: 'easy',
+      url: 'https://github.com/axios/axios/issues',
+    },
+  ];
 
-  // Display the remaining time as MM:SS.
-  const formatTime = (totalSeconds) => {
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
+  const languages = [
+    'C++',
+    'Python',
+    'JS',
+    'Rust',
+    'React',
+    'TypeScript',
+    'Java',
+    'Go',
+    'Node.js',
+    'Ruby',
+  ];
 
-    return `${String(minutes).padStart(2, '0')}:${String(
-      seconds
-    ).padStart(2, '0')}`;
-  };
+  const difficulties = ['easy', 'medium', 'hard'];
+
+  const selectedDifficulties = difficulties.filter(
+    (level) => diffFilters[level]
+  );
+
+  const visibleIssues = issues.filter((issue) => {
+    const languageMatches =
+      !activeLang ||
+      issue.tags.some(
+        (tag) => tag.toLowerCase() === activeLang.toLowerCase()
+      );
+
+    const difficultyMatches =
+      selectedDifficulties.length === 0 ||
+      selectedDifficulties.includes(issue.difficulty);
+
+    return languageMatches && difficultyMatches;
+  });
 
   return (
-    <div className="fimmit-home-page">
-      <div className="fimmit-home-page__container">
-        <header className="fimmit-home-header">
-          <h1 className="fimmit-home-header__title">
-            Welcome,{' '}
-            <span className="fimmit-title-sticker">
-              {profile?.username || 'Developer'}
-            </span>
-          </h1>
-        </header>
+    <div className="fimmit-home-wrapper">
+      <div className="fimmit-home-container">
+        <aside className="fimmit-home-sidebar">
+          <section className="fimmit-sidebar-box">
+            <h3 className="fimmit-sidebar-title">Language priority</h3>
 
-        <div className="fimmit-home-layout">
-          <aside className="fimmit-home-sidebar">
-            <FilterControls
-              selectedDiff={selectedDiff}
-              setSelectedDiff={setSelectedDiff}
-              selectedTech={selectedTech}
-              setSelectedTech={setSelectedTech}
-              availableTechs={availableTechs}
-              onClearAll={handleClearFilters}
-              hasActiveFilters={hasActiveFilters}
-            />
-          </aside>
-
-          <main className="fimmit-home-main">
-            <div className="fimmit-main-controls">
-              <div className="fimmit-search-wrapper">
-                <Input
-                  placeholder="Search repositories, tags, or titles..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-
-                {searchQuery && (
-                  <button
-                    className="fimmit-search-clear"
-                    onClick={() => setSearchQuery('')}
-                    aria-label="Clear search"
-                  >
-                    ×
-                  </button>
-                )}
-              </div>
-
-              <div className="fimmit-sort-refresh-group">
-                <select
-                  className="fimmit-select"
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  aria-label="Sort recommendations"
+            <div className="fimmit-sidebar-pills">
+              {languages.map((lang) => (
+                <button
+                  key={lang}
+                  type="button"
+                  className={`fimmit-sidebar-pill ${
+                    activeLang === lang ? 'active' : ''
+                  }`}
+                  aria-pressed={activeLang === lang}
+                  onClick={() =>
+                    setActiveLang((current) =>
+                      current === lang ? '' : lang
+                    )
+                  }
                 >
-                  <option value="BEST_MATCH">Best match</option>
-                  <option value="EASIEST">Easiest first</option>
-                  <option value="MEDIUM_FIRST">Medium first</option>
-                  <option value="HARD_FIRST">Hard first</option>
-                  <option value="TITLE_AZ">Title (A-Z)</option>
-                </select>
-
-
-                <Button
-                  variant="black"
-                  onClick={handleRefreshClick}
-                  disabled={!canRefresh || isLoading}
-                  aria-live="polite"
-                >
-                  {isRefreshing
-                    ? 'Refreshing...'
-                    : cooldownSeconds > 0
-                      ? `↻ Refresh Feed (${formatTime(cooldownSeconds)})`
-                      : '↻ Refresh Feed'}
-                </Button>
-              </div>
+                  {lang}
+                </button>
+              ))}
             </div>
 
-            {isLoading ? (
-              <div
-                style={{
-                  padding: '4rem 1rem',
-                  display: 'flex',
-                  justifyContent: 'center',
-                }}
-              >
-                <LoadingState message="Fetching personalized recommendations matching your profile..." />
-              </div>
-            ) : error ? (
-              <div style={{ padding: '2rem 1rem' }}>
-                <ErrorState
-                  title="Failed to load recommendations"
-                  message={error}
-                  onRetry={onRetry}
-                />
-              </div>
-            ) : (
-              <section
-                className="fimmit-issues-grid"
-                aria-live="polite"
-              >
-                {processedIssues.length > 0 ? (
-                  processedIssues.map((issue) => {
-                    const issueKey = getIssueKey(issue);
-                    const isSaved = Boolean(
-                      (issueKey && savedIssueIds?.has(issueKey)) ||
-                      (issue.id !== undefined && issue.id !== null && savedIssueIds?.has(String(issue.id).trim()))
-                    );
+            <button
+              type="button"
+              className="fimmit-clear-filter"
+              onClick={() => setActiveLang('')}
+              disabled={!activeLang}
+            >
+              Clear filter
+            </button>
+          </section>
 
-                    return (
-                      <IssueCard
-                        key={issueKey || issue.id}
-                        issue={issue}
-                        isSaved={isSaved}
-                        onToggleSave={() => handleToggleSave(issue)}
-                      />
-                    );
-                  })
-                ) : (
-                  <div className="fimmit-issues-empty">
-                    <h3 className="fimmit-empty-title">
-                      No issues found
-                    </h3>
+          <section className="fimmit-sidebar-box">
+            <h3 className="fimmit-sidebar-title">Difficulty</h3>
 
-                    <p>
-                      Try adjusting your search, difficulty, or
-                      technology filters to see more results.
-                    </p>
+            <div className="fimmit-sidebar-checkboxes">
+              {difficulties.map((level) => (
+                <label key={level} className="fimmit-checkbox-row">
+                  <input
+                    type="checkbox"
+                    checked={diffFilters[level]}
+                    onChange={() => toggleDiff(level)}
+                  />
 
-                    <button
-                      type="button"
-                      className="fimmit-clear-link-btn"
-                      onClick={handleClearFilters}
-                    >
-                      Clear all filters
-                    </button>
-                  </div>
+                  <span
+                    className={`fimmit-checkbox ${level}`}
+                    aria-hidden="true"
+                  />
+
+                  <span className="fimmit-checkbox-label">
+                    {level.charAt(0).toUpperCase() + level.slice(1)}
+                  </span>
+                </label>
+              ))}
+            </div>
+
+            <p className="fimmit-sidebar-note">
+              None checked shows every issue in model rank order.
+            </p>
+          </section>
+        </aside>
+
+        <main className="fimmit-home-feed">
+          {isError ? (
+            <div className="fimmit-feed-error">
+              <p className="fimmit-feed-error-text">
+                There was an error while fetching the issues.
+                <br />
+                Please try again in a few seconds
+                <span className="fimmit-error-icon">
+                  <svg
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="#E8614F"
+                    stroke="#000000"
+                    strokeWidth="1.5"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <circle cx="8.5" cy="9.5" r="1.5" fill="#000000" stroke="none" />
+                    <circle cx="15.5" cy="9.5" r="1.5" fill="#000000" stroke="none" />
+                    <path
+                      d="M8 15.5c1.5-2 4.5-2 6 0"
+                      fill="none"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </span>
+              </p>
+            </div>
+          ) : (
+            <>
+              <h1 className="fimmit-home-headline">
+                <span>Welcome</span>
+                <span className="fimmit-home-banner-wrapper">
+                  <span className="fimmit-home-orange-banner">
+                    {username || 'Contributor'}
+                  </span>
+                </span>
+              </h1>
+
+              <div className="fimmit-feed-list">
+                {visibleIssues.slice(0, 10).map((issue) => {
+                  const saved = isSaved(issue.id);
+
+                  return (
+                    <article key={issue.id} className="fimmit-feed-card">
+                      <div className="fimmit-card-header">
+                        <div className="fimmit-card-repo">
+                          <span>{issue.repo}</span>
+                          <span className="fimmit-card-star">
+                            ★ {issue.stars}
+                          </span>
+                        </div>
+
+                        <span
+                          className={`fimmit-card-difficulty fimmit-diff-${issue.difficulty}`}
+                        >
+                          {issue.difficulty}
+                        </span>
+                      </div>
+
+                      <h2 className="fimmit-card-title">
+                        {issue.title}{' '}
+                        <span className="fimmit-card-issue-num">
+                          {issue.issueNum}
+                        </span>
+                      </h2>
+
+                      <div className="fimmit-card-tags">
+                        {issue.tags.map((tag) => (
+                          <span key={tag} className="fimmit-card-tag">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+
+                      {issue.matchDesc && (
+                        <p className="fimmit-match-desc">
+                          {issue.matchDesc}
+                        </p>
+                      )}
+
+                      <div className="fimmit-card-actions">
+                        <a
+                          href={issue.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="fimmit-card-btn-open"
+                        >
+                          ↗ Open issue
+                        </a>
+
+                        <button
+                          type="button"
+                          className="fimmit-card-btn-saved"
+                          aria-pressed={saved}
+                          onClick={() => onToggleSave(issue.id)}
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill={saved ? 'currentColor' : 'none'}
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                          >
+                            <path d="M6 4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-4-6 4V4.5Z" />
+                          </svg>
+
+                          {saved ? 'Saved' : 'Save issue'}
+                        </button>
+                      </div>
+                    </article>
+                  );
+                })}
+
+                {visibleIssues.length === 0 && (
+                  <p className="fimmit-home-empty">
+                    No issues match these filters.
+                  </p>
                 )}
-              </section>
-            )}
-          </main>
-        </div>
+              </div>
+            </>
+          )}
+        </main>
       </div>
     </div>
   );
 };
+
+export default HomePage;

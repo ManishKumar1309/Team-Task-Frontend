@@ -67,7 +67,7 @@ export const Navbar = ({
 
               {/* Bottom Row: Search Tags */}
               <div className="fimmit-nav-tags-row">
-                <span className="fimmit-nav-tags-label">Search tags</span>
+                <span className="fimmit-nav-tags-label">Search tags:</span>
                 {finalTags.map((tag, index) => (
                   <span key={index} className="fimmit-nav-tag">
                     #{tag}

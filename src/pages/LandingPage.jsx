@@ -39,11 +39,35 @@ export const LandingPage = ({ onContinueWithGithub, onHowItWorks }) => {
                 <span className="fimmit-headline-line">Find issues</span>
                 <span className="fimmit-headline-line">tuned to your</span>
                 <span className="fimmit-headline-banner-wrapper">
-                  <span className="fimmit-orange-banner">
+                  <span className="fimmit-orange-banner animate-hero-banner">
                     exact stack.
                   </span>
                 </span>
               </h1>
+
+              <div className="fimmit-hero-supporting">
+                <div className="fimmit-hero-supporting-text">
+                  <button type="button" className="fimmit-matching-link-btn" onClick={onHowItWorks}>
+                    How the matching works <span className="fimmit-arrow">→</span>
+                  </button>
+                  <p className="fimmit-bottom-description">
+                    Open-source issues tuned to your exact stack and experience. Four questions in, ten issues out.
+                  </p>
+                </div>
+
+                <div className="fimmit-hero-cta-wrapper">
+                  <button type="button" className="fimmit-github-cta-btn" onClick={onContinueWithGithub}>
+                    <div className="fimmit-github-icon-badge">
+                      <img src={githubIcon} alt="Github" className="fimmit-github-svg" aria-hidden="true" />
+                    </div>
+                    <span>Continue with Github</span>
+                  </button>
+
+                  <span className="fimmit-handwritten-accent animate-blue-text-float">
+                    first issues are welcome too
+                  </span>
+                </div>
+              </div>
             </div>
 
             <div className="fimmit-hero-right">
@@ -56,7 +80,7 @@ export const LandingPage = ({ onContinueWithGithub, onHowItWorks }) => {
                   />
                   <text className="fimmit-sticker-circular-text">
                     <textPath href="#stickerTextPath" startOffset="0%">
-                      NO GUESSWORK  ·  ONE ISSUE AT A TIME  ·  
+                      NO GUESSWORK  ·  ONE ISSUE AT A TIME  ·
                     </textPath>
                   </text>
                 </svg>
@@ -71,32 +95,6 @@ export const LandingPage = ({ onContinueWithGithub, onHowItWorks }) => {
             </div>
           </div>
 
-          <div className="fimmit-bottom-hero">
-            <div className="fimmit-bottom-left">
-              <button type="button" className="fimmit-matching-link-btn" onClick={onHowItWorks}>
-                How the matching works <span className="fimmit-arrow">→</span>
-              </button>
-              <p className="fimmit-bottom-description">
-                Open-source issues tuned to your exact stack and experience. Four questions in, ten issues out.
-              </p>
-            </div>
-
-            <div className="fimmit-bottom-center">
-              <button type="button" className="fimmit-github-cta-btn" onClick={onContinueWithGithub}>
-                <div className="fimmit-github-icon-badge">
-                  <img src={githubIcon} alt="Github" className="fimmit-github-svg" aria-hidden="true" />
-                </div>
-                <span>Continue with Github</span>
-              </button>
-            </div>
-
-            <div className="fimmit-bottom-right">
-              <span className="fimmit-handwritten-accent">
-                first issues are welcome too
-              </span>
-            </div>
-          </div>
-
           <div className="fimmit-section-divider"></div>
 
           <section className="fimmit-preview-section">
@@ -107,11 +105,13 @@ export const LandingPage = ({ onContinueWithGithub, onHowItWorks }) => {
               <p className="fimmit-preview-desc">
                 Each recommendation shows the repo, the issue, the tags. High-difficulty or off-stack picks are flagged.
               </p>
-              <span className="fimmit-preview-handwritten">no black boxes</span>
+              <span className="fimmit-preview-handwritten animate-blue-text-float">
+                no black boxes
+              </span>
             </div>
 
             <div className="fimmit-preview-right">
-              <div className="fimmit-preview-card">
+              <div className="fimmit-preview-card animate-preview-card">
                 <div className="fimmit-card-header">
                   <div className="fimmit-card-repo">
                     reactjs/react.dev
@@ -136,7 +136,6 @@ export const LandingPage = ({ onContinueWithGithub, onHowItWorks }) => {
                 </div>
 
                 <div className="fimmit-card-match-row">
-                  <span className="fimmit-match-score">88% match</span>
                   <span className="fimmit-match-desc">Good first issue with a clear fix and active maintainers</span>
                 </div>
 
@@ -159,7 +158,7 @@ export const LandingPage = ({ onContinueWithGithub, onHowItWorks }) => {
               </div>
             </div>
           </section>
-          
+
           <div className="fimmit-section-divider"></div>
 
           <section className="fimmit-how-it-works-section" id="how-it-works">
@@ -178,7 +177,7 @@ export const LandingPage = ({ onContinueWithGithub, onHowItWorks }) => {
             </div>
 
             <div className="fimmit-hiw-timeline-area">
-              <svg className="fimmit-hiw-svg-line" viewBox="0 0 1000 1000" preserveAspectRatio="none">
+              <svg className="fimmit-hiw-svg-line" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
                 <path d="M 400 95 C 600 120, 600 150, 680 350 C 600 900, 250 480, 280 650 C 300 820, 500 980, 600 880" fill="none" stroke="#000000" strokeWidth="5" strokeDasharray="16, 16" vectorEffect="non-scaling-stroke" strokeLinecap="round" />
               </svg>
 
@@ -228,8 +227,8 @@ export const LandingPage = ({ onContinueWithGithub, onHowItWorks }) => {
             <h2 className="fimmit-faq-title">Quick Answers</h2>
             <div className="fimmit-faq-list">
               {faqs.map((faq, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className={`fimmit-faq-item ${activeFaq === index ? 'active' : ''}`}
                   onClick={() => setActiveFaq(activeFaq === index ? -1 : index)}
                 >
@@ -246,8 +245,17 @@ export const LandingPage = ({ onContinueWithGithub, onHowItWorks }) => {
               ))}
             </div>
           </section>
-
         </div>
+      </div>
+
+      <div className="fimmit-cta-banner">
+        <h2 className="fimmit-cta-title">
+          Your next PR is<br />already open<br />somewhere.
+        </h2>
+        <button type="button" className="fimmit-footer-github-btn" onClick={onContinueWithGithub}>
+          <img src={githubIcon} alt="Github" className="fimmit-footer-github-icon" aria-hidden="true" />
+          Continue with Github
+        </button>
       </div>
     </div>
   );

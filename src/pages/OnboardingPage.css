@@ -1,12 +1,15 @@
 /* --- Global Wrapper --- */
 .fimmit-onboarding-wrapper {
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
   background-color: #F6D945; /* Fimmit Yellow */
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   position: relative;
+  box-sizing: border-box;
+  padding: clamp(5.5rem, 11vh, 7rem) clamp(1rem, 4vw, 2.5rem) 3rem;
   font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
 }
 
@@ -16,7 +19,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  padding: 2rem 3.5rem;
+  padding: clamp(1rem, 3.5vw, 2rem) clamp(1rem, 4vw, 3.5rem);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -410,14 +413,62 @@
 /* --- Responsive Adjustments --- */
 @media (max-width: 680px) {
   .fimmit-onboarding-topbar {
-    padding: 1.5rem;
+    padding: 1.25rem 1.25rem;
   }
   .fimmit-onboarding-card {
-    margin: 1.5rem;
-    padding: 1.5rem;
+    margin: 0 auto;
+    padding: 1.5rem 1.25rem;
     box-shadow: 4px 4px 0px #000000;
   }
+  .fimmit-step-pane {
+    min-height: auto;
+  }
   .fimmit-step-title {
-    font-size: 2rem;
+    font-size: clamp(1.75rem, 6.5vw, 2.15rem);
+  }
+  .fimmit-onboarding-progress {
+    margin-bottom: 1.75rem;
+  }
+  .fimmit-onboarding-footer {
+    margin-top: 2rem;
+  }
+  .fimmit-pill {
+    padding: 0.4rem 0.95rem;
+    font-size: 0.88rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .fimmit-onboarding-topbar {
+    padding: 1rem 0.75rem;
+  }
+  .fimmit-onboarding-logo-text {
+    font-size: 1.3rem;
+  }
+  .fimmit-onboarding-exit-btn {
+    padding: 0.3rem 0.75rem;
+    font-size: 0.78rem;
+  }
+  .fimmit-onboarding-card {
+    padding: 1.25rem 0.85rem;
+  }
+  .fimmit-step-title {
+    font-size: 1.6rem;
+  }
+  .fimmit-step-subtitle {
+    font-size: 0.85rem;
+    margin-bottom: 1.25rem;
+  }
+  .fimmit-pill {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.82rem;
+  }
+  .fimmit-diff-block {
+    padding: 0.75rem 0.85rem;
+  }
+  .fimmit-btn-back,
+  .fimmit-btn-next {
+    padding: 0.45rem 1.15rem;
+    font-size: 0.88rem;
   }
 }

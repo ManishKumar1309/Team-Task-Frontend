@@ -6,15 +6,18 @@
   display: flex;
   align-items: center;
   font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
-  padding: 0 3.5rem;
+  padding: 0 clamp(1rem, 3.5vw, 3.5rem);
   box-sizing: border-box;
   position: relative;
   z-index: 100;
 }
 
-/* Landing gets a fixed height, Home adapts to stacked layout */
+/* Landing gets a fluid height, Home adapts to stacked layout */
 .fimmit-navbar.landing {
-  height: 70px;
+  min-height: 64px;
+  height: auto;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -22,8 +25,8 @@
 
 .fimmit-navbar.home {
   border-bottom: 2px solid #000000;
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
+  padding-top: clamp(0.75rem, 2vw, 1.25rem);
+  padding-bottom: clamp(0.75rem, 2vw, 1.25rem);
 }
 
 .fimmit-nav-container {
@@ -361,18 +364,35 @@
 
 @media (max-width: 768px) {
   .fimmit-navbar.home {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    padding-left: clamp(1rem, 3.5vw, 1.5rem);
+    padding-right: clamp(1rem, 3.5vw, 1.5rem);
   }
 
   .fimmit-nav-container {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1.25rem;
+    gap: 1rem;
   }
 
   .fimmit-nav-left-stacked {
     width: 100%;
+  }
+
+  .fimmit-nav-tags-row {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+
+  .fimmit-nav-tags-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .fimmit-nav-tag {
+    flex-shrink: 0;
   }
 
   .fimmit-nav-auth-controls {
@@ -387,10 +407,43 @@
 
 @media (max-width: 680px) {
   .fimmit-navbar.landing {
-    padding: 0 1.25rem;
+    padding: 0 clamp(0.75rem, 3vw, 1.25rem);
   }
 
-  .fimmit-nav-btn.primary {
-    display: none;
+  .fimmit-nav-right {
+    gap: 0.5rem;
+  }
+
+  .fimmit-nav-btn {
+    font-size: clamp(0.75rem, 2.8vw, 0.88rem);
+    padding: 0.38rem clamp(0.6rem, 2vw, 1rem);
+    white-space: nowrap;
+  }
+
+  .fimmit-nav-logo-text {
+    font-size: clamp(1.25rem, 4.5vw, 1.55rem);
+  }
+
+  .fimmit-nav-logo-icon {
+    height: 20px;
+  }
+}
+
+@media (max-width: 360px) {
+  .fimmit-nav-right {
+    gap: 0.35rem;
+  }
+
+  .fimmit-nav-btn {
+    padding: 0.32rem 0.55rem;
+    font-size: 0.72rem;
+  }
+
+  .fimmit-nav-logo-text {
+    font-size: 1.15rem;
+  }
+
+  .fimmit-nav-logo-icon {
+    height: 18px;
   }
 }

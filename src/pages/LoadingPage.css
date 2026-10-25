@@ -1,0 +1,152 @@
+/* --- Global Wrapper --- */
+.fimmit-loading-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #F7F4EC; /* Match off-white from design */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+}
+
+.fimmit-loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 480px;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  box-sizing: border-box;
+}
+
+/* --- Headline & Banner --- */
+.fimmit-loading-headline {
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-size: clamp(2.1rem, 7.5vw, 3.5rem);
+  font-weight: 900;
+  color: #000000;
+  text-align: center;
+  line-height: 1.1;
+  margin: 0 0 clamp(1.75rem, 4vh, 3rem) 0;
+  letter-spacing: -0.02em;
+}
+
+.fimmit-loading-banner-wrapper {
+  display: inline-block;
+  margin-top: 0.25rem;
+}
+
+.fimmit-loading-orange-banner {
+  display: inline-block;
+  background-color: #EE8138;
+  color: #000000;
+  padding: 0.1em 0.35em;
+  border-radius: 8px;
+  border: 3px solid #FFFFFF;
+  transform: rotate(3deg);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* --- Loading Steps Container --- */
+.fimmit-loading-steps {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* --- Individual Step Blocks --- */
+.fimmit-loading-step-block {
+  width: 100%;
+  border: 1.5px solid #000000;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  transition: all 0.3s ease;
+}
+
+.fimmit-step-top-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.fimmit-step-text {
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #000000;
+}
+
+/* Icon / Circle styling */
+.fimmit-step-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.fimmit-empty-circle {
+  width: 17px;
+  height: 17px;
+  border: 1.5px solid #000000;
+  border-radius: 50%;
+  background-color: transparent;
+}
+
+/* --- Block States --- */
+
+/* Completed State */
+.fimmit-loading-step-block.completed {
+  background-color: #F7F4EC; /* Match bg */
+}
+
+/* Active State */
+.fimmit-loading-step-block.active {
+  background-color: #F6D945; /* Yellow */
+}
+
+/* Pending State */
+.fimmit-loading-step-block.pending {
+  background-color: #F7F4EC;
+  border-color: #000000;
+}
+.fimmit-loading-step-block.pending .fimmit-empty-circle {
+  border-color: #888888;
+}
+.fimmit-loading-step-block.pending .fimmit-step-text {
+  color: #888888; /* Grayed out text */
+}
+
+/* --- Inner Progress Bar (For Active Step) --- */
+.fimmit-step-progress-track {
+  width: 100%;
+  height: 6px;
+  background-color: transparent;
+  border: 1.5px solid #000000;
+  border-radius: 9999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.fimmit-step-progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 60%; /* Arbitrary fill percentage for the animation */
+  background-color: #EE8138; /* Orange */
+  border-right: 1.5px solid #000000;
+  animation: loadProgress 1.5s ease-in-out infinite;
+}
+
+@keyframes loadProgress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}

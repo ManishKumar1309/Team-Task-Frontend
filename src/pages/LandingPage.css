@@ -53,23 +53,28 @@
 
 /* --- Hero Section --- */
 .fimmit-hero-section {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(220px, 0.75fr);
+  align-items: center;
   justify-content: space-between;
-  align-items: flex-start;
+  gap: clamp(2rem, 4vw, 4.5rem);
   position: relative;
-  margin-bottom: 3.5rem;
+  margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
 }
 
 .fimmit-hero-left {
-  flex: 1;
-  max-width: 820px;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 2.8vw, 2.25rem);
+  width: 100%;
+  max-width: 780px;
 }
 
 .fimmit-hero-headline {
   font-family: var(--font-dm-sans);
-  font-size: clamp(3.8rem, 7.2vw, 6.8rem);
+  font-size: clamp(2.75rem, 5.2vw, 5.4rem);
   font-weight: 900;
-  line-height: 0.88;
+  line-height: 0.94;
   letter-spacing: -0.04em;
   color: #000000;
   margin: 0;
@@ -84,43 +89,167 @@
 
 .fimmit-headline-banner-wrapper {
   display: inline-block;
-  margin-top: 1rem;
+  margin-top: clamp(0.4rem, 1vw, 0.8rem);
   position: relative;
   z-index: 2;
+  max-width: 100%;
 }
 
 .fimmit-orange-banner {
   display: inline-block;
   background-color: #EE8138;
   color: #000000;
-  padding: 0.12em 0.45em;
+  padding: 0.1em 0.4em;
   border-radius: 12px;
-  border: 4px solid #FFFFFF;
+  border: 3.5px solid #FFFFFF;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-  transform: rotate(-2.2deg);
+  transform: rotate(-2.5deg);
   transform-origin: left center;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.fimmit-hero-supporting {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 620px;
+}
+
+.fimmit-hero-supporting-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.fimmit-matching-link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-dm-sans);
+  font-size: clamp(0.95rem, 1.3vw, 1.05rem);
+  font-weight: 800;
+  color: #000000;
+  cursor: pointer;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.fimmit-matching-link-btn::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 2.5px;
+  background-color: #4BD08B;
+}
+
+.fimmit-arrow {
+  font-weight: 700;
+  transition: transform 0.2s ease;
+}
+
+.fimmit-matching-link-btn:hover .fimmit-arrow {
+  transform: translateX(3px);
+}
+
+.fimmit-bottom-description {
+  font-family: var(--font-dm-sans);
+  font-size: clamp(0.88rem, 1.2vw, 0.98rem);
+  font-weight: 500;
+  color: #111111;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 520px;
+}
+
+.fimmit-hero-cta-wrapper {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2.5vw, 2rem);
+  flex-wrap: wrap;
+}
+
+.fimmit-github-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: #EE8138;
+  color: #000000;
+  font-family: var(--font-dm-sans);
+  font-size: clamp(0.95rem, 1.2vw, 1.05rem);
+  font-weight: 800;
+  padding: 0.7rem 1.6rem 0.7rem 0.8rem;
+  border: 2px solid #000000;
+  border-radius: 9999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.fimmit-github-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.fimmit-github-cta-btn:active {
+  transform: translateY(0);
+}
+
+.fimmit-github-icon-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: #000000;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.fimmit-github-svg {
+  width: 28px;
+  height: 28px;
+  filter: invert(1);
+}
+
+.fimmit-handwritten-accent {
+  font-family: var(--font-caveat-brush);
+  font-size: clamp(1.4rem, 2.2vw, 1.85rem);
+  font-weight: 400;
+  color: #414CE1;
+  transform: rotate(2.5deg);
+  display: inline-block;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .fimmit-hero-right {
-  position: relative;
-  padding-top: 6rem;
-  padding-right: 2rem;
   display: flex;
-  justify-content: flex-end; 
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 0;
+  width: 100%;
 }
 
 .fimmit-sticker-container {
   position: relative;
-  width: 220px; 
-  height: 220px;
+  width: clamp(170px, 18vw, 215px);
+  height: clamp(170px, 18vw, 215px);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .fimmit-sticker-outer-circle {
-  width: 220px;
-  height: 220px;
+  width: 100%;
+  height: 100%;
   background-color: #F6D945;
   border-radius: 50%;
   display: flex;
@@ -158,8 +287,8 @@
 }
 
 .fimmit-sticker-inner-circle {
-  width: 115px; 
-  height: 115px;
+  width: 54%;
+  height: 54%;
   background-color: #000000;
   border-radius: 50%;
   display: flex;
@@ -168,136 +297,12 @@
   justify-content: center;
   color: #F6D945;
   font-family: var(--font-dm-sans);
-  font-size: 0.9rem; 
+  font-size: clamp(0.75rem, 1.1vw, 0.88rem);
   font-weight: 800;
   line-height: 1.25;
   text-align: center;
   z-index: 2;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-}
-
-.fimmit-bottom-hero {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr; 
-  align-items: flex-end;
-  gap: 2rem;
-  margin-top: auto;
-  padding-top: 1rem;
-}
-
-.fimmit-bottom-left {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.6rem;
-  max-width: 320px;
-}
-
-.fimmit-matching-link-btn {
-  background: none;
-  border: none;
-  padding: 0;
-  font-family: var(--font-dm-sans);
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: #000000;
-  cursor: pointer;
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.fimmit-matching-link-btn::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 100%;
-  height: 2.5px;
-  background-color: #4BD08B;
-}
-
-.fimmit-arrow {
-  font-weight: 700;
-  transition: transform 0.2s ease;
-}
-
-.fimmit-matching-link-btn:hover .fimmit-arrow {
-  transform: translateX(3px);
-}
-
-.fimmit-bottom-description {
-  font-family: var(--font-dm-sans);
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: #111111;
-  line-height: 1.45;
-  margin: 0;
-}
-
-.fimmit-bottom-center {
-  display: flex;
-  justify-content: center;
-  padding-bottom: 0.5rem; 
-}
-
-.fimmit-github-cta-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  background-color: #EE8138;
-  color: #000000;
-  font-family: var(--font-dm-sans);
-  font-size: 1.05rem;
-  font-weight: 800;
-  padding: 0.75rem 1.75rem 0.75rem 0.85rem;
-  border: 2px solid #000000;
-  border-radius: 9999px;
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.fimmit-github-cta-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-}
-
-.fimmit-github-cta-btn:active {
-  transform: translateY(0);
-}
-
-.fimmit-github-icon-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background-color: #000000;
-  border-radius: 50%;
-}
-
-.fimmit-github-svg {
-  width: 30px;
-  height: 30px;
-  filter: invert(1);
-}
-
-.fimmit-bottom-right {
-  display: flex;
-  justify-content: flex-end;
-  padding-bottom: 3rem;
-}
-
-.fimmit-handwritten-accent {
-  font-family: var(--font-caveat-brush);
-  font-size: 1.85rem; 
-  font-weight: 400;
-  color: #414CE1;
-  transform: rotate(2.5deg);
-  display: inline-block;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
 }
 
 /* --- Preview Section --- */
@@ -858,103 +863,547 @@
   text-decoration: underline;
 }
 
+/* --- Comprehensive Responsive Styles --- */
+
 @media (max-width: 1024px) {
+  .fimmit-page-content {
+    padding: 2rem 2.5rem 2.5rem 2.5rem;
+  }
+
   .fimmit-hero-section {
-    flex-direction: column;
+    grid-template-columns: minmax(0, 1.2fr) minmax(190px, 0.8fr);
     gap: 2.5rem;
+    align-items: center;
   }
-  .fimmit-hero-right {
-    align-self: flex-start;
-    padding: 0;
-  }
-  .fimmit-bottom-hero {
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-  }
-  .fimmit-bottom-right {
-    grid-column: span 2;
-    justify-content: flex-start;
-  }
+
   .fimmit-preview-section {
     grid-template-columns: 1fr;
-    gap: 3.5rem;
+    gap: 3rem;
     padding-top: 4rem;
   }
+
   .fimmit-preview-right {
     justify-content: flex-start;
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 860px) {
+  .fimmit-hero-section {
+    grid-template-columns: 1fr;
+    gap: 2.25rem;
+    margin-bottom: 3rem;
+  }
+
+  .fimmit-hero-left {
+    max-width: 100%;
+  }
+
+  .fimmit-hero-right {
+    order: 2;
+    justify-content: center;
+    width: 100%;
+    margin-top: 0.75rem;
+  }
+
+  .fimmit-sticker-container {
+    width: 175px;
+    height: 175px;
+  }
+
   .fimmit-hiw-header {
     flex-direction: column;
     gap: 1.5rem;
+    margin-bottom: 3.5rem;
   }
+
   .fimmit-hiw-grid {
     grid-template-columns: 1fr;
-    gap: 4rem;
+    gap: 3.5rem;
   }
+
   .fimmit-hiw-col {
-    gap: 4rem;
+    gap: 3.5rem;
   }
+
   .fimmit-hiw-col.left-col,
   .fimmit-hiw-col.right-col {
     align-items: center;
     padding-top: 0;
   }
+
   .fimmit-hiw-svg-line {
     display: none;
   }
+
   .fimmit-hiw-blue-note.note-1 {
     left: 0;
   }
+
   .fimmit-hiw-blue-note.note-2 {
     right: 0;
   }
+
   .fimmit-cta-banner {
     flex-direction: column;
     align-items: flex-start;
-    gap: 2.5rem;
+    gap: 2rem;
     padding: 3rem 2.5rem;
   }
+
   .fimmit-sub-footer {
     flex-direction: column;
     gap: 1.25rem;
+    align-items: flex-start;
     padding: 2rem 2.5rem;
   }
 }
 
 @media (max-width: 680px) {
   .fimmit-page-content {
-    padding: 1.5rem 1.25rem;
+    padding: 1.5rem 1.25rem 2.25rem 1.25rem;
   }
+
   .fimmit-hero-headline {
-    font-size: 3.2rem;
+    font-size: clamp(2.2rem, 8.5vw, 3.2rem);
+    line-height: 1.0;
   }
-  .fimmit-bottom-hero {
-    grid-template-columns: 1fr;
+
+  .fimmit-orange-banner {
+    border-width: 2.5px;
+    border-radius: 9px;
   }
-  .fimmit-bottom-right {
-    grid-column: span 1;
+
+  .fimmit-hero-cta-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    width: 100%;
   }
+
   .fimmit-github-cta-btn {
     width: 100%;
     justify-content: center;
   }
-  .fimmit-preview-headline {
-    font-size: 3.2rem;
+
+  .fimmit-handwritten-accent {
+    text-align: center;
+    margin: 0 auto;
+    font-size: 1.5rem;
   }
+
+  .fimmit-hero-right {
+    margin-top: 0.5rem;
+  }
+
+  .fimmit-sticker-container {
+    width: 160px;
+    height: 160px;
+  }
+
+  .fimmit-preview-section {
+    padding-top: 3rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .fimmit-preview-headline {
+    font-size: clamp(2.2rem, 8vw, 3.2rem);
+  }
+
   .fimmit-preview-handwritten {
     margin-left: 0;
   }
+
+  .fimmit-card-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .fimmit-card-btn-open,
+  .fimmit-card-btn-saved {
+    width: 100%;
+    justify-content: center;
+  }
+
   .fimmit-card-match-row {
     align-items: flex-start;
     flex-direction: column;
     gap: 0.5rem;
   }
+
   .fimmit-cta-banner,
   .fimmit-sub-footer {
     padding-left: 1.25rem;
     padding-right: 1.25rem;
+  }
+
+  .fimmit-footer-github-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .fimmit-page-content {
+    padding: 1.25rem 1rem 2rem 1rem;
+  }
+
+  .fimmit-hero-headline {
+    font-size: clamp(1.95rem, 8.8vw, 2.5rem);
+    line-height: 1.02;
+  }
+
+  .fimmit-sticker-container {
+    width: 148px;
+    height: 148px;
+  }
+
+  .fimmit-sticker-circular-text {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+  }
+
+  .fimmit-sticker-inner-circle {
+    font-size: 0.8rem;
+  }
+
+  .fimmit-preview-card {
+    padding: 1.25rem 1rem;
+  }
+
+  .fimmit-hiw-card {
+    padding: 1.1rem 1.2rem;
+  }
+
+  .fimmit-faq-item {
+    padding: 1rem 1.1rem;
+  }
+
+  .fimmit-faq-title {
+    font-size: clamp(2.1rem, 7.5vw, 2.8rem);
+  }
+
+  .fimmit-cta-title {
+    font-size: clamp(2rem, 7.5vw, 2.8rem);
+  }
+}
+
+@media (max-width: 360px) {
+  .fimmit-page-content {
+    padding: 1rem 0.75rem 1.75rem 0.75rem;
+  }
+
+  .fimmit-hero-headline {
+    font-size: clamp(1.75rem, 8.5vw, 2.1rem);
+  }
+
+  .fimmit-sticker-container {
+    width: 136px;
+    height: 136px;
+  }
+
+  .fimmit-sticker-inner-circle {
+    font-size: 0.75rem;
+  }
+
+  .fimmit-preview-card {
+    padding: 1rem 0.75rem;
+  }
+
+  .fimmit-cta-banner,
+  .fimmit-sub-footer {
+    padding-left: 0.85rem;
+    padding-right: 0.85rem;
+  }
+}
+
+/* =========================================
+   HOW IT WORKS — ANIMATIONS
+   Append to the bottom of LandingPage.css
+   ========================================= */
+
+.fimmit-hiw-grid .fimmit-hiw-step-container {
+  animation: fimmitStepReveal 700ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+.fimmit-hiw-col.left-col .fimmit-hiw-step-container:nth-child(1) {
+  animation-delay: 100ms;
+}
+
+.fimmit-hiw-col.right-col .fimmit-hiw-step-container:nth-child(1) {
+  animation-delay: 300ms;
+}
+
+.fimmit-hiw-col.left-col .fimmit-hiw-step-container:nth-child(2) {
+  animation-delay: 500ms;
+}
+
+.fimmit-hiw-col.right-col .fimmit-hiw-step-container:nth-child(2) {
+  animation-delay: 700ms;
+}
+
+@keyframes fimmitStepReveal {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dashed journey path draws in */
+.fimmit-hiw-svg-line path {
+  stroke-dasharray: 16 16;
+  animation: fimmitPathReveal 1.8s ease-out both;
+}
+
+@keyframes fimmitPathReveal {
+  from {
+    stroke-dashoffset: 180;
+    opacity: 0.2;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+/* Handwritten annotations appear after the cards */
+.fimmit-hiw-blue-note {
+  animation: fimmitNoteReveal 600ms ease-out 900ms both;
+}
+
+@keyframes fimmitNoteReveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px) rotate(-3deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0);
+  }
+}
+
+/* Gentle interaction on the cards */
+.fimmit-hiw-card {
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.fimmit-hiw-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 4px 5px 0 #000;
+}
+
+/* Respect accessibility preferences */
+@media (prefers-reduced-motion: reduce) {
+  .fimmit-hiw-grid .fimmit-hiw-step-container,
+  .fimmit-hiw-svg-line path,
+  .fimmit-hiw-blue-note {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+
+  .fimmit-hiw-card {
+    transition: none;
+  }
+
+  .fimmit-hiw-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+/* =========================================
+   HOW IT WORKS — CARD HOVER + FLOAT
+   ========================================= */
+
+/* Smooth hover transitions */
+.fimmit-hiw-card {
+  position: relative;
+  transition:
+    transform 250ms ease,
+    box-shadow 250ms ease;
+  will-change: transform;
+}
+
+/* Lift the card when hovered */
+.fimmit-hiw-card:hover {
+  transform: translateY(-6px) rotate(-1deg);
+  box-shadow: 5px 6px 0 #000;
+}
+
+/* Gentle floating motion when idle */
+.fimmit-hiw-col.left-col .fimmit-hiw-step-container:first-child .fimmit-hiw-card {
+  animation: fimmitFloat 4s ease-in-out infinite;
+}
+
+.fimmit-hiw-col.right-col .fimmit-hiw-step-container:first-child .fimmit-hiw-card {
+  animation: fimmitFloat 4.5s ease-in-out infinite;
+  animation-delay: -1.5s;
+}
+
+.fimmit-hiw-col.left-col .fimmit-hiw-step-container:nth-child(2) .fimmit-hiw-card {
+  animation: fimmitFloat 5s ease-in-out infinite;
+  animation-delay: -2s;
+}
+
+.fimmit-hiw-col.right-col .fimmit-hiw-step-container:nth-child(2) .fimmit-hiw-card {
+  animation: fimmitFloat 4.3s ease-in-out infinite;
+  animation-delay: -0.8s;
+}
+
+@keyframes fimmitFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Pause floating while hovering so the hover feels intentional */
+.fimmit-hiw-card:hover {
+  animation-play-state: paused;
+}
+
+/* Accessibility: respect reduced-motion settings */
+@media (prefers-reduced-motion: reduce) {
+  .fimmit-hiw-card,
+  .fimmit-hiw-col .fimmit-hiw-card {
+    animation: none !important;
+    transition: none;
+  }
+
+  .fimmit-hiw-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+/* --- Hero Banner Animation (Smash + Float) --- */
+@keyframes brutalistSmash {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) rotate(-15deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.1) rotate(2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-4deg); 
+  }
+}
+
+/* Custom float that maintains the -4deg rotation */
+@keyframes brutalistBannerFloat {
+  0%, 100% {
+    transform: scale(1) rotate(-4deg) translateY(0px);
+  }
+  50% {
+    transform: scale(1) rotate(-4deg) translateY(-10px);
+  }
+}
+
+.animate-hero-banner {
+  display: inline-block;
+  opacity: 0; 
+  transform-origin: center center;
+  /* 
+    Chaining animations: 
+    1. brutalistSmash runs for 0.8s (starting after a 0.2s delay).
+    2. brutalistBannerFloat runs infinitely (starting after a 1.0s delay, exactly when the smash finishes).
+  */
+  animation: 
+    brutalistSmash 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s forwards,
+    brutalistBannerFloat 4s ease-in-out 1.0s infinite;
+}
+
+/* --- Blue Handwritten Text (Rubber Stamp Effect) --- */
+@keyframes handwrittenStamp {
+  0% { 
+    opacity: 0; 
+    transform: scale(1.4) rotate(-15deg); 
+  }
+  60% { 
+    opacity: 1; 
+    transform: scale(0.9) rotate(4deg); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: scale(1) rotate(-3deg); /* Adjust final rotation to match your design */
+  }
+}
+
+.animate-blue-text {
+  display: inline-block;
+  opacity: 0;
+  animation: handwrittenStamp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  animation-delay: 0.6s; /* Lets the main black text load first */
+}
+
+/* --- Preview Card (Hard Slide-in + Continuous Float) --- */
+@keyframes cardSlideIn {
+  0% { 
+    opacity: 0; 
+    transform: translateX(60px) translateY(20px); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateX(0) translateY(0); 
+  }
+}
+
+/* Reusing the shadow stretch logic for the infinite float */
+@keyframes brutalistCardFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+.animate-preview-card {
+  opacity: 0;
+  /* Chain the slide-in (0.6s) to finish right as the float (infinite) starts */
+  animation: 
+    cardSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+    brutalistCardFloat 4s ease-in-out 0.6s infinite;
+}
+
+/* --- Blue Handwritten Text (Gentle Float) --- */
+@keyframes blueTextFloat {
+  0%, 100% { 
+    transform: translateY(0px); 
+  }
+  50% { 
+    transform: translateY(-6px); 
+  }
+}
+
+.animate-blue-text-float {
+  display: inline-block; /* Required for transform to work on text */
+  animation: blueTextFloat 3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fimmit-sticker-svg,
+  .animate-hero-banner,
+  .animate-blue-text,
+  .animate-preview-card,
+  .animate-blue-text-float {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

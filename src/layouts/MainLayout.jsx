@@ -28,7 +28,7 @@ export const MainLayout = ({
         username={username}
         onSignIn={onSignIn}
         onOpenFeed={onOpenFeed}
-        onSavedClick={onSavedClick}
+        onSavedClick={onSavedClick} 
         onNavClick={onNavClick}
         onLogout={onLogout}
       />

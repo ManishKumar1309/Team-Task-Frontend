@@ -1,10 +1,7 @@
 import React from 'react';
 import './WhyFimmit.css';
 
-/**
- * Fimmit WhyFimmit Component (Section D)
- * Asymmetric editorial benefit layout explaining why developers choose Fimmit.
- */
+
 export const WhyFimmit = () => {
   const benefits = [
     {

@@ -1,8 +1,3 @@
-/**
- * Fimmit Design System - Pill Component Styles
- * Styling for selectable tech/interest tags and static labels using centralized tokens.
- */
-
 .fimmit-pill {
   display: inline-flex;
   align-items: center;

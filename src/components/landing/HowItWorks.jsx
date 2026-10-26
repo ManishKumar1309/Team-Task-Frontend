@@ -1,10 +1,7 @@
 import React from 'react';
 import './HowItWorks.css';
 
-/**
- * Fimmit HowItWorks Component (Section B)
- * Three-step editorial workflow explaining the core matching process.
- */
+
 export const HowItWorks = () => {
   const steps = [
     {

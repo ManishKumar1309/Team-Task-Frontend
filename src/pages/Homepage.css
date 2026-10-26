@@ -1,7 +1,4 @@
-
-/* =========================
-   FIMMIT HOME — DESIGN MATCH
-   ========================= */
+/* FIMMIT HOME — DESIGN MATCH */
 
 .fimmit-home-wrapper {
   width: 100%;
@@ -23,9 +20,6 @@
   align-items: start;
 }
 
-/* =========================
-   SIDEBAR
-   ========================= */
 
 .fimmit-home-sidebar {
   display: flex;
@@ -91,14 +85,12 @@
 }
 
 .fimmit-sidebar-pill:focus-visible,
-.fimmit-checkbox-row input:focus-visible + .fimmit-checkbox {
+.fimmit-checkbox-row input:focus-visible+.fimmit-checkbox {
   outline: 2px solid #EE8138;
   outline-offset: 3px;
 }
 
-/* =========================
-   DIFFICULTY FILTERS
-   ========================= */
+/*  DIFFICULTY FILTERS */
 
 .fimmit-sidebar-checkboxes {
   display: flex;
@@ -132,22 +124,22 @@
   background: #fff;
 }
 
-.fimmit-checkbox-row input:checked + .fimmit-checkbox.easy {
+.fimmit-checkbox-row input:checked+.fimmit-checkbox.easy {
   background: #4BD08B;
   border-color: #000;
 }
 
-.fimmit-checkbox-row input:checked + .fimmit-checkbox.medium {
+.fimmit-checkbox-row input:checked+.fimmit-checkbox.medium {
   background: #F6D945;
   border-color: #000;
 }
 
-.fimmit-checkbox-row input:checked + .fimmit-checkbox.hard {
+.fimmit-checkbox-row input:checked+.fimmit-checkbox.hard {
   background: #E4452F;
   border-color: #000;
 }
 
-.fimmit-checkbox-row input:checked + .fimmit-checkbox::after {
+.fimmit-checkbox-row input:checked+.fimmit-checkbox::after {
   content: '';
   position: absolute;
   left: 2px;
@@ -174,9 +166,7 @@
   color: #444;
 }
 
-/* =========================
-   FEED HEADING
-   ========================= */
+/* FEED HEADING*/
 
 .fimmit-home-feed {
   display: flex;
@@ -216,9 +206,7 @@
 }
 
 
-/* =========================
-   ISSUE CARDS
-   ========================= */
+/* ISSUE CARDS */
 
 .fimmit-feed-list {
   display: flex;
@@ -410,9 +398,7 @@
   font-size: 13px;
 }
 
-/* =========================
-   RESPONSIVE
-   ========================= */
+/* RESPONSIVE */
 
 @media (min-width: 1400px) {
   .fimmit-home-container {
@@ -726,7 +712,7 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 4rem; /* Pushes it down slightly from the top, matching the design */
+  padding-top: 4rem;
   height: 100%;
 }
 

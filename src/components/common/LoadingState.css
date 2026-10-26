@@ -1,8 +1,3 @@
-/**
- * Fimmit Design System - LoadingState Component Styles
- * Styling for accessible loading spinner and status message using centralized tokens.
- */
-
 .fimmit-loading-state {
   display: flex;
   flex-direction: column;
@@ -35,6 +30,7 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }

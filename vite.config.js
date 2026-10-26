@@ -9,17 +9,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
-      includeAssets: [
-        'favicon.ico',
-        'Logo.svg',
-        'apple-touch-icon.png',
-        'apple-touch-icon-180x180.png',
-        'maskable-icon-512x512.png',
-        'pwa-64x64.png',
-        'pwa-192x192.png',
-        'pwa-512x512.png',
-      ],
       manifest: {
+        id: '/',
         name: 'Fimmit',
         short_name: 'Fimmit',
         description: 'Discover open-source issues tailored to your interests.',
@@ -54,7 +45,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        navigateFallback: '/index.html',
+        navigateFallback: 'index.html',
         navigateFallbackDenylist: [/^\/api\//, /^\/auth\//],
         runtimeCaching: [
           {
@@ -73,7 +64,7 @@ export default defineConfig({
         ],
       },
       devOptions: {
-        enabled: true,
+        enabled: false,
       },
     }),
   ],

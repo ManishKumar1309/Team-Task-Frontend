@@ -1,10 +1,6 @@
 import React from 'react';
 import './Badge.css';
 
-/**
- * Reusable Badge component conforming to the Fimmit design system.
- * Used for compact labels such as issue difficulty, status, or match percentages.
- */
 export const Badge = ({
   children,
   variant = 'default',

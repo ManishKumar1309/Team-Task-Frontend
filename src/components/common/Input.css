@@ -1,9 +1,3 @@
-/**
- * Fimmit Design System - Input Component Styles
- * Styling for text input fields, labels, error states, and helper messaging 
- * using centralized design tokens.
- */
-
 .fimmit-input-wrapper {
   display: flex;
   flex-direction: column;

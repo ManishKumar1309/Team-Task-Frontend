@@ -1,10 +1,6 @@
 import React from 'react';
 import './LoadingState.css';
 
-/**
- * Reusable LoadingState component conforming to the Fimmit design system.
- * Renders an accessible loading spinner and an optional message.
- */
 export const LoadingState = ({
   message = 'Loading...',
   className = '',

@@ -2,7 +2,8 @@
 .fimmit-onboarding-wrapper {
   width: 100%;
   min-height: 100vh;
-  background-color: #F6D945; /* Fimmit Yellow */
+  background-color: #F6D945;
+  /* Fimmit Yellow */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -67,12 +68,13 @@
 .fimmit-onboarding-card {
   width: 100%;
   max-width: 580px;
-  background-color: #F7F4EC; /* Off-white */
+  background-color: #F7F4EC;
+  /* Off-white */
   border: 1.5px solid #000000;
   border-radius: 12px;
   padding: 2.5rem;
   box-sizing: border-box;
-  box-shadow: 6px 6px 0px #000000; /* Neo-brutalist shadow applied to main card */
+  /* box-shadow: 6px 6px 0px #000000; */
 }
 
 /* --- Progress Bar --- */
@@ -92,7 +94,8 @@
 }
 
 .fimmit-progress-segment.active {
-  background-color: #EE8138; /* Fimmit Orange */
+  background-color: #EE8138;
+  /* Fimmit Orange */
 }
 
 /* --- Step Content --- */
@@ -189,18 +192,20 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s ease;
-  box-shadow: none !important;
+  /* box-shadow: none !important; */
 }
 
 /* Hover effects for unselected pills */
 .fimmit-pill:not(.active):hover {
-  background-color: #F6D945; /* Yellow highlight on hover */
+  background-color: #F6D945;
+  /* Yellow highlight on hover */
   transform: translateY(-1px);
 }
 
 /* Active pills - orange background */
 .fimmit-pill.active {
-  background-color: #EE8138 !important; /* Orange */
+  /* background-color: #EE8138 !important; */
+  /* Orange */
   color: #000000;
   transform: translateY(-1px);
 }
@@ -266,7 +271,7 @@
 
 /* Subtle hover effect for unselected difficulty options */
 .fimmit-diff-block:not([class*="active-"]):hover {
-  background-color: #EAE6D9; 
+  background-color: #EAE6D9;
   transform: translateX(3px);
 }
 
@@ -294,9 +299,18 @@
   border-radius: 9999px;
   color: #000000;
 }
-.fimmit-diff-badge.easy { background-color: #FFFFFF; }
-.fimmit-diff-badge.medium { background-color: #F6D945; }
-.fimmit-diff-badge.hard { background-color: #EE8138; }
+
+.fimmit-diff-badge.easy {
+  background-color: #FFFFFF;
+}
+
+.fimmit-diff-badge.medium {
+  background-color: #F6D945;
+}
+
+.fimmit-diff-badge.hard {
+  background-color: #EE8138;
+}
 
 .fimmit-diff-sub {
   font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
@@ -330,30 +344,35 @@
 }
 
 /* Restored colored states mapped from design */
-.fimmit-diff-block.active-easy { 
-  background-color: #F6D945; /* Yellow */
+.fimmit-diff-block.active-easy {
+  background-color: #F6D945;
+  /* Yellow */
   border-width: 2.5px;
 }
 
-.fimmit-diff-block.active-medium { 
-  background-color: #EE8138; /* Orange */
+.fimmit-diff-block.active-medium {
+  background-color: #EE8138;
+  /* Orange */
   border-width: 2.5px;
 }
 
-.fimmit-diff-block.active-hard { 
-  background-color: #E4452F; /* Fimmit Red */
+.fimmit-diff-block.active-hard {
+  background-color: #E4452F;
+  /* Fimmit Red */
   border-width: 2.5px;
 }
 
 /* Contrast adjustments for the red (Hard) block */
 .fimmit-diff-block.active-hard .fimmit-diff-title,
 .fimmit-diff-block.active-hard .fimmit-diff-sub {
-  color: #FFFFFF; 
+  color: #FFFFFF;
 }
+
 .fimmit-diff-block.active-hard .fimmit-radio-circle {
   background-color: #E4452F;
   border-color: #FFFFFF;
 }
+
 .fimmit-diff-block.active-hard .fimmit-radio-fill {
   background-color: #FFFFFF;
 }
@@ -415,23 +434,29 @@
   .fimmit-onboarding-topbar {
     padding: 1.25rem 1.25rem;
   }
+
   .fimmit-onboarding-card {
     margin: 0 auto;
     padding: 1.5rem 1.25rem;
-    box-shadow: 4px 4px 0px #000000;
+    /* box-shadow: 4px 4px 0px #000000; */
   }
+
   .fimmit-step-pane {
     min-height: auto;
   }
+
   .fimmit-step-title {
     font-size: clamp(1.75rem, 6.5vw, 2.15rem);
   }
+
   .fimmit-onboarding-progress {
     margin-bottom: 1.75rem;
   }
+
   .fimmit-onboarding-footer {
     margin-top: 2rem;
   }
+
   .fimmit-pill {
     padding: 0.4rem 0.95rem;
     font-size: 0.88rem;
@@ -442,30 +467,38 @@
   .fimmit-onboarding-topbar {
     padding: 1rem 0.75rem;
   }
+
   .fimmit-onboarding-logo-text {
     font-size: 1.3rem;
   }
+
   .fimmit-onboarding-exit-btn {
     padding: 0.3rem 0.75rem;
     font-size: 0.78rem;
   }
+
   .fimmit-onboarding-card {
     padding: 1.25rem 0.85rem;
   }
+
   .fimmit-step-title {
     font-size: 1.6rem;
   }
+
   .fimmit-step-subtitle {
     font-size: 0.85rem;
     margin-bottom: 1.25rem;
   }
+
   .fimmit-pill {
     padding: 0.35rem 0.75rem;
     font-size: 0.82rem;
   }
+
   .fimmit-diff-block {
     padding: 0.75rem 0.85rem;
   }
+
   .fimmit-btn-back,
   .fimmit-btn-next {
     padding: 0.45rem 1.15rem;

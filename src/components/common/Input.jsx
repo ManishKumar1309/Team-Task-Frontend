@@ -1,11 +1,6 @@
 import React, { useId } from 'react';
 import './Input.css';
 
-/**
- * Reusable Input component conforming to the Fimmit design system.
- * Supports accessible labels, error messages, native input props, 
- * and proper ARIA attributes.
- */
 export const Input = ({
   label,
   error,

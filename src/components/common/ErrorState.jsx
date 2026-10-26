@@ -2,10 +2,6 @@ import React from 'react';
 import { Button } from './Button';
 import './ErrorState.css';
 
-/**
- * Reusable ErrorState component conforming to the Fimmit design system.
- * Renders an accessible error message with an optional retry action.
- */
 export const ErrorState = ({
   title = 'Something went wrong',
   message = 'We encountered an error while loading the data. Please try again.',

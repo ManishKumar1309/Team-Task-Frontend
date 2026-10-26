@@ -1,9 +1,3 @@
-/**
- * Fimmit Design System - Hero Component Styles
- * Styling for the landing page hero section, oversized typography, tilted orange highlight,
- * rotating circular badge, and GitHub CTA button.
- */
-
 .fimmit-hero {
   max-width: 1280px;
   margin: 0 auto;
@@ -93,6 +87,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

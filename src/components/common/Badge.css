@@ -1,9 +1,3 @@
-/**
- * Fimmit Design System - Badge Component Styles
- * Styling for Badge variants (default, yellow, orange, success, error) 
- * and sizes using centralized design tokens.
- */
-
 .fimmit-badge {
   display: inline-flex;
   align-items: center;
@@ -16,7 +10,7 @@
   white-space: nowrap;
 }
 
-/* --- Sizes --- */
+/*Sizes */
 .fimmit-badge--sm {
   padding: 0.15rem 0.5rem;
   font-size: 0.75rem;
@@ -27,7 +21,7 @@
   font-size: 0.85rem;
 }
 
-/* --- Variants --- */
+/*Variants */
 .fimmit-badge--default {
   background-color: var(--color-black);
   color: var(--color-cream);

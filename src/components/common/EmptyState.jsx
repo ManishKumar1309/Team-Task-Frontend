@@ -2,10 +2,7 @@ import React from 'react';
 import { Button } from './Button';
 import './EmptyState.css';
 
-/**
- * Reusable EmptyState component conforming to the Fimmit design system.
- * Renders a friendly empty state message with an optional description and action.
- */
+
 export const EmptyState = ({
   icon = '📭',
   title = 'No results found',

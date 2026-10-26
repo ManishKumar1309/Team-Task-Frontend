@@ -1,11 +1,7 @@
 import React from 'react';
 import './Button.css';
 
-/**
- * Reusable Button component conforming to the Fimmit design system.
- * Supports multiple variants (primary, outline, black, secondary), sizes,
- * loading states, and native button attributes with full accessibility support.
- */
+
 export const Button = ({
   children,
   variant = 'primary',

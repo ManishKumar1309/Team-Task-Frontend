@@ -3,9 +3,6 @@ import { useState, useCallback, useMemo, useEffect } from 'react';
 const STORAGE_KEY_IDS = 'fimmit_saved_issue_ids';
 const STORAGE_KEY_ITEMS = 'fimmit_saved_issues';
 
-/**
- * Helper to obtain a consistent, stable string identifier from an issue object or primitive id.
- */
 export function getIssueKey(issue) {
   if (!issue) return '';
   if (typeof issue === 'string' || typeof issue === 'number') {

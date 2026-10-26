@@ -3,10 +3,7 @@ import { Badge } from '../common/Badge';
 import { Pill } from '../common/Pill';
 import './MatchingPreview.css';
 
-/**
- * Fimmit MatchingPreview Component (Section C)
- * Honest sample recommendation preview card with mock issue data.
- */
+
 export const MatchingPreview = () => {
   return (
     <section id="features" className="fimmit-preview-section" aria-label="Matching preview">

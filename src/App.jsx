@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { MainLayout } from './layouts/MainLayout';
 import { LandingPage } from './pages/LandingPage';
 import { HomePage } from './pages/Homepage';
@@ -10,21 +10,64 @@ import { SavedIssuesDrawer } from './components/common/SavedIssuesDrawer';
 
 export default function App() {
   const [currentView, setCurrentView] = useState(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const rawHash = window.location.hash.startsWith('#')
+      ? window.location.hash.slice(1).replace(/^\/?/, '')
+      : '';
+    const hashQuery = rawHash.includes('?') ? rawHash.split('?')[1] : rawHash;
+    const hashParams = new URLSearchParams(hashQuery);
+    const hasOAuthParams = searchParams.has('code') || searchParams.has('error') ||
+                           hashParams.has('code') || hashParams.has('error');
+
+    if (hasOAuthParams) {
+      return 'landing';
+    }
+
+    const isAuthed = authService.isAuthenticated();
     const hash = window.location.hash.toLowerCase();
-    if (hash === '#onboarding') return 'onboarding';
-    if (hash === '#home' || hash === '#feed') return 'home';
-    if (hash === '#loading') return 'loading';
+
+    // Do NOT automatically route to onboarding, home, or loading without validated auth
+    if (hash === '#onboarding') {
+      if (isAuthed) return 'onboarding';
+      if (typeof window !== 'undefined' && window.history?.replaceState) {
+        window.history.replaceState(null, document.title, window.location.pathname);
+      }
+      return 'landing';
+    }
+
+    if (hash === '#home' || hash === '#feed') {
+      if (isAuthed) return 'home';
+      if (typeof window !== 'undefined' && window.history?.replaceState) {
+        window.history.replaceState(null, document.title, window.location.pathname);
+      }
+      return 'landing';
+    }
+
+    if (hash === '#loading') {
+      if (isAuthed) return 'loading';
+      return 'landing';
+    }
+
     return 'landing';
   });
+
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [authError, setAuthError] = useState(null);
+
+  const authExchangeInFlightRef = useRef(false);
+  const exchangedCodeRef = useRef(null);
 
   const {
     savedCount,
     savedIssueIds,
+    savedRepositories,
     isDrawerOpen,
     openDrawer,
     closeDrawer,
     toggleSave,
     removeSavedIssue,
+    saveError,
+    clearSaveError,
   } = useSavedIssues();
 
   const [profileDifficulty, setProfileDifficulty] = useState(() => {
@@ -34,14 +77,6 @@ export default function App() {
   const [user, setUser] = useState(() => {
     if (typeof authService?.getCurrentUser === 'function') {
       return authService.getCurrentUser() || null;
-    }
-    const savedUser = sessionStorage.getItem('fimmit_user_data');
-    if (savedUser) {
-      try {
-        return JSON.parse(savedUser);
-      } catch {
-        // Fallback if parsing fails
-      }
     }
     return null;
   });
@@ -84,12 +119,26 @@ export default function App() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.toLowerCase();
+      const isAuthed = authService.isAuthenticated() || Boolean(authService.getCurrentUser());
+
       if (hash === '#onboarding') {
-        setCurrentView('onboarding');
+        if (isAuthed) {
+          setCurrentView('onboarding');
+        } else {
+          navigateTo('landing');
+        }
       } else if (hash === '#home' || hash === '#feed') {
-        setCurrentView('home');
+        if (isAuthed) {
+          setCurrentView('home');
+        } else {
+          navigateTo('landing');
+        }
       } else if (hash === '#loading') {
-        setCurrentView('loading');
+        if (isAuthed) {
+          setCurrentView('loading');
+        } else {
+          navigateTo('landing');
+        }
       } else if (!hash || hash === '#top') {
         setCurrentView('landing');
       }
@@ -97,28 +146,115 @@ export default function App() {
 
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
+  }, [navigateTo]);
 
-  const handleSignIn = () => {
-    try {
-      const useMock = import.meta.env.VITE_USE_MOCK_DATA !== 'false';
-      if (!useMock) {
-        if (typeof authService?.startGitHubLogin === 'function') {
-          authService.startGitHubLogin();
-          return;
-        }
+  // Handle GitHub OAuth redirect parameters (code, error, access_denied) and silent session restoration
+  useEffect(() => {
+    const processAuth = async () => {
+      const searchParams = new URLSearchParams(window.location.search);
+      let rawHash = window.location.hash;
+      if (rawHash.startsWith('#')) rawHash = rawHash.slice(1);
+      const hashQuery = rawHash.includes('?') ? rawHash.split('?')[1] : (rawHash.includes('=') ? rawHash : '');
+      const hashParams = new URLSearchParams(hashQuery);
+
+      const code = searchParams.get('code') || hashParams.get('code');
+      const error = searchParams.get('error') || hashParams.get('error');
+      const errorDescription = searchParams.get('error_description') || hashParams.get('error_description');
+
+      // Check if user cancelled GitHub authorization or an OAuth error occurred
+      if (error) {
+        const cleanPath = window.location.pathname.replace(/\/callback|\/oauth2\/.*/, '') || '/';
+        window.history.replaceState({}, document.title, cleanPath);
+
+        const errorMsg = errorDescription
+          ? decodeURIComponent(errorDescription.replace(/\+/g, ' '))
+          : error === 'access_denied'
+          ? 'GitHub authorization was cancelled.'
+          : `Authentication error: ${error}`;
+        setAuthError(errorMsg);
+        navigateTo('landing');
+        return;
       }
 
-      const mockUser = authService.getCurrentUser() || {
-        username: 'developer',
-        avatarUrl: 'https://avatars.githubusercontent.com/u/583231?v=4',
-      };
-      setUser(mockUser);
-      authService.setCurrentUser(mockUser);
-    } catch (err) {
-      console.warn('Sign in error, proceeding to onboarding:', err);
-    } finally {
-      navigateTo('onboarding');
+      // Check if authorization code was returned from GitHub / backend
+      if (code) {
+        // Prevent duplicate execution on StrictMode remounts
+        if (authExchangeInFlightRef.current || exchangedCodeRef.current === code) {
+          return;
+        }
+
+        authExchangeInFlightRef.current = true;
+        setIsAuthenticating(true);
+        setAuthError(null);
+
+        try {
+          const result = await authService.exchangeAuthCode(code);
+          exchangedCodeRef.current = code;
+
+          const cleanPath = window.location.pathname.replace(/\/callback|\/oauth2\/.*/, '') || '/';
+          window.history.replaceState({}, document.title, cleanPath);
+
+          const authedUser = result.user || authService.getCurrentUser() || { username: 'Contributor' };
+          setUser(authedUser);
+
+          if (authedUser?.preferredDifficulty) {
+            const rawDiff = authedUser.preferredDifficulty.toLowerCase();
+            setProfileDifficulty(rawDiff);
+            sessionStorage.setItem('fimmit_user_difficulty', rawDiff);
+          }
+          if (authedUser?.preferredTechStack && Array.isArray(authedUser.preferredTechStack)) {
+            setBackendTechTags(authedUser.preferredTechStack);
+            sessionStorage.setItem('fimmit_tech_tags', JSON.stringify(authedUser.preferredTechStack));
+          }
+
+          if (result.isNewUser) {
+            navigateTo('onboarding');
+          } else {
+            navigateTo('home');
+          }
+        } catch (err) {
+          authExchangeInFlightRef.current = false;
+          const cleanPath = window.location.pathname.replace(/\/callback|\/oauth2\/.*/, '') || '/';
+          window.history.replaceState({}, document.title, cleanPath);
+
+          const errorMsg = err.message || 'Authentication failed. Please try signing in again.';
+          setAuthError(errorMsg);
+          setUser(null);
+          navigateTo('landing');
+        } finally {
+          setIsAuthenticating(false);
+          authExchangeInFlightRef.current = false;
+        }
+        return;
+      }
+
+      // If no callback parameters and client has a stored refresh token, attempt silent session restoration once
+      if (authService.isAuthenticated()) {
+        try {
+          const refreshed = await authService.refreshSession();
+          if (refreshed) {
+            const restoredUser = authService.getCurrentUser();
+            if (restoredUser) {
+              setUser(restoredUser);
+            }
+          } else {
+            setUser(null);
+          }
+        } catch {
+          setUser(null);
+        }
+      }
+    };
+
+    processAuth();
+  }, [navigateTo]);
+
+  const handleSignIn = () => {
+    setAuthError(null);
+    try {
+      authService.startGitHubLogin();
+    } catch {
+      setAuthError('Unable to start GitHub sign-in. Please try again.');
     }
   };
 
@@ -139,9 +275,8 @@ export default function App() {
     if (data?.preferredIssues && Array.isArray(data.preferredIssues)) {
       sessionStorage.setItem('fimmit_preferred_issues', JSON.stringify(data.preferredIssues));
     }
-    const authedUser = authService.getCurrentUser() || {
-      username: 'developer',
-      avatarUrl: 'https://avatars.githubusercontent.com/u/583231?v=4',
+    const authedUser = authService.getCurrentUser() || user || {
+      username: 'Contributor',
     };
     setUser(authedUser);
     authService.setCurrentUser(authedUser);
@@ -180,6 +315,24 @@ export default function App() {
     }
   };
 
+  if (isAuthenticating) {
+    return (
+      <div className="fimmit-loading-wrapper" role="status" aria-live="polite">
+        <div className="fimmit-loading-content">
+          <h1 className="fimmit-loading-headline">
+            Signing you in with<br />
+            <span className="fimmit-loading-banner-wrapper">
+              <span className="fimmit-loading-orange-banner">GitHub</span>
+            </span>
+          </h1>
+          <p style={{ marginTop: '1.5rem', fontSize: '1.125rem', color: '#000000' }}>
+            Completing authentication and loading your profile...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       {currentView === 'onboarding' ? (
@@ -201,7 +354,7 @@ export default function App() {
           user={user}
           isAuthenticated={Boolean(user)}
           onSignIn={handleSignIn}
-          onOpenFeed={() => navigateTo('home')}
+          onOpenFeed={() => (user ? navigateTo('home') : handleSignIn())}
           onSavedClick={openDrawer}
           onNavClick={handleNavClick}
           onLogout={handleLogout}
@@ -214,12 +367,16 @@ export default function App() {
                 const section = document.getElementById('how-it-works');
                 if (section) section.scrollIntoView({ behavior: 'smooth' });
               }}
+              authError={authError}
+              onDismissError={() => setAuthError(null)}
             />
           ) : (
             <HomePage
               savedIssueIds={savedIssueIds}
               onToggleSave={toggleSave}
               username={user?.username || 'Contributor'}
+              saveError={saveError}
+              onClearSaveError={clearSaveError}
             />
           )}
         </MainLayout>
@@ -229,8 +386,10 @@ export default function App() {
       <SavedIssuesDrawer
         isOpen={isDrawerOpen}
         onClose={closeDrawer}
-        savedIssueIds={Array.isArray(savedIssueIds) ? savedIssueIds : []}
+        savedRepositories={savedRepositories}
         onRemove={(id) => removeSavedIssue(id)}
+        saveError={saveError}
+        onClearSaveError={clearSaveError}
       />
     </>
   );

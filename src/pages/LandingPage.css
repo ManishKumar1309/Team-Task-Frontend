@@ -1407,3 +1407,39 @@
     transform: none !important;
   }
 }
+
+/* --- Auth Error Banner --- */
+.fimmit-auth-alert-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #FFF2F0;
+  border: 2px solid #E4452F;
+  border-radius: 12px;
+  padding: 0.875rem 1.25rem;
+  margin-bottom: 2rem;
+  color: #000000;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.fimmit-auth-alert-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.fimmit-auth-alert-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #000000;
+  padding: 0 0.25rem;
+}
+
+.fimmit-auth-alert-close:hover {
+  opacity: 0.7;
+}

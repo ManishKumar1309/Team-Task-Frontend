@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import logoSrc from '../assets/Logo.svg';
+import { onboardingService } from '../services/onboardingService';
 import './OnboardingPage.css';
 
 export const OnboardingPage = ({ onComplete, onExit }) => {
@@ -8,6 +9,9 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
   const [techStack, setTechStack] = useState([]);
   const [interests, setInterests] = useState([]);
   const [difficulty, setDifficulty] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [authBlocked, setAuthBlocked] = useState(false);
 
   // Tech Stack options
   const techOptions = ['C++', 'Python', 'JS', 'Rust', 'React', 'TypeScript', 'Java', 'Go', 'Node.js', 'Ruby'];
@@ -48,22 +52,67 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
   };
 
   const handleNext = () => {
-    if (step < 4 && isStepValid()) setStep(step + 1);
+    if (step < 4 && isStepValid()) {
+      setSubmitError('');
+      setStep(step + 1);
+    }
   };
 
   const handleBack = () => {
-    if (step > 1) setStep(step - 1);
+    if (step > 1) {
+      setSubmitError('');
+      setStep(step - 1);
+    }
   };
 
-  const handleComplete = () => {
-    if (isStepValid()) {
+  const handleComplete = async () => {
+    if (!isStepValid() || isSubmitting) return;
+
+    setIsSubmitting(true);
+    setSubmitError('');
+    setAuthBlocked(false);
+
+    const payload = {
+      bio: bio.trim(),
+      introduction: bio.trim().slice(0, 300),
+      preferredTechStack: techStack,
+      interests,
+      preferredDifficulty: (difficulty || 'medium').toLowerCase(),
+      preferredIssueTypes: ['BUG', 'DOCUMENTATION', 'FEATURE'],
+    };
+
+    try {
+      const result = await onboardingService.savePreferences(payload);
+      if (result?.blockedByAuth) {
+        setAuthBlocked(true);
+        setSubmitError(result.error || 'Authentication required: POST /api/recommendations requires a valid login session.');
+        return;
+      }
+      if (result?.error && !result?.success) {
+        setSubmitError(result.error);
+        return;
+      }
+
       onComplete({
-        bio,
-        preferredTechStack: techStack,
-        interests,
-        preferredDifficulty: difficulty || 'medium'
+        ...payload,
+        recommendations: result?.data || null,
       });
+    } catch (err) {
+      setSubmitError(err.message || 'Failed to submit onboarding preferences.');
+    } finally {
+      setIsSubmitting(false);
     }
+  };
+
+  const handleProceedLocally = () => {
+    onComplete({
+      bio: bio.trim(),
+      introduction: bio.trim().slice(0, 300),
+      preferredTechStack: techStack,
+      interests,
+      preferredDifficulty: (difficulty || 'medium').toLowerCase(),
+      preferredIssueTypes: ['BUG', 'DOCUMENTATION', 'FEATURE'],
+    });
   };
 
   return (
@@ -204,6 +253,21 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
               </div>
             </div>
           )}
+
+          {submitError && (
+            <div className="fimmit-onboarding-error-banner" role="alert">
+              <span className="fimmit-onboarding-error-text">{submitError}</span>
+              {authBlocked && (
+                <button
+                  type="button"
+                  className="fimmit-onboarding-proceed-btn"
+                  onClick={handleProceedLocally}
+                >
+                  Proceed with local preferences &rarr;
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Card Footer Controls */}
@@ -212,6 +276,7 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
             className="fimmit-btn-back"
             onClick={handleBack}
             style={{ visibility: step === 1 ? 'hidden' : 'visible' }}
+            disabled={isSubmitting}
           >
             &larr; Back
           </button>
@@ -220,7 +285,7 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
             <button
               className="fimmit-btn-next"
               onClick={handleNext}
-              disabled={!isStepValid()}
+              disabled={!isStepValid() || isSubmitting}
             >
               Continue &rarr;
             </button>
@@ -228,9 +293,9 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
             <button
               className="fimmit-btn-next"
               onClick={handleComplete}
-              disabled={!isStepValid()}
+              disabled={!isStepValid() || isSubmitting}
             >
-              Generate feed &rarr;
+              {isSubmitting ? 'Submitting to backend...' : 'Generate feed →'}
             </button>
           )}
         </div>

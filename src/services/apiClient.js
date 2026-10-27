@@ -3,10 +3,14 @@
  * Handles base URL, auth headers, error normalization, and token refresh.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+export const API_BASE_URL = 'https://fimmit-backend.onrender.com';
+export const DEPLOYED_BACKEND_URL = API_BASE_URL;
 
-// In-memory token storage (Do NOT persist to localStorage per security policy)
+const REFRESH_TOKEN_KEY = 'fimmit_refresh_token';
+
+// In-memory token storage (Do NOT persist access tokens to localStorage per security policy)
 let inMemoryAccessToken = null;
+let inMemoryRefreshToken = null;
 let isRefreshing = false;
 let refreshPromise = null;
 
@@ -20,6 +24,39 @@ export const clearAccessToken = () => {
   inMemoryAccessToken = null;
 };
 
+export const setRefreshToken = (token) => {
+  inMemoryRefreshToken = token;
+  try {
+    if (token) {
+      sessionStorage.setItem(REFRESH_TOKEN_KEY, token);
+    } else {
+      sessionStorage.removeItem(REFRESH_TOKEN_KEY);
+    }
+  } catch {
+    // Ignore storage errors in restricted contexts
+  }
+};
+
+export const getRefreshToken = () => {
+  if (!inMemoryRefreshToken) {
+    try {
+      inMemoryRefreshToken = sessionStorage.getItem(REFRESH_TOKEN_KEY);
+    } catch {
+      inMemoryRefreshToken = null;
+    }
+  }
+  return inMemoryRefreshToken;
+};
+
+export const clearRefreshToken = () => {
+  inMemoryRefreshToken = null;
+  try {
+    sessionStorage.removeItem(REFRESH_TOKEN_KEY);
+  } catch {
+    // Ignore storage errors
+  }
+};
+
 export class ApiError extends Error {
   constructor(message, status = 500, data = null) {
     super(message);
@@ -29,9 +66,15 @@ export class ApiError extends Error {
   }
 }
 
-async function refreshAccessToken() {
+export async function refreshAccessToken() {
   if (isRefreshing && refreshPromise) {
     return refreshPromise;
+  }
+
+  const storedRefreshToken = getRefreshToken();
+  if (!storedRefreshToken) {
+    clearAccessToken();
+    return null;
   }
 
   isRefreshing = true;
@@ -40,22 +83,49 @@ async function refreshAccessToken() {
       const response = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // Needed for HttpOnly refresh cookie
+        body: JSON.stringify({ refreshToken: storedRefreshToken }),
       });
 
       if (!response.ok) {
-        throw new Error('Session refresh failed');
+        clearRefreshToken();
+        clearAccessToken();
+        try {
+          sessionStorage.removeItem('fimmit_user_data');
+        } catch {
+          // Ignore
+        }
+        return null;
       }
 
       const data = await response.json();
-      if (data?.accessToken) {
-        setAccessToken(data.accessToken);
-        return data.accessToken;
+      const newAccessToken = data?.accessToken || data?.token || data?.jwt || data?.access_token || data?.data?.accessToken || data?.data?.token;
+      if (newAccessToken) {
+        setAccessToken(newAccessToken);
       }
-      throw new Error('No access token returned on refresh');
-    } catch (err) {
+      const newRefreshToken = data?.refreshToken || data?.refresh_token || data?.data?.refreshToken;
+      if (newRefreshToken) {
+        setRefreshToken(newRefreshToken);
+      }
+      if (!newAccessToken) {
+        clearAccessToken();
+        clearRefreshToken();
+        try {
+          sessionStorage.removeItem('fimmit_user_data');
+        } catch {
+          // Ignore
+        }
+        return null;
+      }
+      return newAccessToken;
+    } catch {
       clearAccessToken();
-      throw err;
+      clearRefreshToken();
+      try {
+        sessionStorage.removeItem('fimmit_user_data');
+      } catch {
+        // Ignore
+      }
+      return null;
     } finally {
       isRefreshing = false;
       refreshPromise = null;
@@ -76,14 +146,22 @@ export async function apiRequest(endpoint, options = {}) {
     ...customConfig
   } = options;
 
-  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${cleanEndpoint}`;
 
   const requestHeaders = {
     'Content-Type': 'application/json',
     ...headers,
   };
 
-  const currentToken = getAccessToken();
+  let currentToken = getAccessToken();
+  if (requiresAuth && !currentToken && getRefreshToken()) {
+    try {
+      currentToken = await refreshAccessToken();
+    } catch {
+      // Proceed; the request will be handled or caught below
+    }
+  }
   if (requiresAuth && currentToken) {
     requestHeaders['Authorization'] = `Bearer ${currentToken}`;
   }
@@ -102,32 +180,71 @@ export async function apiRequest(endpoint, options = {}) {
   try {
     const response = await fetch(url, fetchConfig);
 
-    // Handle 401 Unauthorized token expiry
-    if (response.status === 401 && requiresAuth && retryOnUnauthorized && method === 'GET') {
+    const contentType = response.headers.get('content-type') || '';
+    const isHtml = contentType.includes('text/html');
+
+    // Detect if redirected to backend OAuth entry point, /login, or returned HTML instead of JSON
+    const isRedirectedToAuth = (
+      response.redirected && (
+        response.url.includes('oauth2/authorization') ||
+        response.url.includes('github.com') ||
+        response.url.includes('/login')
+      )
+    ) || (
+      isHtml && !url.includes('.html')
+    );
+
+    // Handle 401 Unauthorized or OAuth redirection token expiry
+    if ((response.status === 401 || isRedirectedToAuth) && requiresAuth && retryOnUnauthorized) {
       try {
         const newAccessToken = await refreshAccessToken();
         if (newAccessToken) {
           fetchConfig.headers['Authorization'] = `Bearer ${newAccessToken}`;
           const retryResponse = await fetch(url, fetchConfig);
-          if (!retryResponse.ok) {
-            const errorData = await retryResponse.json().catch(() => null);
+          const retryContentType = retryResponse.headers.get('content-type') || '';
+          const retryIsHtml = retryContentType.includes('text/html');
+
+          if (!retryResponse.ok || retryIsHtml) {
+            const errorData = retryIsHtml ? null : await retryResponse.json().catch(() => null);
+            const errorMessage = (typeof errorData === 'string' ? errorData : null) ||
+                                 errorData?.error ||
+                                 errorData?.message ||
+                                 errorData?.detail ||
+                                 errorData?.errors?.[0]?.defaultMessage ||
+                                 errorData?.errors?.[0]?.message ||
+                                 `Request failed with status ${retryResponse.status}`;
             throw new ApiError(
-              errorData?.message || `Request failed with status ${retryResponse.status}`,
+              errorMessage,
               retryResponse.status,
               errorData
             );
           }
+          if (retryResponse.status === 204) {
+            return null;
+          }
           return await retryResponse.json();
         }
-      } catch {
+      } catch (err) {
+        if (err instanceof ApiError) throw err;
         throw new ApiError('Authentication expired. Please sign in again.', 401);
       }
     }
 
+    if (isRedirectedToAuth) {
+      throw new ApiError('Authentication required. Please sign in.', 401);
+    }
+
     if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
+      const errorData = isHtml ? null : await response.json().catch(() => null);
+      const errorMessage = (typeof errorData === 'string' ? errorData : null) ||
+                           errorData?.error ||
+                           errorData?.message ||
+                           errorData?.detail ||
+                           errorData?.errors?.[0]?.defaultMessage ||
+                           errorData?.errors?.[0]?.message ||
+                           `Request failed with status ${response.status}`;
       throw new ApiError(
-        errorData?.message || `Request failed with status ${response.status}`,
+        errorMessage,
         response.status,
         errorData
       );
@@ -135,6 +252,10 @@ export async function apiRequest(endpoint, options = {}) {
 
     if (response.status === 204) {
       return null;
+    }
+
+    if (isHtml) {
+      throw new ApiError('Unexpected HTML response from API endpoint', 500);
     }
 
     return await response.json();

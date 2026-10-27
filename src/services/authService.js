@@ -1,22 +1,41 @@
 /**
  * Authentication Service
  * Communicates with backend OAuth endpoints:
- * GET  /api/auth/github  - Redirects to GitHub OAuth
- * POST /api/auth/refresh - Refreshes short-lived access token
- * POST /api/auth/logout  - Logs out and revokes refresh cookie
+ * GET  /oauth2/authorization/github - Starts GitHub OAuth flow
+ * POST /api/auth/exchange          - Exchanges temporary code for JWT tokens
+ * GET  /api/auth/me                - Fetches current authenticated user profile
+ * POST /api/auth/refresh           - Refreshes short-lived access token
+ * POST /api/auth/logout            - Logs out and revokes refresh token
  */
 
-import { apiRequest, setAccessToken, clearAccessToken, getAccessToken } from './apiClient';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+import {
+  API_BASE_URL,
+  apiRequest,
+  setAccessToken,
+  clearAccessToken,
+  getAccessToken,
+  setRefreshToken,
+  getRefreshToken,
+  clearRefreshToken,
+  refreshAccessToken,
+} from './apiClient';
 
 let currentUser = null;
 
 export const authService = {
   /**
-   * Retrieves the currently stored user object, falling back to sessionStorage.
+   * Retrieves the currently stored user object, only if the client holds valid tokens.
    */
   getCurrentUser() {
+    if (!this.isAuthenticated()) {
+      currentUser = null;
+      try {
+        sessionStorage.removeItem('fimmit_user_data');
+      } catch {
+        // ignore
+      }
+      return null;
+    }
     if (!currentUser) {
       try {
         const saved = sessionStorage.getItem('fimmit_user_data');
@@ -47,28 +66,164 @@ export const authService = {
   },
 
   /**
-   * Starts GitHub OAuth flow by navigating the browser to the backend entry point.
+   * Starts GitHub OAuth flow by performing top-level browser navigation to the backend entry point.
    */
   startGitHubLogin() {
-    window.location.href = `${API_BASE_URL}/api/auth/github`;
+    clearAccessToken();
+    clearRefreshToken();
+    this.setCurrentUser(null);
+    try {
+      sessionStorage.removeItem('fimmit_user_difficulty');
+      sessionStorage.removeItem('fimmit_tech_tags');
+      sessionStorage.removeItem('fimmit_preferred_issues');
+      sessionStorage.removeItem('fimmit_user_data');
+    } catch {
+      // Ignore
+    }
+    window.location.href = `${API_BASE_URL}/oauth2/authorization/github`;
   },
 
   /**
-   * Refreshes the short-lived access token using the backend's HttpOnly cookie.
+   * Exchanges authorization code from backend OAuth callback for JWT access/refresh tokens.
+   * Calls POST /api/auth/exchange with { code }
+   */
+  async exchangeAuthCode(code) {
+    if (!code) {
+      throw new Error('No authorization code provided');
+    }
+
+    const data = await apiRequest('/api/auth/exchange', {
+      method: 'POST',
+      body: { code },
+      requiresAuth: false,
+    });
+
+    const accessToken = data?.accessToken || data?.token || data?.jwt || data?.access_token || data?.data?.accessToken || data?.data?.token;
+    const refreshToken = data?.refreshToken || data?.refresh_token || data?.data?.refreshToken;
+
+    if (accessToken) {
+      setAccessToken(accessToken);
+    }
+    if (refreshToken) {
+      setRefreshToken(refreshToken);
+    }
+
+    // Fetch user profile from /api/auth/me
+    let meData = null;
+    if (accessToken) {
+      try {
+        meData = await this.getCurrentUserFromBackend();
+      } catch {
+        // Fallback if me endpoint is unavailable or returns partial
+      }
+    }
+
+    const actualMe = (meData && typeof meData === 'object' && meData.data && typeof meData.data === 'object')
+      ? meData.data
+      : (meData?.user || meData || {});
+
+    const actualData = (data && typeof data === 'object' && data.data && typeof data.data === 'object')
+      ? data.data
+      : (data || {});
+
+    const userObj = {
+      username: actualMe?.username || actualMe?.login || actualMe?.name || actualData?.username || actualData?.login || actualData?.user?.username || 'Contributor',
+      avatarUrl: actualMe?.avatarUrl || actualMe?.avatar_url || actualData?.avatarUrl || actualData?.avatar_url || '',
+      ...actualMe,
+      ...actualData,
+    };
+    this.setCurrentUser(userObj);
+
+    // Determine whether user is new or returning based on backend response
+    let isNewUser;
+    if (typeof data?.isNewUser === 'boolean') {
+      isNewUser = data.isNewUser;
+    } else if (typeof data?.newUser === 'boolean') {
+      isNewUser = data.newUser;
+    } else if (typeof actualMe?.isNewUser === 'boolean') {
+      isNewUser = actualMe.isNewUser;
+    } else if (typeof actualMe?.newUser === 'boolean') {
+      isNewUser = actualMe.newUser;
+    } else if (data?.onboarded === false || actualMe?.onboarded === false) {
+      isNewUser = true;
+    } else if (data?.onboarded === true || actualMe?.onboarded === true) {
+      isNewUser = false;
+    } else if (data?.hasCompletedOnboarding === false || actualMe?.hasCompletedOnboarding === false) {
+      isNewUser = true;
+    } else if (data?.hasCompletedOnboarding === true || actualMe?.hasCompletedOnboarding === true) {
+      isNewUser = false;
+    } else {
+      // If the backend response lacks a dedicated flag, inspect preference completeness
+      const hasPreferences = (actualMe?.preferredTechStack && actualMe.preferredTechStack.length > 0) ||
+                             Boolean(actualMe?.preferredDifficulty);
+      isNewUser = !hasPreferences;
+    }
+
+    return {
+      user: userObj,
+      isNewUser,
+      tokens: { accessToken, refreshToken },
+    };
+  },
+
+  /**
+   * Fetches the current authenticated user's profile from the backend.
+   * Calls GET /api/auth/me
+   */
+  async getCurrentUserFromBackend() {
+    return await apiRequest('/api/auth/me', {
+      method: 'GET',
+      requiresAuth: true,
+    });
+  },
+
+  /**
+   * Refreshes the access token using the stored refresh token.
    */
   async refreshSession() {
-    try {
-      const data = await apiRequest('/api/auth/refresh', {
-        method: 'POST',
-        requiresAuth: false,
-      });
-      if (data?.accessToken) {
-        setAccessToken(data.accessToken);
-        return data.accessToken;
-      }
+    const storedToken = getRefreshToken();
+    if (!storedToken) {
+      clearAccessToken();
+      clearRefreshToken();
+      this.setCurrentUser(null);
       return null;
+    }
+
+    try {
+      const newToken = await refreshAccessToken();
+      if (!newToken) {
+        clearAccessToken();
+        clearRefreshToken();
+        this.setCurrentUser(null);
+        return null;
+      }
+
+      try {
+        const meData = await this.getCurrentUserFromBackend();
+        if (meData) {
+          const actualMe = (typeof meData === 'object' && meData.data && typeof meData.data === 'object')
+            ? meData.data
+            : (meData?.user || meData);
+          const userObj = {
+            username: actualMe?.username || actualMe?.login || actualMe?.name || 'Contributor',
+            avatarUrl: actualMe?.avatarUrl || actualMe?.avatar_url || '',
+            ...actualMe,
+          };
+          this.setCurrentUser(userObj);
+          return newToken;
+        }
+      } catch {
+        clearAccessToken();
+        clearRefreshToken();
+        this.setCurrentUser(null);
+        return null;
+      }
+
+      return newToken;
     } catch {
       clearAccessToken();
+      clearRefreshToken();
+      this.setCurrentUser(null);
       return null;
     }
   },
@@ -77,21 +232,26 @@ export const authService = {
    * Logs out user and invalidates session on backend.
    */
   async logout() {
+    const refreshToken = getRefreshToken();
     this.setCurrentUser(null);
     try {
-      await apiRequest('/api/auth/logout', {
-        method: 'POST',
-        requiresAuth: true,
-      });
+      if (refreshToken) {
+        await apiRequest('/api/auth/logout', {
+          method: 'POST',
+          body: { refreshToken },
+          requiresAuth: false,
+        });
+      }
     } finally {
       clearAccessToken();
+      clearRefreshToken();
     }
   },
 
   /**
-   * Returns whether the client currently holds an in-memory access token.
+   * Returns whether the client currently holds an in-memory access token or refresh token.
    */
   isAuthenticated() {
-    return Boolean(getAccessToken());
+    return Boolean(getAccessToken() || getRefreshToken());
   },
 };

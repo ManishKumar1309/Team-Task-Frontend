@@ -17,6 +17,7 @@ export function useRecommendations() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState('');
+  const [blockedByAuth, setBlockedByAuth] = useState(false);
   const [isMock, setIsMock] = useState(false);
   const [cooldownSeconds, setCooldownSeconds] = useState(getRemainingSeconds);
 
@@ -25,6 +26,7 @@ export function useRecommendations() {
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setError('');
+    setBlockedByAuth(false);
 
     try {
       const [profileRes, recRes] = await Promise.all([
@@ -33,10 +35,30 @@ export function useRecommendations() {
       ]);
 
       setProfile(profileRes || {});
-      setIssues(recRes?.issues || []);
-      setIsMock(Boolean(recRes?.isMock || profileRes?.isMock));
+
+      if (recRes?.blockedByAuth) {
+        setBlockedByAuth(true);
+        setError(recRes.error || 'Authentication required: Live recommendations require a valid login session.');
+        setIssues([]);
+        setIsMock(false);
+      } else if (recRes?.error) {
+        setError(recRes.error);
+        setIssues([]);
+        setIsMock(false);
+      } else {
+        setIssues(Array.isArray(recRes?.issues) ? recRes.issues : []);
+        setIsMock(Boolean(recRes?.isMock));
+        setBlockedByAuth(false);
+      }
     } catch (err) {
-      setError(err.message || 'Failed to load recommendations.');
+      const isAuth = err.status === 401 || err.message?.includes('401') || err.message?.includes('Authentication');
+      setBlockedByAuth(isAuth);
+      setError(
+        isAuth
+          ? 'Authentication required: POST /api/recommendations requires a valid login session.'
+          : (err.message || 'Failed to load recommendations from backend.')
+      );
+      setIssues([]);
     } finally {
       setIsLoading(false);
     }
@@ -104,6 +126,7 @@ export function useRecommendations() {
     isLoading,
     isRefreshing,
     error,
+    blockedByAuth,
     isMock,
     reload,
     refreshFeed,

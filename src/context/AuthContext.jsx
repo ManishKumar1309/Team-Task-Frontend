@@ -6,27 +6,30 @@ export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => authService.isAuthenticated());
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authError, setAuthError] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
-    authService.refreshSession()
-      .then((token) => {
-        if (isMounted) {
-          setIsAuthenticated(Boolean(token));
-          if (token) {
-            setUser({ username: 'developer' });
+    if (authService.isAuthenticated()) {
+      authService.refreshSession()
+        .then((token) => {
+          if (isMounted) {
+            const authed = Boolean(token);
+            setIsAuthenticated(authed);
+            setUser(authed ? authService.getCurrentUser() : null);
+            setIsLoading(false);
           }
-          setIsLoading(false);
-        }
-      })
-      .catch(() => {
-        if (isMounted) {
-          setIsAuthenticated(false);
-          setIsLoading(false);
-        }
-      });
+        })
+        .catch(() => {
+          if (isMounted) {
+            setIsAuthenticated(false);
+            setUser(null);
+            setIsLoading(false);
+          }
+        });
+    }
 
     return () => {
       isMounted = false;
@@ -34,6 +37,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = () => {
+    setAuthError(null);
     authService.startGitHubLogin();
   };
 
@@ -52,9 +56,12 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider
       value={{
         user,
+        setUser,
         accessToken: getAccessToken(),
         isAuthenticated,
         isLoading,
+        authError,
+        setAuthError,
         login,
         logout,
       }}

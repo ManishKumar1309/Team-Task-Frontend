@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import githubIcon from '../assets/github.png';
 import './LandingPage.css';
 
-export const LandingPage = ({ onContinueWithGithub, onHowItWorks }) => {
+export const LandingPage = ({
+  onContinueWithGithub,
+  onHowItWorks,
+  authError = null,
+  onDismissError = () => {},
+}) => {
   const [activeFaq, setActiveFaq] = useState(0);
 
   const faqs = [
@@ -25,6 +30,27 @@ export const LandingPage = ({ onContinueWithGithub, onHowItWorks }) => {
     <div className="fimmit-landing-page">
       <div className="fimmit-page-content">
         <div className="fimmit-landing-container">
+          {authError && (
+            <div className="fimmit-auth-alert-banner" role="alert">
+              <div className="fimmit-auth-alert-content">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E4452F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span>{authError}</span>
+              </div>
+              <button
+                type="button"
+                className="fimmit-auth-alert-close"
+                onClick={onDismissError}
+                aria-label="Dismiss error"
+              >
+                &times;
+              </button>
+            </div>
+          )}
+
           <div className="fimmit-eyebrow">
             <span>PROJECT</span>
             <span className="fimmit-eyebrow-dot">·</span>

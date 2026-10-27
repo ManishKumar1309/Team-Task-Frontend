@@ -1,11 +1,30 @@
 import React, { useState } from 'react';
+import { useRecommendations } from '../hooks/useRecommendations';
+import { FALLBACK_ISSUES } from '../services/recommendationService';
 import './Homepage.css';
+
+function matchLanguageTag(tag, lang) {
+  const t = String(tag || '').trim().toLowerCase();
+  const l = String(lang || '').trim().toLowerCase();
+  if (t === l) return true;
+  if ((l === 'js' || l === 'javascript') && (t === 'js' || t === 'javascript')) return true;
+  if ((l === 'ts' || l === 'typescript') && (t === 'ts' || t === 'typescript')) return true;
+  if ((l === 'node' || l === 'node.js') && (t === 'node' || t === 'node.js')) return true;
+  if ((l === 'c++' || l === 'cpp') && (t === 'c++' || t === 'cpp')) return true;
+  return false;
+}
 
 export const HomePage = ({
   savedIssueIds = new Set(),
   onToggleSave = () => {},
   username = 'demo-developer',
-  isError = false,
+  saveError = '',
+  onClearSaveError = null,
+  isError: propIsError = false,
+  issues: propIssues = null,
+  isLoading: propIsLoading = null,
+  error: propError = null,
+  onRetry = null,
 }) => {
   const [activeLang, setActiveLang] = useState('');
 
@@ -15,6 +34,26 @@ export const HomePage = ({
     hard: false,
   });
 
+  const {
+    issues: fetchedIssues,
+    isLoading: recLoading,
+    error: recError,
+    blockedByAuth,
+    reload,
+  } = useRecommendations();
+
+  const [showSamplePreview, setShowSamplePreview] = useState(false);
+
+  const issuesList = propIssues !== null
+    ? propIssues
+    : showSamplePreview
+    ? FALLBACK_ISSUES
+    : (Array.isArray(fetchedIssues) ? fetchedIssues : []);
+
+  const isLoading = propIsLoading !== null ? propIsLoading : recLoading;
+  const isErrorState = propIsError || Boolean(propError || recError);
+  const errorMessage = propError || recError;
+
   const toggleDiff = (level) => {
     setDiffFilters((prev) => ({
       ...prev,
@@ -22,132 +61,25 @@ export const HomePage = ({
     }));
   };
 
-  const isSaved = (id) => {
+  const isSaved = (issue) => {
+    if (!issue) return false;
+    const id = typeof issue === 'object' ? String(issue.id) : String(issue);
+    const repo = typeof issue === 'object' ? (issue.repo || issue.repository || '') : '';
+    const repoLower = repo.toLowerCase();
+
     if (savedIssueIds instanceof Set) {
-      return savedIssueIds.has(String(id)) || savedIssueIds.has(id);
+      return savedIssueIds.has(id) || (repo && savedIssueIds.has(repoLower));
     }
 
     if (Array.isArray(savedIssueIds)) {
-      return savedIssueIds.some(
-        (savedId) => String(savedId) === String(id)
-      );
+      return savedIssueIds.some((s) => {
+        const str = String(s).toLowerCase();
+        return str === id.toLowerCase() || (repoLower && str === repoLower);
+      });
     }
 
     return false;
   };
-
-  const issues = [
-    {
-      id: 101,
-      repo: 'reactjs/react.dev',
-      stars: '1k',
-      title: 'Fix broken sandbox in useDeferredValue docs',
-      issueNum: '#6120',
-      tags: ['JS', 'react', 'docs'],
-      matchDesc: 'Good first issue with a clear fix and active maintainers',
-      difficulty: 'hard',
-      url: 'https://github.com/reactjs/react.dev/issues/6120',
-    },
-    {
-      id: 102,
-      repo: 'vercel/next.js',
-      stars: '130k',
-      title: 'Fix hydration mismatch warning on SSR text nodes',
-      issueNum: '#70210',
-      tags: ['JS', 'React', 'SSR'],
-      matchDesc: 'Relevant to React and server-side rendering',
-      difficulty: 'medium',
-      url: 'https://github.com/vercel/next.js/issues/70210',
-    },
-    {
-      id: 103,
-      repo: 'facebook/react',
-      stars: '230k',
-      title: 'Improve error messages for invalid hook usage',
-      issueNum: '#28910',
-      tags: ['JS', 'React', 'debugging'],
-      matchDesc: 'A useful issue for learning React internals',
-      difficulty: 'medium',
-      url: 'https://github.com/facebook/react/issues/28910',
-    },
-    {
-      id: 104,
-      repo: 'expressjs/express',
-      stars: '65k',
-      title: 'Add tests for middleware error handling',
-      issueNum: '#5900',
-      tags: ['JS', 'Express', 'tests'],
-      matchDesc: 'Test-focused task with a clear scope',
-      difficulty: 'easy',
-      url: 'https://github.com/expressjs/express/issues',
-    },
-    {
-      id: 105,
-      repo: 'nodejs/node',
-      stars: '110k',
-      title: 'Improve documentation for asynchronous APIs',
-      issueNum: '#55000',
-      tags: ['JS', 'Node.js', 'docs'],
-      matchDesc: 'Good opportunity to contribute to Node.js',
-      difficulty: 'easy',
-      url: 'https://github.com/nodejs/node/issues',
-    },
-    {
-      id: 106,
-      repo: 'jestjs/jest',
-      stars: '44k',
-      title: 'Clarify test timeout configuration documentation',
-      issueNum: '#15000',
-      tags: ['JS', 'Jest', 'docs'],
-      matchDesc: 'Documentation improvement with a focused scope',
-      difficulty: 'easy',
-      url: 'https://github.com/jestjs/jest/issues',
-    },
-    {
-      id: 107,
-      repo: 'vitejs/vite',
-      stars: '70k',
-      title: 'Improve error output for failed module resolution',
-      issueNum: '#19000',
-      tags: ['JS', 'Vite', 'debugging'],
-      matchDesc: 'Explore module resolution and development tooling',
-      difficulty: 'medium',
-      url: 'https://github.com/vitejs/vite/issues',
-    },
-    {
-      id: 108,
-      repo: 'sveltejs/svelte',
-      stars: '80k',
-      title: 'Improve accessibility warnings in component diagnostics',
-      issueNum: '#12000',
-      tags: ['JS', 'Svelte', 'accessibility'],
-      matchDesc: 'Contribute to clearer accessibility feedback',
-      difficulty: 'medium',
-      url: 'https://github.com/sveltejs/svelte/issues',
-    },
-    {
-      id: 109,
-      repo: 'prettier/prettier',
-      stars: '50k',
-      title: 'Add regression tests for formatting edge cases',
-      issueNum: '#17000',
-      tags: ['JS', 'tests', 'formatting'],
-      matchDesc: 'A test-driven contribution to developer tooling',
-      difficulty: 'hard',
-      url: 'https://github.com/prettier/prettier/issues',
-    },
-    {
-      id: 110,
-      repo: 'axios/axios',
-      stars: '105k',
-      title: 'Clarify request cancellation examples',
-      issueNum: '#6500',
-      tags: ['JS', 'HTTP', 'docs'],
-      matchDesc: 'Explore HTTP requests and cancellation behavior',
-      difficulty: 'easy',
-      url: 'https://github.com/axios/axios/issues',
-    },
-  ];
 
   const languages = [
     'C++',
@@ -168,16 +100,21 @@ export const HomePage = ({
     (level) => diffFilters[level]
   );
 
-  const visibleIssues = issues.filter((issue) => {
+  const visibleIssues = issuesList.filter((issue) => {
+    const issueTags = Array.isArray(issue.tags)
+      ? issue.tags
+      : Array.isArray(issue.techStack)
+      ? issue.techStack
+      : [];
+
     const languageMatches =
       !activeLang ||
-      issue.tags.some(
-        (tag) => tag.toLowerCase() === activeLang.toLowerCase()
-      );
+      issueTags.some((tag) => matchLanguageTag(tag, activeLang));
 
+    const issueDiff = String(issue.difficulty || 'medium').toLowerCase();
     const difficultyMatches =
       selectedDifficulties.length === 0 ||
-      selectedDifficulties.includes(issue.difficulty);
+      selectedDifficulties.includes(issueDiff);
 
     return languageMatches && difficultyMatches;
   });
@@ -250,12 +187,25 @@ export const HomePage = ({
         </aside>
 
         <main className="fimmit-home-feed">
-          {isError ? (
+          {isLoading && issuesList.length === 0 ? (
+            <div className="fimmit-feed-loading" style={{ padding: '3rem 1rem', textAlign: 'center' }}>
+              <p style={{ fontWeight: '800', fontSize: '1.125rem', color: '#000', margin: '0 0 0.5rem' }}>
+                Curating your recommendations...
+              </p>
+              <p style={{ color: '#444', fontSize: '0.875rem', margin: 0 }}>
+                Matching top open-source issues to your tech stack and experience level.
+              </p>
+            </div>
+          ) : isErrorState && issuesList.length === 0 ? (
             <div className="fimmit-feed-error">
               <p className="fimmit-feed-error-text">
-                There was an error while fetching the issues.
+                {blockedByAuth
+                  ? 'Authentication required: Backend recommendations (POST /api/recommendations) require a valid login session.'
+                  : (errorMessage || 'There was an error while fetching recommendations from the backend.')}
                 <br />
-                Please try again in a few seconds
+                {blockedByAuth
+                  ? 'Since GitHub login is currently unavailable, live recommendations cannot be retrieved.'
+                  : 'Please check your connection and try again.'}
                 <span className="fimmit-error-icon">
                   <svg
                     width="28"
@@ -270,13 +220,33 @@ export const HomePage = ({
                     <circle cx="8.5" cy="9.5" r="1.5" fill="#000000" stroke="none" />
                     <circle cx="15.5" cy="9.5" r="1.5" fill="#000000" stroke="none" />
                     <path
-                      d="M8 15.5c1.5-2 4.5-2 6 0"
-                      fill="none"
-                      strokeLinecap="round"
-                    />
+                    d="M8 15.5c1.5-2 4.5-2 6 0"
+                    fill="none"
+                    strokeLinecap="round"
+                  />
                   </svg>
                 </span>
               </p>
+              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', marginTop: '1rem', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  className="fimmit-card-btn-open"
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => (onRetry ? onRetry() : reload())}
+                >
+                  ↻ Retry backend request
+                </button>
+                {blockedByAuth && (
+                  <button
+                    type="button"
+                    className="fimmit-card-btn-open"
+                    style={{ cursor: 'pointer', backgroundColor: '#f0f0f0', borderColor: '#333' }}
+                    onClick={() => setShowSamplePreview(true)}
+                  >
+                    Preview with sample issues
+                  </button>
+                )}
+              </div>
             </div>
           ) : (
             <>
@@ -289,36 +259,86 @@ export const HomePage = ({
                 </span>
               </h1>
 
+              {saveError && (
+                <div
+                  className="fimmit-save-error-toast"
+                  role="alert"
+                  style={{
+                    backgroundColor: '#FEE2E2',
+                    border: '1.5px solid #EF4444',
+                    color: '#991B1B',
+                    padding: '0.65rem 1rem',
+                    borderRadius: '8px',
+                    marginBottom: '1.25rem',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    fontWeight: 600,
+                    fontSize: '0.85rem',
+                  }}
+                >
+                  <span>{saveError}</span>
+                  {onClearSaveError && (
+                    <button
+                      type="button"
+                      onClick={onClearSaveError}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#991B1B',
+                        cursor: 'pointer',
+                        fontWeight: 800,
+                        padding: '0 0.25rem',
+                        fontSize: '1rem',
+                      }}
+                      aria-label="Dismiss error"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              )}
+
               <div className="fimmit-feed-list">
                 {visibleIssues.slice(0, 10).map((issue) => {
-                  const saved = isSaved(issue.id);
+                  const saved = isSaved(issue);
+                  const issueDifficulty = String(issue.difficulty || 'medium').toLowerCase();
+                  const issueTags = Array.isArray(issue.tags)
+                    ? issue.tags
+                    : Array.isArray(issue.techStack)
+                    ? issue.techStack
+                    : [];
 
                   return (
                     <article key={issue.id} className="fimmit-feed-card">
                       <div className="fimmit-card-header">
                         <div className="fimmit-card-repo">
-                          <span>{issue.repo}</span>
-                          <span className="fimmit-card-star">
-                            ★ {issue.stars}
-                          </span>
+                          <span>{issue.repo || issue.repository}</span>
+                          {issue.stars && (
+                            <span className="fimmit-card-star">
+                              ★ {issue.stars}
+                            </span>
+                          )}
                         </div>
 
                         <span
-                          className={`fimmit-card-difficulty fimmit-diff-${issue.difficulty}`}
+                          className={`fimmit-card-difficulty fimmit-diff-${issueDifficulty}`}
                         >
-                          {issue.difficulty}
+                          {issueDifficulty}
                         </span>
                       </div>
 
                       <h2 className="fimmit-card-title">
                         {issue.title}{' '}
-                        <span className="fimmit-card-issue-num">
-                          {issue.issueNum}
-                        </span>
+                        {(issue.issueNum || issue.issueNumber) && (
+                          <span className="fimmit-card-issue-num">
+                            {issue.issueNum || issue.issueNumber}
+                          </span>
+                        )}
                       </h2>
 
                       <div className="fimmit-card-tags">
-                        {issue.tags.map((tag) => (
+                        {issueTags.map((tag) => (
                           <span key={tag} className="fimmit-card-tag">
                             {tag}
                           </span>
@@ -345,7 +365,7 @@ export const HomePage = ({
                           type="button"
                           className="fimmit-card-btn-saved"
                           aria-pressed={saved}
-                          onClick={() => onToggleSave(issue.id)}
+                          onClick={() => onToggleSave(issue)}
                         >
                           <svg
                             width="16"

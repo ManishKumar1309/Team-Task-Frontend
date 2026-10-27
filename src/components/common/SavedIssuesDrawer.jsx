@@ -5,7 +5,7 @@ export const SavedIssuesDrawer = ({
   isOpen,
   onClose,
   savedRepositories = [],
-  onRemove = () => {},
+  onRemove = () => { },
   saveError = '',
   onClearSaveError = null,
 }) => {
@@ -96,12 +96,12 @@ export const SavedIssuesDrawer = ({
 
         <div className="fimmit-drawer-content">
           {/* Limitation notice explaining that backend API saves at repository level */}
-          <div className="fimmit-drawer-limitation-notice">
+          {/* <div className="fimmit-drawer-limitation-notice">
             <span className="fimmit-drawer-limitation-badge">Repository Level</span>
             <p>
               Bookmarks are saved via <code>/api/saved-repositories</code>. Individual issue bookmarking is not supported by the backend.
             </p>
-          </div>
+          </div> */}
 
           {/* Error alert if a save or delete failed */}
           {saveError && (

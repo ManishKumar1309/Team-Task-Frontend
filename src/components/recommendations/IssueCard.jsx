@@ -44,7 +44,7 @@ export const IssueCard = ({ issue, isSaved, onToggleSave }) => {
           {issue.techStack?.map((tech) => (
             <Pill key={tech}>{tech}</Pill>
           ))}
-          <Pill>{issue.issueType}</Pill>
+          {issue.issueType && <Pill>{issue.issueType}</Pill>}
         </div>
 
         <div className="fimmit-issue-card__actions">

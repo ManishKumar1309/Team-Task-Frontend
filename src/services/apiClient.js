@@ -3,12 +3,8 @@
  * Handles base URL, auth headers, error normalization, and token refresh.
  */
 
-const envUrl = import.meta.env.VITE_API_BASE_URL;
-const isDevLocalhost = typeof envUrl === 'string' && (envUrl.includes('localhost') || envUrl.includes('127.0.0.1'));
-const RAW_API_BASE_URL = (envUrl && typeof envUrl === 'string' && !isDevLocalhost)
-  ? envUrl
-  : 'https://fimmit-backend.onrender.com';
-export const API_BASE_URL = RAW_API_BASE_URL.trim().replace(/\/+$/, '');
+export const API_BASE_URL = 'https://fimmit-backend.onrender.com';
+export const DEPLOYED_BACKEND_URL = API_BASE_URL;
 
 const REFRESH_TOKEN_KEY = 'fimmit_refresh_token';
 
@@ -150,7 +146,8 @@ export async function apiRequest(endpoint, options = {}) {
     ...customConfig
   } = options;
 
-  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${cleanEndpoint}`;
 
   const requestHeaders = {
     'Content-Type': 'application/json',
@@ -209,8 +206,15 @@ export async function apiRequest(endpoint, options = {}) {
 
           if (!retryResponse.ok || retryIsHtml) {
             const errorData = retryIsHtml ? null : await retryResponse.json().catch(() => null);
+            const errorMessage = (typeof errorData === 'string' ? errorData : null) ||
+                                 errorData?.error ||
+                                 errorData?.message ||
+                                 errorData?.detail ||
+                                 errorData?.errors?.[0]?.defaultMessage ||
+                                 errorData?.errors?.[0]?.message ||
+                                 `Request failed with status ${retryResponse.status}`;
             throw new ApiError(
-              errorData?.error || errorData?.message || `Request failed with status ${retryResponse.status}`,
+              errorMessage,
               retryResponse.status,
               errorData
             );
@@ -232,8 +236,15 @@ export async function apiRequest(endpoint, options = {}) {
 
     if (!response.ok) {
       const errorData = isHtml ? null : await response.json().catch(() => null);
+      const errorMessage = (typeof errorData === 'string' ? errorData : null) ||
+                           errorData?.error ||
+                           errorData?.message ||
+                           errorData?.detail ||
+                           errorData?.errors?.[0]?.defaultMessage ||
+                           errorData?.errors?.[0]?.message ||
+                           `Request failed with status ${response.status}`;
       throw new ApiError(
-        errorData?.error || errorData?.message || `Request failed with status ${response.status}`,
+        errorMessage,
         response.status,
         errorData
       );

@@ -84,12 +84,16 @@ export const savedRepositoryService = {
 
       const rawList = Array.isArray(data)
         ? data
+        : Array.isArray(data?.data)
+        ? data.data
         : Array.isArray(data?.savedRepositories)
         ? data.savedRepositories
         : Array.isArray(data?.repositories)
         ? data.repositories
         : Array.isArray(data?.content)
         ? data.content
+        : Array.isArray(data?.data?.content)
+        ? data.data.content
         : [];
 
       const adapted = rawList.map(adaptSavedRepository).filter(Boolean);

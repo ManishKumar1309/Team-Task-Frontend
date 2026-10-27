@@ -118,11 +118,19 @@ export const authService = {
       }
     }
 
+    const actualMe = (meData && typeof meData === 'object' && meData.data && typeof meData.data === 'object')
+      ? meData.data
+      : (meData?.user || meData || {});
+
+    const actualData = (data && typeof data === 'object' && data.data && typeof data.data === 'object')
+      ? data.data
+      : (data || {});
+
     const userObj = {
-      username: meData?.username || meData?.login || meData?.name || data?.username || data?.login || data?.user?.username || 'Contributor',
-      avatarUrl: meData?.avatarUrl || meData?.avatar_url || data?.avatarUrl || data?.avatar_url || '',
-      ...(meData || {}),
-      ...(data?.user || {}),
+      username: actualMe?.username || actualMe?.login || actualMe?.name || actualData?.username || actualData?.login || actualData?.user?.username || 'Contributor',
+      avatarUrl: actualMe?.avatarUrl || actualMe?.avatar_url || actualData?.avatarUrl || actualData?.avatar_url || '',
+      ...actualMe,
+      ...actualData,
     };
     this.setCurrentUser(userObj);
 
@@ -132,22 +140,22 @@ export const authService = {
       isNewUser = data.isNewUser;
     } else if (typeof data?.newUser === 'boolean') {
       isNewUser = data.newUser;
-    } else if (typeof meData?.isNewUser === 'boolean') {
-      isNewUser = meData.isNewUser;
-    } else if (typeof meData?.newUser === 'boolean') {
-      isNewUser = meData.newUser;
-    } else if (data?.onboarded === false || meData?.onboarded === false) {
+    } else if (typeof actualMe?.isNewUser === 'boolean') {
+      isNewUser = actualMe.isNewUser;
+    } else if (typeof actualMe?.newUser === 'boolean') {
+      isNewUser = actualMe.newUser;
+    } else if (data?.onboarded === false || actualMe?.onboarded === false) {
       isNewUser = true;
-    } else if (data?.onboarded === true || meData?.onboarded === true) {
+    } else if (data?.onboarded === true || actualMe?.onboarded === true) {
       isNewUser = false;
-    } else if (data?.hasCompletedOnboarding === false || meData?.hasCompletedOnboarding === false) {
+    } else if (data?.hasCompletedOnboarding === false || actualMe?.hasCompletedOnboarding === false) {
       isNewUser = true;
-    } else if (data?.hasCompletedOnboarding === true || meData?.hasCompletedOnboarding === true) {
+    } else if (data?.hasCompletedOnboarding === true || actualMe?.hasCompletedOnboarding === true) {
       isNewUser = false;
     } else {
       // If the backend response lacks a dedicated flag, inspect preference completeness
-      const hasPreferences = (meData?.preferredTechStack && meData.preferredTechStack.length > 0) ||
-                             Boolean(meData?.preferredDifficulty);
+      const hasPreferences = (actualMe?.preferredTechStack && actualMe.preferredTechStack.length > 0) ||
+                             Boolean(actualMe?.preferredDifficulty);
       isNewUser = !hasPreferences;
     }
 
@@ -193,10 +201,13 @@ export const authService = {
       try {
         const meData = await this.getCurrentUserFromBackend();
         if (meData) {
+          const actualMe = (typeof meData === 'object' && meData.data && typeof meData.data === 'object')
+            ? meData.data
+            : (meData?.user || meData);
           const userObj = {
-            username: meData?.username || meData?.login || meData?.name || 'Contributor',
-            avatarUrl: meData?.avatarUrl || meData?.avatar_url || '',
-            ...meData,
+            username: actualMe?.username || actualMe?.login || actualMe?.name || 'Contributor',
+            avatarUrl: actualMe?.avatarUrl || actualMe?.avatar_url || '',
+            ...actualMe,
           };
           this.setCurrentUser(userObj);
           return newToken;

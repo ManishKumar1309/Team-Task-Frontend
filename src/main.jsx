@@ -4,13 +4,22 @@ import App from './App.jsx';
 import { AuthProvider } from './context/AuthContext';
 import './styles/global.css';
 
-// Clean up any legacy Service Workers from previous builds that may have cached obsolete backend URLs
-if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then((registrations) => {
-    for (const registration of registrations) {
-      registration.unregister();
-    }
-  });
+// Clean up any legacy Service Workers or caches that may have cached obsolete backend URLs
+if (typeof window !== 'undefined') {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (const registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+  if ('caches' in window) {
+    caches.keys().then((cacheNames) => {
+      for (const cacheName of cacheNames) {
+        caches.delete(cacheName);
+      }
+    });
+  }
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(

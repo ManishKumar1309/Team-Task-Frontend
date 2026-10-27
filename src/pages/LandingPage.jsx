@@ -6,22 +6,22 @@ export const LandingPage = ({
   onContinueWithGithub,
   onHowItWorks,
   authError = null,
-  onDismissError = () => {},
+  onDismissError = () => { },
 }) => {
   const [activeFaq, setActiveFaq] = useState(0);
 
   const faqs = [
     {
-      question: "Do you read my private code?",
-      answer: "No. Only public profile and repository metadata is used to estimate your experience and build search tags."
+      question: "Does Finnit access my private GitHub repositories?",
+      answer: "No. Finnit focuses on discovering open-source contribution opportunities using publicly available repository information. Private repository access is not required for this purpose."
     },
     {
-      question: "Do you read my private code?",
-      answer: "No. Only public profile and repository metadata is used to estimate your experience and build search tags."
+      question: "What information does Finnit collect from my GitHub account?",
+      answer: "Finnit uses relevant GitHub profile information, along with your selected interests, preferred tech stack, and difficulty level, to personalize recommendations."
     },
     {
-      question: "Do you read my private code?",
-      answer: "No. Only public profile and repository metadata is used to estimate your experience and build search tags."
+      question: "Do I need prior open-source experience to use Finnit?",
+      answer: "Not at all! Finnit helps developers of different skill levels discover open-source repositories and contribution opportunities suited to their interests and experience."
     }
   ];
 

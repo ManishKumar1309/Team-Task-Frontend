@@ -276,18 +276,36 @@ export function adaptBackendIssue(raw) {
   if (!raw) return null;
 
   const id = String(raw.id ?? raw.issueId ?? raw.githubIssueId ?? raw.number ?? Math.random());
-  const repoName = raw.repositoryName || raw.repoName || '';
-  const owner = raw.owner || '';
-  const repo = repoName && owner ? `${owner}/${repoName}` : (raw.repository || raw.repo || repoName || 'Unknown repo');
+  
+  const rawRepo = raw.repository;
+  let repoName = raw.repositoryName || raw.repoName || '';
+  let owner = raw.owner || '';
+
+  if (typeof rawRepo === 'object' && rawRepo !== null) {
+    repoName = repoName || rawRepo.name || rawRepo.repositoryName || '';
+    owner = owner || (typeof rawRepo.owner === 'object' ? rawRepo.owner?.login : rawRepo.owner) || '';
+  } else if (typeof rawRepo === 'string' && rawRepo.includes('/')) {
+    const parts = rawRepo.split('/');
+    owner = owner || parts[0];
+    repoName = repoName || parts[1];
+  }
+  const repo = (owner && repoName)
+    ? `${owner}/${repoName}`
+    : (typeof rawRepo === 'string' ? rawRepo : (repoName || 'Open Source Project'));
+
   const url = raw.url || raw.issueUrl || raw.htmlUrl || raw.html_url || 'https://github.com';
   const issueNumber = formatIssueNumber(raw.issueNumber || raw.number || raw.issueNum, url);
   const difficulty = (raw.difficulty || 'medium').toLowerCase();
 
-  const techStack = Array.isArray(raw.techStack)
+  const rawTech = Array.isArray(raw.techStack)
     ? raw.techStack
     : Array.isArray(raw.tags)
     ? raw.tags
     : (raw.language ? [raw.language] : ['General']);
+
+  const techStack = rawTech
+    .map((t) => (typeof t === 'object' && t !== null ? (t.name || t.label || String(t)) : String(t)))
+    .filter(Boolean);
 
   const stars = typeof raw.stars === 'number'
     ? (raw.stars > 1000 ? `${Math.round(raw.stars / 1000)}k` : String(raw.stars))
@@ -313,7 +331,7 @@ export function adaptBackendIssue(raw) {
     url,
     issueNum: issueNumber,
     issueNumber,
-    issueType: raw.issueType || null,
+    issueType: raw.issueType ? String(raw.issueType) : null,
     difficulty,
     matchScore: typeof raw.matchScore === 'number' ? raw.matchScore : 0.85,
     formattedMatchScore: formatMatchScore(raw.matchScore),
@@ -356,12 +374,20 @@ export const recommendationService = {
 
       const rawIssues = Array.isArray(data)
         ? data
+        : Array.isArray(data?.data)
+        ? data.data
         : Array.isArray(data?.issues)
         ? data.issues
         : Array.isArray(data?.recommendations)
         ? data.recommendations
         : Array.isArray(data?.content)
         ? data.content
+        : Array.isArray(data?.data?.content)
+        ? data.data.content
+        : Array.isArray(data?.data?.recommendations)
+        ? data.data.recommendations
+        : Array.isArray(data?.data?.issues)
+        ? data.data.issues
         : [];
 
       const adapted = rawIssues.map(adaptBackendIssue).filter(Boolean);

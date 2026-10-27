@@ -12,16 +12,16 @@ export const LandingPage = ({
 
   const faqs = [
     {
-      question: "Does Finnit access my private GitHub repositories?",
-      answer: "No. Finnit focuses on discovering open-source contribution opportunities using publicly available repository information. Private repository access is not required for this purpose."
+      question: "Does Fimmit access my private GitHub repositories?",
+      answer: "No. Fimmit focuses on discovering open-source contribution opportunities using publicly available repository information. Private repository access is not required for this purpose."
     },
     {
-      question: "What information does Finnit collect from my GitHub account?",
-      answer: "Finnit uses relevant GitHub profile information, along with your selected interests, preferred tech stack, and difficulty level, to personalize recommendations."
+      question: "What information does Fimmit collect from my GitHub account?",
+      answer: "Fimmit uses relevant GitHub profile information, along with your selected interests, preferred tech stack, and difficulty level, to personalize recommendations."
     },
     {
-      question: "Do I need prior open-source experience to use Finnit?",
-      answer: "Not at all! Finnit helps developers of different skill levels discover open-source repositories and contribution opportunities suited to their interests and experience."
+      question: "Do I need prior open-source experience to use Fimmit?",
+      answer: "Not at all! Fimmit helps developers of different skill levels discover open-source repositories and contribution opportunities suited to their interests and experience."
     }
   ];
 

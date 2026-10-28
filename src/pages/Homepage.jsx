@@ -64,7 +64,7 @@ export const HomePage = ({
   const isSaved = (issue) => {
     if (!issue) return false;
     const id = typeof issue === 'object' ? String(issue.id) : String(issue);
-    const repo = typeof issue === 'object' ? (issue.repo || issue.repository || '') : '';
+    const repo = typeof issue === 'object' ? (issue.repo || issue.repository || (issue.owner && (issue.repositoryName || issue.repoName) ? `${issue.owner}/${issue.repositoryName || issue.repoName}` : '')) : '';
     const repoLower = repo.toLowerCase();
 
     if (savedIssueIds instanceof Set) {
@@ -386,7 +386,7 @@ export const HomePage = ({
                             <path d="M6 4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-4-6 4V4.5Z" />
                           </svg>
 
-                          {saved ? 'Saved' : 'Save issue'}
+                          {saved ? 'Saved' : 'Save Issue'}
                         </button>
                       </div>
                     </article>

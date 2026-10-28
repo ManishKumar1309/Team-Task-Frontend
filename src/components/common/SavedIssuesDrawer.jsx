@@ -122,7 +122,7 @@ export const SavedIssuesDrawer = ({
 
           {displayItems.length === 0 ? (
             <p className="fimmit-drawer-empty-state">
-              Nothing saved yet. Hit "Save issue" on any card to bookmark its repository here.
+              Nothing saved yet. Hit "Save Issue" on any card to bookmark its repository here.
             </p>
           ) : (
             <div className="fimmit-drawer-list">

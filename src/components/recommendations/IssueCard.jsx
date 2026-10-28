@@ -52,7 +52,7 @@ export const IssueCard = ({ issue, isSaved, onToggleSave }) => {
             type="button"
             className={`fimmit-card-save-btn ${isSaved ? 'is-saved' : ''}`}
             onClick={() => onToggleSave?.(issue)}
-            aria-label={isSaved ? "Unsave issue" : "Save issue"}
+            aria-label={isSaved ? "Unsave issue" : "Save Issue"}
           >
             <svg
               width="16"
@@ -67,7 +67,7 @@ export const IssueCard = ({ issue, isSaved, onToggleSave }) => {
             >
               <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
             </svg>
-            <span>{isSaved ? 'Saved' : 'Save issue'}</span>
+            <span>{isSaved ? 'Saved' : 'Save Issue'}</span>
           </button>
 
           <a href={issue.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>

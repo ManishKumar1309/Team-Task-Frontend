@@ -28,23 +28,8 @@ export const Navbar = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // The default design tags
-  const defaultTags = ['Java', 'Backend', 'Spring boot', 'First-issue', 'API'];
-
-  // Start with whatever the user actually has
-  let displayTags = Array.isArray(backendTechTags) ? [...backendTechTags] : [];
-
-  // Pad the array with default tags until we hit exactly 5
-  let i = 0;
-  while (displayTags.length < 5 && i < defaultTags.length) {
-    if (!displayTags.includes(defaultTags[i])) {
-      displayTags.push(defaultTags[i]);
-    }
-    i++;
-  }
-
-  // Cap strictly at 5
-  const finalTags = displayTags.slice(0, 5);
+  // Display only the tags selected by the user (tech stack & domain)
+  const finalTags = Array.isArray(backendTechTags) ? backendTechTags : [];
 
   return (
     <nav className={`fimmit-navbar ${variant}`}>
@@ -66,14 +51,16 @@ export const Navbar = ({
               </div>
 
               {/* Bottom Row: Search Tags */}
-              <div className="fimmit-nav-tags-row">
-                <span className="fimmit-nav-tags-label">Search tags:</span>
-                {finalTags.map((tag, index) => (
-                  <span key={index} className="fimmit-nav-tag">
-                    #{tag}
-                  </span>
-                ))}
-              </div>
+              {finalTags.length > 0 && (
+                <div className="fimmit-nav-tags-row">
+                  <span className="fimmit-nav-tags-label">Search tags:</span>
+                  {finalTags.map((tag, index) => (
+                    <span key={index} className="fimmit-nav-tag">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="fimmit-nav-right">

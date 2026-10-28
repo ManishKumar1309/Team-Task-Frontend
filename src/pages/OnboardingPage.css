@@ -204,7 +204,7 @@
 
 /* Active pills - orange background */
 .fimmit-pill.active {
-  /* background-color: #EE8138 !important; */
+  background-color: #EE8138 !important;
   /* Orange */
   color: #000000;
   transform: translateY(-1px);

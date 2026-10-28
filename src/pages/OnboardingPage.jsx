@@ -177,6 +177,7 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
                 {techOptions.map((tech) => (
                   <button
                     key={tech}
+                    type="button"
                     className={`fimmit-pill ${techStack.includes(tech) ? 'active' : ''}`}
                     onClick={() => toggleTech(tech)}
                   >
@@ -199,6 +200,7 @@ export const OnboardingPage = ({ onComplete, onExit }) => {
                 {interestOptions.map((interest) => (
                   <button
                     key={interest}
+                    type="button"
                     className={`fimmit-pill ${interests.includes(interest) ? 'active' : ''}`}
                     onClick={() => toggleInterest(interest)}
                   >

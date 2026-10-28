@@ -94,15 +94,22 @@ export default function App() {
     }
   };
 
-  // Backend-Provided Technology Tags
+  // Backend-Provided Technology & Domain Tags for Search
   const [backendTechTags, setBackendTechTags] = useState(() => {
-    const saved = sessionStorage.getItem('fimmit_tech_tags');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        // Fallback
+    try {
+      const savedTech = sessionStorage.getItem('fimmit_tech_tags');
+      const savedInterests = sessionStorage.getItem('fimmit_user_interests');
+      const techList = savedTech ? JSON.parse(savedTech) : [];
+      const interestList = savedInterests ? JSON.parse(savedInterests) : [];
+      const combined = [
+        ...(Array.isArray(techList) ? techList : []),
+        ...(Array.isArray(interestList) ? interestList : [])
+      ];
+      if (combined.length > 0) {
+        return Array.from(new Set(combined));
       }
+    } catch {
+      // Fallback
     }
     return ['javascript', 'react', 'python'];
   });
@@ -203,8 +210,17 @@ export default function App() {
             sessionStorage.setItem('fimmit_user_difficulty', rawDiff);
           }
           if (authedUser?.preferredTechStack && Array.isArray(authedUser.preferredTechStack)) {
-            setBackendTechTags(authedUser.preferredTechStack);
             sessionStorage.setItem('fimmit_tech_tags', JSON.stringify(authedUser.preferredTechStack));
+          }
+          if (authedUser?.interests && Array.isArray(authedUser.interests)) {
+            sessionStorage.setItem('fimmit_user_interests', JSON.stringify(authedUser.interests));
+          }
+          const authedTags = Array.from(new Set([
+            ...(Array.isArray(authedUser?.preferredTechStack) ? authedUser.preferredTechStack : []),
+            ...(Array.isArray(authedUser?.interests) ? authedUser.interests : []),
+          ]));
+          if (authedTags.length > 0) {
+            setBackendTechTags(authedTags);
           }
 
           if (result.isNewUser) {
@@ -268,12 +284,22 @@ export default function App() {
       setProfileDifficulty(rawDiff);
       sessionStorage.setItem('fimmit_user_difficulty', rawDiff);
     }
-    if (data?.preferredTechStack && Array.isArray(data.preferredTechStack)) {
-      setBackendTechTags(data.preferredTechStack);
-      sessionStorage.setItem('fimmit_tech_tags', JSON.stringify(data.preferredTechStack));
+    const tech = Array.isArray(data?.preferredTechStack) ? data.preferredTechStack : [];
+    const interests = Array.isArray(data?.interests) ? data.interests : [];
+
+    if (tech.length > 0) {
+      sessionStorage.setItem('fimmit_tech_tags', JSON.stringify(tech));
+    }
+    if (interests.length > 0) {
+      sessionStorage.setItem('fimmit_user_interests', JSON.stringify(interests));
     }
     if (data?.preferredIssues && Array.isArray(data.preferredIssues)) {
       sessionStorage.setItem('fimmit_preferred_issues', JSON.stringify(data.preferredIssues));
+    }
+
+    const combined = Array.from(new Set([...tech, ...interests]));
+    if (combined.length > 0) {
+      setBackendTechTags(combined);
     }
     const authedUser = authService.getCurrentUser() || user || {
       username: 'Contributor',
@@ -297,6 +323,7 @@ export default function App() {
       sessionStorage.removeItem('fimmit_user_data');
       sessionStorage.removeItem('fimmit_user_difficulty');
       sessionStorage.removeItem('fimmit_tech_tags');
+      sessionStorage.removeItem('fimmit_user_interests');
       sessionStorage.removeItem('fimmit_preferred_issues');
 
       // Redirect to landing view

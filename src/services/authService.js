@@ -75,6 +75,7 @@ export const authService = {
     try {
       sessionStorage.removeItem('fimmit_user_difficulty');
       sessionStorage.removeItem('fimmit_tech_tags');
+      sessionStorage.removeItem('fimmit_user_interests');
       sessionStorage.removeItem('fimmit_preferred_issues');
       sessionStorage.removeItem('fimmit_user_data');
     } catch {

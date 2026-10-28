@@ -107,9 +107,12 @@ export const HomePage = ({
       ? issue.techStack
       : [];
 
+    const issueLang = String(issue.language || issue.repoLanguage || '').toLowerCase();
+
     const languageMatches =
       !activeLang ||
-      issueTags.some((tag) => matchLanguageTag(tag, activeLang));
+      issueTags.some((tag) => matchLanguageTag(tag, activeLang)) ||
+      (issueLang && matchLanguageTag(issueLang, activeLang));
 
     const issueDiff = String(issue.difficulty || 'medium').toLowerCase();
     const difficultyMatches =
@@ -329,21 +332,23 @@ export const HomePage = ({
                       </div>
 
                       <h2 className="fimmit-card-title">
-                        {issue.title}{' '}
-                        {(issue.issueNum || issue.issueNumber) && (
+                        {issue.title || (issue.issueNum || issue.issueNumber ? `Issue ${issue.issueNum || issue.issueNumber}` : '')}{' '}
+                        {issue.title && (issue.issueNum || issue.issueNumber) && (
                           <span className="fimmit-card-issue-num">
                             {issue.issueNum || issue.issueNumber}
                           </span>
                         )}
                       </h2>
 
-                      <div className="fimmit-card-tags">
-                        {issueTags.map((tag) => (
-                          <span key={tag} className="fimmit-card-tag">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
+                      {issueTags.length > 0 && (
+                        <div className="fimmit-card-tags">
+                          {issueTags.map((tag) => (
+                            <span key={tag} className="fimmit-card-tag">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
 
                       {issue.matchDesc && (
                         <p className="fimmit-match-desc">

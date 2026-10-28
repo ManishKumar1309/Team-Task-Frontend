@@ -138,7 +138,7 @@ export const SavedIssuesDrawer = ({
                     </div>
 
                     <h4 className="fimmit-saved-card__title" title={issue.title}>
-                      {issue.title || 'Untitled Issue'}
+                      {issue.title || (issueNumber ? `Issue ${issueNumber}` : 'Saved issue')}
                     </h4>
 
                     <div className="fimmit-saved-card__actions">

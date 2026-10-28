@@ -272,18 +272,109 @@ export function buildRecommendationPayload(overrides = {}) {
 /**
  * Normalizes backend recommendation objects to match frontend requirements
  */
+/**
+ * Helper to safely extract all label / category strings from an issue object or its parent
+ */
+function extractLabels(target, raw) {
+  const sources = [
+    target?.labels,
+    raw?.labels,
+    target?.label,
+    raw?.label,
+    target?.category,
+    raw?.category,
+    target?.categories,
+    raw?.categories,
+    target?.tags,
+    raw?.tags,
+    target?.techStack,
+    raw?.techStack,
+    target?.issueType,
+    raw?.issueType,
+    target?.topics,
+    raw?.topics,
+    target?.language,
+    raw?.language,
+    (typeof (target?.repository || raw?.repository) === 'object' ? (target?.repository || raw?.repository)?.language : null),
+  ];
+
+  const extracted = [];
+  const seen = new Set();
+
+  function addLabel(val) {
+    if (!val) return;
+    let labelStr = '';
+    if (typeof val === 'string') {
+      labelStr = val.trim();
+    } else if (typeof val === 'object' && val !== null) {
+      labelStr = String(val.name || val.label || val.title || val.value || val.text || val.category || '').trim();
+    } else if (typeof val === 'number') {
+      labelStr = String(val).trim();
+    }
+    labelStr = labelStr.replace(/^["']|["']$/g, '').trim();
+    if (labelStr && !seen.has(labelStr.toLowerCase())) {
+      seen.add(labelStr.toLowerCase());
+      extracted.push(labelStr);
+    }
+  }
+
+  for (const src of sources) {
+    if (!src) continue;
+    const initialCount = extracted.length;
+    if (Array.isArray(src)) {
+      for (const entry of src) {
+        addLabel(entry);
+      }
+    } else if (typeof src === 'string' && src.includes(',') && !src.includes('{')) {
+      src.split(',').forEach((s) => addLabel(s));
+    } else {
+      addLabel(src);
+    }
+    // If high-priority label sources (labels, label, category) provided labels, stop adding lower-priority fallbacks
+    if (extracted.length > initialCount && (src === target?.labels || src === raw?.labels || src === target?.label || src === raw?.label || src === target?.category || src === raw?.category)) {
+      break;
+    }
+  }
+
+  return extracted;
+}
+
+/**
+ * Normalizes backend recommendation objects to match frontend requirements
+ */
 export function adaptBackendIssue(raw) {
   if (!raw) return null;
 
-  const id = String(raw.id ?? raw.issueId ?? raw.githubIssueId ?? raw.number ?? Math.random());
-  
-  const rawRepo = raw.repository;
-  let repoName = raw.repositoryName || raw.repoName || '';
-  let owner = raw.owner || '';
+  // Resolve nested issue object if wrapped (e.g. { issue: { ... } }, { githubIssue: { ... } }, etc.)
+  const targetIssue = (typeof raw.issue === 'object' && raw.issue !== null)
+    ? raw.issue
+    : (typeof raw.githubIssue === 'object' && raw.githubIssue !== null)
+    ? raw.githubIssue
+    : (typeof raw.recommendation === 'object' && raw.recommendation !== null)
+    ? raw.recommendation
+    : (typeof raw.item === 'object' && raw.item !== null)
+    ? raw.item
+    : raw;
+
+  const id = String(
+    targetIssue.id ??
+    raw.id ??
+    targetIssue.issueId ??
+    raw.issueId ??
+    targetIssue.githubIssueId ??
+    raw.githubIssueId ??
+    targetIssue.number ??
+    raw.number ??
+    Math.random()
+  );
+
+  const rawRepo = targetIssue.repository || raw.repository;
+  let repoName = targetIssue.repositoryName || targetIssue.repoName || raw.repositoryName || raw.repoName || '';
+  let owner = targetIssue.owner || raw.owner || '';
 
   if (typeof rawRepo === 'object' && rawRepo !== null) {
     repoName = repoName || rawRepo.name || rawRepo.repositoryName || '';
-    owner = owner || (typeof rawRepo.owner === 'object' ? rawRepo.owner?.login : rawRepo.owner) || '';
+    owner = owner || (typeof rawRepo.owner === 'object' ? (rawRepo.owner?.login || rawRepo.owner?.name) : rawRepo.owner) || '';
   } else if (typeof rawRepo === 'string' && rawRepo.includes('/')) {
     const parts = rawRepo.split('/');
     owner = owner || parts[0];
@@ -293,52 +384,115 @@ export function adaptBackendIssue(raw) {
     ? `${owner}/${repoName}`
     : (typeof rawRepo === 'string' ? rawRepo : (repoName || 'Open Source Project'));
 
-  const url = raw.url || raw.issueUrl || raw.htmlUrl || raw.html_url || 'https://github.com';
-  const issueNumber = formatIssueNumber(raw.issueNumber || raw.number || raw.issueNum, url);
-  const difficulty = (raw.difficulty || 'medium').toLowerCase();
+  const url =
+    targetIssue.url ||
+    targetIssue.issueUrl ||
+    targetIssue.htmlUrl ||
+    targetIssue.html_url ||
+    raw.url ||
+    raw.issueUrl ||
+    raw.htmlUrl ||
+    raw.html_url ||
+    'https://github.com';
 
-  const rawTech = Array.isArray(raw.techStack)
-    ? raw.techStack
-    : Array.isArray(raw.tags)
-    ? raw.tags
-    : (raw.language ? [raw.language] : ['General']);
+  const issueNumber = formatIssueNumber(
+    targetIssue.issueNumber ||
+    targetIssue.number ||
+    targetIssue.issueNum ||
+    raw.issueNumber ||
+    raw.number ||
+    raw.issueNum,
+    url
+  );
 
-  const techStack = rawTech
-    .map((t) => (typeof t === 'object' && t !== null ? (t.name || t.label || String(t)) : String(t)))
-    .filter(Boolean);
+  const difficulty = (targetIssue.difficulty || raw.difficulty || 'medium').toLowerCase();
 
-  const stars = typeof raw.stars === 'number'
-    ? (raw.stars > 1000 ? `${Math.round(raw.stars / 1000)}k` : String(raw.stars))
-    : typeof raw.stars === 'string'
-    ? raw.stars
-    : typeof raw.starCount === 'number'
-    ? (raw.starCount > 1000 ? `${Math.round(raw.starCount / 1000)}k` : String(raw.starCount))
-    : '1k';
+  // Extract issue title without hardcoded 'Untitled Issue' mask
+  const rawTitle =
+    targetIssue.title ??
+    raw.title ??
+    targetIssue.issueTitle ??
+    raw.issueTitle ??
+    targetIssue.name ??
+    raw.name ??
+    targetIssue.issue_title ??
+    raw.issue_title ??
+    targetIssue.issueName ??
+    raw.issueName ??
+    targetIssue.summary ??
+    raw.summary ??
+    targetIssue.subject ??
+    raw.subject ??
+    '';
 
-  const matchDesc = raw.matchDesc || (Array.isArray(raw.reasons) ? raw.reasons.join('. ') : (raw.description || ''));
+  let title = '';
+  if (typeof rawTitle === 'string') {
+    title = rawTitle.trim();
+  } else if (typeof rawTitle === 'object' && rawTitle !== null) {
+    title = String(rawTitle.text || rawTitle.title || rawTitle.value || rawTitle.name || '').trim();
+  } else if (rawTitle != null) {
+    title = String(rawTitle).trim();
+  }
+
+  // Extract actual label data returned for each issue (without hardcoded 'General')
+  const allLabels = extractLabels(targetIssue, raw);
+  // Follow existing UI design: display appropriate labels (up to 3) without inventing one
+  const displayTags = allLabels.slice(0, 3);
+
+  const rawStars = targetIssue.stars ?? raw.stars ?? targetIssue.starCount ?? raw.starCount ?? (typeof rawRepo === 'object' ? (rawRepo?.stars || rawRepo?.stargazers_count) : null);
+  const stars = typeof rawStars === 'number'
+    ? (rawStars > 1000 ? `${Math.round(rawStars / 1000)}k` : String(rawStars))
+    : typeof rawStars === 'string'
+    ? rawStars
+    : null;
+
+  const matchDesc =
+    targetIssue.matchDesc ||
+    raw.matchDesc ||
+    (Array.isArray(targetIssue.reasons) ? targetIssue.reasons.join('. ') : Array.isArray(raw.reasons) ? raw.reasons.join('. ') : (targetIssue.description || raw.description || ''));
+
+  const issueLanguage =
+    targetIssue.language ||
+    raw.language ||
+    (typeof rawRepo === 'object' ? rawRepo?.language : null) ||
+    '';
 
   return {
     id,
-    title: raw.title || 'Untitled Issue',
+    title,
     repo,
     repository: repo,
     repositoryName: repoName || (repo.includes('/') ? repo.split('/')[1] : repo),
     owner: owner || (repo.includes('/') ? repo.split('/')[0] : ''),
-    repositoryUrl: raw.repositoryUrl || (owner && repoName ? `https://github.com/${owner}/${repoName}` : (url.includes('/issues') ? url.split('/issues')[0] : 'https://github.com')),
-    githubRepositoryId: raw.githubRepositoryId || null,
-    repoDescription: raw.repoDescription || raw.repositoryDescription || raw.description || '',
+    repositoryUrl:
+      targetIssue.repositoryUrl ||
+      raw.repositoryUrl ||
+      (owner && repoName ? `https://github.com/${owner}/${repoName}` : (url.includes('/issues') ? url.split('/issues')[0] : 'https://github.com')),
+    githubRepositoryId: targetIssue.githubRepositoryId || raw.githubRepositoryId || null,
+    repoDescription:
+      targetIssue.repoDescription ||
+      raw.repoDescription ||
+      targetIssue.repositoryDescription ||
+      raw.repositoryDescription ||
+      targetIssue.description ||
+      raw.description ||
+      '',
     stars,
     url,
     issueNum: issueNumber,
     issueNumber,
-    issueType: raw.issueType ? String(raw.issueType) : null,
+    issueType: (targetIssue.issueType || raw.issueType) ? String(targetIssue.issueType || raw.issueType) : (displayTags[0] || null),
+    category: displayTags[0] || '',
+    label: displayTags[0] || '',
     difficulty,
-    matchScore: typeof raw.matchScore === 'number' ? raw.matchScore : 0.85,
-    formattedMatchScore: formatMatchScore(raw.matchScore),
+    matchScore: typeof (targetIssue.matchScore ?? raw.matchScore) === 'number' ? (targetIssue.matchScore ?? raw.matchScore) : 0.85,
+    formattedMatchScore: formatMatchScore(targetIssue.matchScore ?? raw.matchScore),
     matchDesc,
-    reasons: Array.isArray(raw.reasons) ? raw.reasons : (matchDesc ? [matchDesc] : []),
-    techStack,
-    tags: techStack,
+    reasons: Array.isArray(targetIssue.reasons) ? targetIssue.reasons : Array.isArray(raw.reasons) ? raw.reasons : (matchDesc ? [matchDesc] : []),
+    techStack: displayTags,
+    tags: displayTags,
+    allLabels,
+    language: issueLanguage,
     isSaved: false,
   };
 }

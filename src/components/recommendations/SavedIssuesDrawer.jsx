@@ -114,7 +114,7 @@ export const SavedIssuesDrawer = ({
           {(!savedIssues || savedIssues.length === 0) ? (
             <div className="fimmit-saved-drawer__empty">
               <p className="fimmit-saved-drawer__empty-text">
-                Nothing saved yet. Hit &quot;Save issue&quot; on any card to keep it here.
+                Nothing saved yet. Hit &quot;Save Issue&quot; on any card to keep it here.
               </p>
             </div>
           ) : (

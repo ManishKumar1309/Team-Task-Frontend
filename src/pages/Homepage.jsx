@@ -66,16 +66,30 @@ export const HomePage = ({
     const id = typeof issue === 'object' ? String(issue.id) : String(issue);
     const repo = typeof issue === 'object' ? (issue.repo || issue.repository || (issue.owner && (issue.repositoryName || issue.repoName) ? `${issue.owner}/${issue.repositoryName || issue.repoName}` : '')) : '';
     const repoLower = repo.toLowerCase();
+    const issueNum = typeof issue === 'object' ? String(issue.issueNum || issue.issueNumber || '').toLowerCase().replace(/^#/, '') : '';
+    const issueUrl = typeof issue === 'object' ? String(issue.url || '').toLowerCase() : '';
+
+    const checkMatch = (s) => {
+      if (!s) return false;
+      const str = String(s).toLowerCase();
+      if (str === id.toLowerCase()) return true;
+      if (repoLower && str === repoLower) return true;
+      if (issueNum && (str === issueNum || str === `#${issueNum}`)) return true;
+      if (issueUrl && str === issueUrl) return true;
+      return false;
+    };
 
     if (savedIssueIds instanceof Set) {
-      return savedIssueIds.has(id) || (repo && savedIssueIds.has(repoLower));
+      if (savedIssueIds.has(id) || savedIssueIds.has(id.toLowerCase())) return true;
+      if (repo && (savedIssueIds.has(repo) || savedIssueIds.has(repoLower))) return true;
+      for (const item of savedIssueIds) {
+        if (checkMatch(item)) return true;
+      }
+      return false;
     }
 
     if (Array.isArray(savedIssueIds)) {
-      return savedIssueIds.some((s) => {
-        const str = String(s).toLowerCase();
-        return str === id.toLowerCase() || (repoLower && str === repoLower);
-      });
+      return savedIssueIds.some(checkMatch);
     }
 
     return false;

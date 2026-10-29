@@ -63,9 +63,6 @@ export function getRepoKey(item) {
 
 
 function loadInitialSavedRepositories() {
-  if (!authService.isAuthenticated()) {
-    return [];
-  }
   try {
     const stored = localStorage.getItem(STORAGE_KEY_REPOS);
     if (stored) {
@@ -86,6 +83,15 @@ export function useSavedIssues() {
   const [saveError, setSaveError] = useState('');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
+  // Keep a ref to savedRepositories to avoid stale closures in asynchronous callbacks
+  const savedRepositoriesRef = useRef(savedRepositories);
+  useEffect(() => {
+    savedRepositoriesRef.current = savedRepositories;
+  }, [savedRepositories]);
+
+  // In-flight locking ref to prevent duplicate or overlapping save/unsave requests for the same issue
+  const inFlightKeysRef = useRef(new Set());
+
   // Map repoKey/issueKey -> backend savedRepositoryId (distinguishing backend record ID from githubRepositoryId)
   const repoToSavedIdMapRef = useRef(new Map());
 
@@ -105,28 +111,56 @@ export function useSavedIssues() {
   // Sync with backend GET /api/saved-repositories on load if authenticated
   useEffect(() => {
     let isCancelled = false;
+
     const fetchBackendSaved = async () => {
       if (!authService.isAuthenticated()) {
-        setSavedRepositories([]);
         return;
       }
       try {
         const result = await savedRepositoryService.getSavedRepositories();
-        if (isCancelled || !Array.isArray(result?.repositories)) return;
+        if (isCancelled) return;
 
-        const repos = result.repositories;
-        setSavedRepositories(repos);
+        // If there was an error (e.g. auth failed, backend offline), DO NOT wipe out local state!
+        if (result?.error || result?.blockedByAuth) {
+          return;
+        }
 
-        // Update ID lookup map with backend database record IDs
-        repos.forEach((repo) => {
-          const key = getRepoKey(repo);
-          if (key && repo.id) {
-            repoToSavedIdMapRef.current.set(key, repo.id);
-          }
-          if (repo.githubRepositoryId && repo.id) {
-            repoToSavedIdMapRef.current.set(String(repo.githubRepositoryId), repo.id);
-          }
-        });
+        if (Array.isArray(result?.repositories)) {
+          const backendRepos = result.repositories;
+
+          setSavedRepositories((prev) => {
+            // Merge backend repos with any optimistic/local items added since mount
+            const merged = [...backendRepos];
+            const backendKeys = new Set(backendRepos.map((r) => getRepoKey(r)).filter(Boolean));
+            const backendIds = new Set(backendRepos.map((r) => String(r.id)).filter(Boolean));
+
+            prev.forEach((item) => {
+              const itemKey = getRepoKey(item);
+              const itemId = item.id ? String(item.id) : '';
+              const isTemp = typeof item.id === 'string' && (item.id.startsWith('temp-') || isNaN(Number(item.id)));
+
+              // Keep optimistic items that haven't been synchronized yet
+              if (isTemp && itemKey && !backendKeys.has(itemKey)) {
+                merged.unshift(item);
+              } else if (!backendKeys.has(itemKey) && (!itemId || !backendIds.has(itemId))) {
+                merged.push(item);
+              }
+            });
+
+            return merged;
+          });
+
+          // Update ID lookup map with backend database record IDs
+          backendRepos.forEach((repo) => {
+            const key = getRepoKey(repo);
+            if (key && repo.id) {
+              repoToSavedIdMapRef.current.set(key, repo.id);
+            }
+            if (repo.githubRepositoryId && repo.id) {
+              repoToSavedIdMapRef.current.set(String(repo.githubRepositoryId), repo.id);
+            }
+          });
+        }
       } catch {
         // Silently preserve current state on network/auth error
       }
@@ -153,9 +187,22 @@ export function useSavedIssues() {
     const ids = new Set();
     savedRepositories.forEach((repo) => {
       const key = getRepoKey(repo);
-      if (key) ids.add(key);
-      if (repo.id) ids.add(String(repo.id));
+      if (key) ids.add(key.toLowerCase());
+      if (repo.owner && repo.repositoryName) {
+        ids.add(`${repo.owner}/${repo.repositoryName}`.toLowerCase());
+      }
+      if (repo.repository) {
+        ids.add(String(repo.repository).toLowerCase());
+      }
+      if (repo.repo) {
+        ids.add(String(repo.repo).toLowerCase());
+      }
+      if (repo.id) ids.add(String(repo.id).toLowerCase());
+      if (repo.backendRecordId) ids.add(String(repo.backendRecordId).toLowerCase());
       if (repo.githubRepositoryId) ids.add(String(repo.githubRepositoryId));
+      if (repo.issueId) ids.add(String(repo.issueId).toLowerCase());
+      if (repo.issueKey) ids.add(String(repo.issueKey).toLowerCase());
+      if (repo.url) ids.add(String(repo.url).toLowerCase());
     });
     return Array.from(ids);
   }, [savedRepositories]);
@@ -173,130 +220,203 @@ export function useSavedIssues() {
 
     const issueKey = getIssueKey(issueOrId);
     const repoKey = getRepoKey(issueOrId);
+    const lockKey = repoKey || issueKey;
+    if (!lockKey) return;
 
-    // Check if this repository is already saved
-    const existingRepo = savedRepositories.find((r) => {
-      const k = getRepoKey(r);
-      return (k && k === repoKey) || (r.id && repoToSavedIdMapRef.current.get(repoKey) === r.id);
-    });
+    // Requirement 6: Prevent duplicate or overlapping save/unsave requests for the same issue
+    if (inFlightKeysRef.current.has(lockKey)) {
+      return;
+    }
+    inFlightKeysRef.current.add(lockKey);
 
-    if (existingRepo) {
-      // --- UN-SAVE (DELETE) FLOW ---
-      // Use the database record ID (id), NOT the GitHub repository ID
-      const recordId = existingRepo.id || repoToSavedIdMapRef.current.get(repoKey) || repoToSavedIdMapRef.current.get(issueKey);
+    try {
+      // Check against current state using ref to avoid stale closures
+      const existingRepo = savedRepositoriesRef.current.find((r) => {
+        const k = getRepoKey(r);
+        return (
+          (k && repoKey && k === repoKey) ||
+          (r.issueKey && issueKey && r.issueKey === issueKey) ||
+          (r.issueId && issueKey && String(r.issueId) === String(issueKey)) ||
+          (r.id && issueKey && String(r.id) === String(issueKey)) ||
+          (repoKey && repoToSavedIdMapRef.current.get(repoKey) === r.id) ||
+          (issueKey && repoToSavedIdMapRef.current.get(issueKey) === r.id)
+        );
+      });
 
-      // Optimistic update: UI updates immediately on click
-      const previousRepos = savedRepositories;
-      setSavedRepositories((prev) => prev.filter((r) => (recordId && r.id ? r.id !== recordId : true) && getRepoKey(r) !== repoKey));
+      if (existingRepo) {
+        // --- UN-SAVE (DELETE) FLOW ---
+        const backendRecordId =
+          existingRepo.backendRecordId ||
+          (existingRepo.id && typeof existingRepo.id === 'number' ? existingRepo.id : null) ||
+          repoToSavedIdMapRef.current.get(repoKey) ||
+          repoToSavedIdMapRef.current.get(issueKey);
 
-      if (!recordId) {
+        const removedItem = existingRepo;
+
+        // Optimistic update: UI updates immediately on click to "Save Issue"
+        setSavedRepositories((prev) =>
+          prev.filter((r) => {
+            const k = getRepoKey(r);
+            if (k && repoKey && k === repoKey) return false;
+            if (r.issueKey && issueKey && r.issueKey === issueKey) return false;
+            if (r.issueId && issueKey && String(r.issueId) === String(issueKey)) return false;
+            if (backendRecordId && r.id && r.id === backendRecordId) return false;
+            return true;
+          })
+        );
+
         if (repoKey) repoToSavedIdMapRef.current.delete(repoKey);
         if (issueKey) repoToSavedIdMapRef.current.delete(issueKey);
+
+        if (!backendRecordId || !authService.isAuthenticated()) {
+          return;
+        }
+
+        setIsSaving(true);
+        try {
+          await savedRepositoryService.deleteSavedRepository(backendRecordId);
+        } catch (err) {
+          // Rollback optimistic removal if backend delete fails (Requirement 5)
+          if (removedItem) {
+            setSavedRepositories((prev) => [removedItem, ...prev]);
+          }
+          setSaveError(err.message || 'Failed to remove saved repository from backend.');
+        } finally {
+          setIsSaving(false);
+        }
+        return;
+      }
+
+      // --- SAVE FLOW ---
+      let owner = '';
+      let repositoryName = '';
+      let repositoryUrl = '';
+      let description = '';
+      let githubRepositoryId = 0;
+      let issueId = '';
+      let issueTitle = '';
+      let issueUrl = '';
+
+      if (typeof issueOrId === 'object' && issueOrId !== null) {
+        owner = issueOrId.owner || (issueOrId.repo && issueOrId.repo.includes('/') ? issueOrId.repo.split('/')[0] : '') || '';
+        repositoryName = issueOrId.repositoryName || (issueOrId.repo && issueOrId.repo.includes('/') ? issueOrId.repo.split('/')[1] : (issueOrId.repo || ''));
+        repositoryUrl = issueOrId.repositoryUrl || (owner && repositoryName ? `https://github.com/${owner}/${repositoryName}` : (issueOrId.url?.includes('/issues') ? issueOrId.url.split('/issues')[0] : issueOrId.url || ''));
+        description = issueOrId.repoDescription || issueOrId.description || issueOrId.title || '';
+        githubRepositoryId = Number(issueOrId.githubRepositoryId) || Math.abs(hashString(`${owner}/${repositoryName}`));
+        issueId = issueOrId.id != null ? String(issueOrId.id) : '';
+        issueTitle = issueOrId.title || '';
+        issueUrl = issueOrId.url || '';
+      } else {
+        repositoryName = String(issueOrId);
+        githubRepositoryId = Math.abs(hashString(String(issueOrId)));
+      }
+
+      if (!repositoryName) {
+        setSaveError('Cannot save repository: repository name is missing.');
+        return;
+      }
+
+      const payload = {
+        githubRepositoryId,
+        repositoryName,
+        owner: owner || 'unknown',
+        repositoryUrl: repositoryUrl || `https://github.com/${owner || 'unknown'}/${repositoryName}`,
+        description,
+        issueId,
+        issueKey,
+      };
+
+      const tempId = issueId || `temp-${Date.now()}`;
+      const optimisticRecord = adaptSavedRepository({
+        ...payload,
+        id: tempId,
+        issueId: issueId || tempId,
+        issueKey: issueKey || tempId,
+        title: issueTitle,
+        url: issueUrl,
+        savedAt: new Date().toISOString(),
+      });
+
+      // Optimistic update: UI updates immediately to "Saved"
+      setSavedRepositories((prev) => {
+        const alreadyExists = prev.some((r) => {
+          const k = getRepoKey(r);
+          return (k && repoKey && k === repoKey) || (r.issueId && issueId && String(r.issueId) === String(issueId));
+        });
+        if (alreadyExists) return prev;
+        return [optimisticRecord, ...prev];
+      });
+
+      if (!authService.isAuthenticated()) {
         return;
       }
 
       setIsSaving(true);
       try {
-        await savedRepositoryService.deleteSavedRepository(recordId);
-        repoToSavedIdMapRef.current.delete(repoKey);
-        repoToSavedIdMapRef.current.delete(issueKey);
+        const result = await savedRepositoryService.saveRepository(payload);
+        const savedRecord = result?.repository;
+
+        if (savedRecord) {
+          const backendRecordId = savedRecord.id;
+          if (backendRecordId) {
+            if (repoKey) repoToSavedIdMapRef.current.set(repoKey, backendRecordId);
+            if (issueKey) repoToSavedIdMapRef.current.set(issueKey, backendRecordId);
+            if (savedRecord.githubRepositoryId) {
+              repoToSavedIdMapRef.current.set(String(savedRecord.githubRepositoryId), backendRecordId);
+            }
+          }
+
+          // Replace optimistic record with confirmed backend record WHILE PRESERVING issueId, issueKey, etc.
+          setSavedRepositories((prev) =>
+            prev.map((r) => {
+              const k = getRepoKey(r);
+              const matches =
+                (k && repoKey && k === repoKey) ||
+                (r.id && String(r.id) === String(tempId)) ||
+                (r.issueId && issueId && String(r.issueId) === String(issueId));
+
+              if (matches) {
+                return {
+                  ...r,
+                  ...savedRecord,
+                  id: backendRecordId || r.id,
+                  backendRecordId: backendRecordId || r.backendRecordId || null,
+                  issueId: issueId || r.issueId || tempId,
+                  issueKey: issueKey || r.issueKey || tempId,
+                  owner: savedRecord.owner || payload.owner,
+                  repositoryName: savedRecord.repositoryName || payload.repositoryName,
+                  repositoryUrl: savedRecord.repositoryUrl || payload.repositoryUrl,
+                };
+              }
+              return r;
+            })
+          );
+        }
       } catch (err) {
-        // Rollback optimistic state if backend delete fails
-        setSavedRepositories(previousRepos);
-        setSaveError(err.message || 'Failed to remove saved repository from backend.');
+        // Requirement 5: If saving fails, show an appropriate error and restore the actual saved state
+        setSavedRepositories((prev) =>
+          prev.filter((r) => {
+            const k = getRepoKey(r);
+            if (k && repoKey && k === repoKey) return false;
+            if (r.id && String(r.id) === String(tempId)) return false;
+            if (r.issueId && issueId && String(r.issueId) === String(issueId)) return false;
+            return true;
+          })
+        );
+        if (repoKey) repoToSavedIdMapRef.current.delete(repoKey);
+        if (issueKey) repoToSavedIdMapRef.current.delete(issueKey);
+
+        const errorMsg = err.message?.includes('Authentication')
+          ? 'Please sign in to save issues.'
+          : err.message || 'Failed to save repository to backend.';
+        setSaveError(errorMsg);
       } finally {
         setIsSaving(false);
       }
-      return;
-    }
-
-    // Extract exact backend contract fields
-    let owner;
-    let repositoryName;
-    let repositoryUrl;
-    let description;
-    let githubRepositoryId;
-
-    if (typeof issueOrId === 'object') {
-      owner = issueOrId.owner || (issueOrId.repo && issueOrId.repo.includes('/') ? issueOrId.repo.split('/')[0] : '') || '';
-      repositoryName = issueOrId.repositoryName || (issueOrId.repo && issueOrId.repo.includes('/') ? issueOrId.repo.split('/')[1] : (issueOrId.repo || ''));
-      repositoryUrl = issueOrId.repositoryUrl || (owner && repositoryName ? `https://github.com/${owner}/${repositoryName}` : (issueOrId.url?.includes('/issues') ? issueOrId.url.split('/issues')[0] : issueOrId.url || ''));
-      description = issueOrId.repoDescription || issueOrId.description || issueOrId.title || '';
-      githubRepositoryId = Number(issueOrId.githubRepositoryId) || Math.abs(hashString(`${owner}/${repositoryName}`));
-    } else {
-      owner = '';
-      repositoryName = String(issueOrId);
-      repositoryUrl = '';
-      description = '';
-      githubRepositoryId = Math.abs(hashString(String(issueOrId)));
-    }
-
-    if (!repositoryName) {
-      setSaveError('Cannot save repository: repository name is missing.');
-      return;
-    }
-
-    const payload = {
-      githubRepositoryId,
-      repositoryName,
-      owner: owner || 'unknown',
-      repositoryUrl: repositoryUrl || `https://github.com/${owner || 'unknown'}/${repositoryName}`,
-      description,
-    };
-
-    // Optimistic update: UI updates immediately on click
-    const tempId = (typeof issueOrId === 'object' && issueOrId?.id != null) ? issueOrId.id : `temp-${Date.now()}`;
-    const optimisticRecord = adaptSavedRepository({
-      ...payload,
-      id: tempId,
-      savedAt: new Date().toISOString(),
-    });
-
-    const previousRepos = savedRepositories;
-    setSavedRepositories((prev) => {
-      const alreadyExists = prev.some((r) => getRepoKey(r) === repoKey);
-      if (alreadyExists) return prev;
-      return [optimisticRecord, ...prev];
-    });
-
-    // Check auth requirement for backend synchronization
-    if (!authService.isAuthenticated()) {
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const result = await savedRepositoryService.saveRepository(payload);
-      const savedRecord = result?.repository;
-
-      if (savedRecord) {
-        if (savedRecord.id) {
-          // Map backend savedRepositoryId (record ID in DB) to repository key
-          repoToSavedIdMapRef.current.set(repoKey, savedRecord.id);
-          repoToSavedIdMapRef.current.set(issueKey, savedRecord.id);
-          if (savedRecord.githubRepositoryId) {
-            repoToSavedIdMapRef.current.set(String(savedRecord.githubRepositoryId), savedRecord.id);
-          }
-        }
-
-        // Replace optimistic record with confirmed backend record
-        setSavedRepositories((prev) => {
-          return prev.map((r) => {
-            if (getRepoKey(r) === repoKey) {
-              return savedRecord;
-            }
-            return r;
-          });
-        });
-      }
-    } catch (err) {
-      // Rollback optimistic save if backend call failed
-      setSavedRepositories(previousRepos);
-      setSaveError(err.message || 'Failed to save repository to backend.');
     } finally {
-      setIsSaving(false);
+      inFlightKeysRef.current.delete(lockKey);
     }
-  }, [savedRepositories]);
+  }, []);
 
   const removeSavedIssue = useCallback(async (issueOrId) => {
     if (!issueOrId) return;
@@ -305,39 +425,64 @@ export function useSavedIssues() {
 
     const issueKey = getIssueKey(issueOrId);
     const repoKey = getRepoKey(issueOrId);
+    const lockKey = repoKey || issueKey;
+    if (lockKey && inFlightKeysRef.current.has(lockKey)) {
+      return;
+    }
+    if (lockKey) inFlightKeysRef.current.add(lockKey);
 
-    // Determine backend database record ID
-    let backendSavedId =
-      (typeof issueOrId === 'object' && (issueOrId.savedRepositoryId || issueOrId.id) && !isNaN(issueOrId.savedRepositoryId || issueOrId.id) ? Number(issueOrId.savedRepositoryId || issueOrId.id) : null) ||
+    const targetRepo = savedRepositoriesRef.current.find((r) => {
+      const k = getRepoKey(r);
+      return (
+        (k && repoKey && k === repoKey) ||
+        (r.issueKey && issueKey && r.issueKey === issueKey) ||
+        (r.issueId && issueKey && String(r.issueId) === String(issueKey)) ||
+        (r.id && issueKey && String(r.id) === String(issueKey)) ||
+        (repoKey && repoToSavedIdMapRef.current.get(repoKey) === r.id) ||
+        (issueKey && repoToSavedIdMapRef.current.get(issueKey) === r.id)
+      );
+    });
+
+    const backendSavedId =
+      targetRepo?.backendRecordId ||
+      (targetRepo?.id && typeof targetRepo.id === 'number' ? targetRepo.id : null) ||
+      (typeof issueOrId === 'number' ? issueOrId : null) ||
       repoToSavedIdMapRef.current.get(repoKey) ||
       repoToSavedIdMapRef.current.get(issueKey);
 
-    if (!backendSavedId && (typeof issueOrId === 'number' || (!isNaN(issueOrId) && !String(issueOrId).includes('/')))) {
-      backendSavedId = Number(issueOrId);
-    }
-
-    const targetRepo = savedRepositories.find((r) => (backendSavedId && r.id === backendSavedId) || (repoKey && getRepoKey(r) === repoKey));
-    const finalRecordId = backendSavedId || targetRepo?.id;
+    const removedItem = targetRepo;
 
     // Optimistic removal: UI updates immediately
-    const previousRepos = savedRepositories;
-    setSavedRepositories((prev) => prev.filter((r) => (finalRecordId && r.id ? r.id !== finalRecordId : true) && (repoKey ? getRepoKey(r) !== repoKey : true)));
+    setSavedRepositories((prev) =>
+      prev.filter((r) => {
+        const k = getRepoKey(r);
+        if (k && repoKey && k === repoKey) return false;
+        if (r.issueKey && issueKey && r.issueKey === issueKey) return false;
+        if (r.issueId && issueKey && String(r.issueId) === String(issueKey)) return false;
+        if (backendSavedId && r.id && r.id === backendSavedId) return false;
+        return true;
+      })
+    );
 
-    if (!finalRecordId) {
-      if (repoKey) repoToSavedIdMapRef.current.delete(repoKey);
-      if (issueKey) repoToSavedIdMapRef.current.delete(issueKey);
+    if (repoKey) repoToSavedIdMapRef.current.delete(repoKey);
+    if (issueKey) repoToSavedIdMapRef.current.delete(issueKey);
+
+    if (!backendSavedId || !authService.isAuthenticated()) {
+      if (lockKey) inFlightKeysRef.current.delete(lockKey);
       return;
     }
 
     try {
-      await savedRepositoryService.deleteSavedRepository(finalRecordId);
-      if (repoKey) repoToSavedIdMapRef.current.delete(repoKey);
-      if (issueKey) repoToSavedIdMapRef.current.delete(issueKey);
+      await savedRepositoryService.deleteSavedRepository(backendSavedId);
     } catch (err) {
-      setSavedRepositories(previousRepos);
+      if (removedItem) {
+        setSavedRepositories((prev) => [removedItem, ...prev]);
+      }
       setSaveError(err.message || 'Failed to remove saved repository from backend.');
+    } finally {
+      if (lockKey) inFlightKeysRef.current.delete(lockKey);
     }
-  }, [savedRepositories]);
+  }, []);
 
   return {
     savedCount: savedRepositories.length,

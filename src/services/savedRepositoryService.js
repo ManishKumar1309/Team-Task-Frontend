@@ -40,16 +40,50 @@ function persistLocalSavedRepositories(items) {
  */
 export function adaptSavedRepository(raw) {
   if (!raw) return null;
-  const owner = raw.owner || (raw.repositoryUrl?.includes('github.com/') ? raw.repositoryUrl.split('github.com/')[1]?.split('/')[0] : '') || '';
-  const repositoryName = raw.repositoryName || raw.repoName || raw.name || (raw.repositoryUrl?.includes('github.com/') ? raw.repositoryUrl.split('github.com/')[1]?.split('/')[1] : '') || '';
+  const item = (typeof raw.data === 'object' && raw.data !== null && !Array.isArray(raw.data))
+    ? raw.data
+    : (typeof raw.repository === 'object' && raw.repository !== null)
+    ? raw.repository
+    : (typeof raw.savedRepository === 'object' && raw.savedRepository !== null)
+    ? raw.savedRepository
+    : raw;
+
+  const owner =
+    item.owner ||
+    raw.owner ||
+    (item.repo && typeof item.repo === 'string' && item.repo.includes('/') ? item.repo.split('/')[0] : '') ||
+    (item.repository && typeof item.repository === 'string' && item.repository.includes('/') ? item.repository.split('/')[0] : '') ||
+    (item.repositoryUrl?.includes('github.com/') ? item.repositoryUrl.split('github.com/')[1]?.split('/')[0] : '') ||
+    (item.url?.includes('github.com/') ? item.url.split('github.com/')[1]?.split('/')[0] : '') ||
+    '';
+
+  const repositoryName =
+    item.repositoryName ||
+    raw.repositoryName ||
+    item.repoName ||
+    raw.repoName ||
+    item.name ||
+    raw.name ||
+    (item.repo && typeof item.repo === 'string' && item.repo.includes('/') ? item.repo.split('/')[1] : (typeof item.repo === 'string' ? item.repo : '')) ||
+    (item.repository && typeof item.repository === 'string' && item.repository.includes('/') ? item.repository.split('/')[1] : (typeof item.repository === 'string' ? item.repository : '')) ||
+    (item.repositoryUrl?.includes('github.com/') ? item.repositoryUrl.split('github.com/')[1]?.split('/')[1]?.split('/')[0] : '') ||
+    (item.url?.includes('github.com/') ? item.url.split('github.com/')[1]?.split('/')[1]?.split('/')[0] : '') ||
+    '';
+
+  const id = item.id ?? item.savedRepositoryId ?? raw.id ?? raw.savedRepositoryId ?? null;
+  const githubRepositoryId = Number(item.githubRepositoryId ?? raw.githubRepositoryId) || 0;
+
   return {
-    id: raw.id ?? raw.savedRepositoryId ?? null,
-    githubRepositoryId: Number(raw.githubRepositoryId) || 0,
+    id,
+    backendRecordId: id,
+    githubRepositoryId,
     repositoryName,
     owner,
-    repositoryUrl: raw.repositoryUrl || raw.url || (owner && repositoryName ? `https://github.com/${owner}/${repositoryName}` : 'https://github.com'),
-    description: raw.description || '',
-    savedAt: raw.savedAt || raw.createdAt || null,
+    repositoryUrl: item.repositoryUrl || item.url || raw.repositoryUrl || raw.url || (owner && repositoryName ? `https://github.com/${owner}/${repositoryName}` : 'https://github.com'),
+    description: item.description || item.repoDescription || raw.description || raw.repoDescription || '',
+    savedAt: item.savedAt || item.createdAt || raw.savedAt || raw.createdAt || null,
+    issueId: item.issueId || raw.issueId || null,
+    issueKey: item.issueKey || raw.issueKey || null,
   };
 }
 
@@ -62,7 +96,7 @@ export const savedRepositoryService = {
     if (USE_MOCK) {
       const local = loadLocalSavedRepositories();
       return {
-        repositories: local.map(adaptSavedRepository),
+        repositories: local.map(adaptSavedRepository).filter(Boolean),
         isMock: true,
       };
     }
@@ -120,7 +154,7 @@ export const savedRepositoryService = {
    * Calls POST /api/saved-repositories with:
    * { githubRepositoryId, repositoryName, owner, repositoryUrl, description }
    */
-  async saveRepository({ githubRepositoryId, repositoryName, owner, repositoryUrl, description }) {
+  async saveRepository({ githubRepositoryId, repositoryName, owner, repositoryUrl, description, issueId, issueKey }) {
     if (!authService.isAuthenticated()) {
       const authErr = new ApiError('Authentication required: please sign in with GitHub to save repositories.', 401);
       authErr.blockedByAuth = true;
@@ -139,6 +173,8 @@ export const savedRepositoryService = {
       owner: cleanOwner,
       repositoryUrl: cleanUrl,
       ...(cleanDesc ? { description: cleanDesc } : {}),
+      ...(issueId ? { issueId } : {}),
+      ...(issueKey ? { issueKey } : {}),
     };
 
     if (USE_MOCK) {
@@ -169,7 +205,20 @@ export const savedRepositoryService = {
         requiresAuth: true,
       });
 
-      const adapted = adaptSavedRepository(result || { ...payload, id: null });
+      const unwrapped = (typeof result?.data === 'object' && result.data !== null)
+        ? result.data
+        : (typeof result?.repository === 'object' && result.repository !== null)
+        ? result.repository
+        : (typeof result?.savedRepository === 'object' && result.savedRepository !== null)
+        ? result.savedRepository
+        : (result || {});
+
+      const adapted = adaptSavedRepository({
+        ...payload,
+        ...unwrapped,
+        issueId: issueId || unwrapped.issueId || payload.issueId,
+        issueKey: issueKey || unwrapped.issueKey || payload.issueKey,
+      });
 
       // Update local cache
       const local = loadLocalSavedRepositories();
